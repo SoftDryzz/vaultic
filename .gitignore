@@ -11,6 +11,9 @@
 .DS_Store
 Thumbs.db
 
+# Local config and notes
+/CLAUDE.md
+.claude/
 
 # Environment files (never commit secrets in plain text)
 .env
