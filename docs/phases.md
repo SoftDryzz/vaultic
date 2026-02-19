@@ -1,7 +1,7 @@
 # Vaultic — Development Phases
 
 Overview of each development phase, its scope, and current status.
-For the detailed architectural specification, see [CLAUDE.md](../CLAUDE.md).
+For the detailed architectural specification, see the project's internal documentation.
 
 ---
 
