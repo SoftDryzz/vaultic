@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/SoftDryzz/vaultic/workflows/CI/badge.svg)](https://github.com/SoftDryzz/vaultic/actions)
 [![crates.io](https://img.shields.io/crates/v/vaultic.svg)](https://crates.io/crates/vaultic)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
 
 **Secure your secrets. Sync your team. Trust your configs.**
 
@@ -73,4 +73,6 @@ See [SECURITY.md](SECURITY.md) for the full security policy.
 
 ## License
 
-MIT
+This project is licensed under the [GNU Affero General Public License v3.0](LICENSE).
+
+Commercial licensing is available for organizations that require alternative terms. Contact: legal@softdryzz.com
