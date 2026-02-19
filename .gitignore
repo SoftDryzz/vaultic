@@ -1,0 +1,23 @@
+# Rust build artifacts
+/target
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local tooling config
+.claude/
+
+# Environment files (never commit secrets in plain text)
+.env
+.env.local
+*.env.local
+
+# Test artifacts
+*.profraw
