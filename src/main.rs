@@ -1,8 +1,43 @@
+// TODO: remove once all modules are wired up
+#![allow(dead_code)]
+
 mod adapters;
 mod cli;
 mod config;
 mod core;
 
+use clap::Parser;
+
+use cli::{Cli, Commands};
+
 fn main() {
-    println!("Hello, world!");
+    let args = Cli::parse();
+
+    let result = match &args.command {
+        Commands::Init => cli::commands::init::execute(args.verbose),
+        Commands::Encrypt { file } => {
+            cli::commands::encrypt::execute(file.as_deref(), args.env.as_deref(), &args.cipher)
+        }
+        Commands::Decrypt { file } => {
+            cli::commands::decrypt::execute(file.as_deref(), args.env.as_deref(), &args.cipher)
+        }
+        Commands::Check => cli::commands::check::execute(),
+        Commands::Diff { file1, file2 } => {
+            cli::commands::diff::execute(file1.as_deref(), file2.as_deref(), args.env.as_deref())
+        }
+        Commands::Resolve => cli::commands::resolve::execute(args.env.as_deref()),
+        Commands::Keys { action } => cli::commands::keys::execute(action),
+        Commands::Log {
+            author,
+            since,
+            last,
+        } => cli::commands::log::execute(author.as_deref(), since.as_deref(), *last),
+        Commands::Status => cli::commands::status::execute(),
+        Commands::Hook { action } => cli::commands::hook::execute(action),
+    };
+
+    if let Err(e) = result {
+        cli::output::error(&format!("Error: {e}"));
+        std::process::exit(1);
+    }
 }
