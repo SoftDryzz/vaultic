@@ -43,11 +43,7 @@ impl<C: CipherBackend, K: KeyStore> EncryptionService<C, K> {
     /// Reads `source` (encrypted), decrypts with the local identity,
     /// and writes the plaintext to `dest`.
     pub fn decrypt_file(&self, source: &Path, dest: &Path) -> Result<()> {
-        let ciphertext = std::fs::read(source).map_err(|_| VaulticError::FileNotFound {
-            path: source.to_path_buf(),
-        })?;
-
-        let plaintext = self.cipher.decrypt(&ciphertext)?;
+        let plaintext = self.decrypt_to_bytes(source)?;
 
         if let Some(parent) = dest.parent() {
             std::fs::create_dir_all(parent)?;
@@ -55,5 +51,17 @@ impl<C: CipherBackend, K: KeyStore> EncryptionService<C, K> {
         std::fs::write(dest, plaintext)?;
 
         Ok(())
+    }
+
+    /// Decrypt a file in memory and return the plaintext bytes.
+    ///
+    /// Useful for operations that need decrypted content without
+    /// writing it to disk (e.g. environment resolution).
+    pub fn decrypt_to_bytes(&self, source: &Path) -> Result<Vec<u8>> {
+        let ciphertext = std::fs::read(source).map_err(|_| VaulticError::FileNotFound {
+            path: source.to_path_buf(),
+        })?;
+
+        self.cipher.decrypt(&ciphertext)
     }
 }

@@ -25,7 +25,7 @@ fn main() {
         Commands::Diff { file1, file2 } => {
             cli::commands::diff::execute(file1.as_deref(), file2.as_deref(), args.env.as_deref())
         }
-        Commands::Resolve => cli::commands::resolve::execute(args.env.as_deref()),
+        Commands::Resolve => cli::commands::resolve::execute(args.env.as_deref(), &args.cipher),
         Commands::Keys { action } => cli::commands::keys::execute(action),
         Commands::Log {
             author,

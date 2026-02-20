@@ -54,7 +54,7 @@ impl EnvResolver {
     /// For `dev` with `inherits = "base"`, returns `["base", "dev"]`.
     /// For `staging` with `inherits = "shared"` and `shared` with
     /// `inherits = "base"`, returns `["base", "shared", "staging"]`.
-    fn build_chain(&self, name: &str, config: &AppConfig) -> Result<Vec<String>> {
+    pub fn build_chain(&self, name: &str, config: &AppConfig) -> Result<Vec<String>> {
         let mut chain = Vec::new();
         let mut visited = HashSet::new();
         let mut current = name.to_string();
@@ -137,7 +137,8 @@ impl EnvResolver {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::app_config::{AuditSection, VaulticSection};
+    use crate::config::app_config::{AuditSection, EnvEntry, VaulticSection};
+    use crate::core::models::secret_file::SecretEntry;
 
     /// Helper: build a SecretFile from key-value pairs.
     fn make_file(pairs: &[(&str, &str)]) -> SecretFile {
