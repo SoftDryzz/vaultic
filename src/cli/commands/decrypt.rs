@@ -97,5 +97,12 @@ fn decrypt_with<C: CipherBackend>(
     output::success(&format!("Generated .env with {var_count} variables"));
     println!("\n  Run 'vaultic check' to verify no variables are missing.");
 
+    // Audit
+    super::audit_helpers::log_audit(
+        crate::core::models::audit_entry::AuditAction::Decrypt,
+        vec![format!("{env_name}.env.enc")],
+        Some(format!("{var_count} variables decrypted")),
+    );
+
     Ok(())
 }

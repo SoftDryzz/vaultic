@@ -53,5 +53,15 @@ pub fn execute(env: Option<&str>, cipher: &str) -> Result<()> {
     output::success("Written to .env");
     println!("\n  Run 'vaultic check' to verify against the template.");
 
+    // Audit
+    super::audit_helpers::log_audit(
+        crate::core::models::audit_entry::AuditAction::Resolve,
+        vec![format!("{env_name}")],
+        Some(format!(
+            "{var_count} variables from {} layer(s)",
+            environment.layers.len()
+        )),
+    );
+
     Ok(())
 }

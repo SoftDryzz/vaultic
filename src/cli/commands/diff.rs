@@ -64,11 +64,17 @@ fn execute_env_diff(left_env: &str, right_env: &str, cipher: &str) -> Result<()>
 
     if result.is_empty() {
         output::success("No differences found between environments");
-        return Ok(());
+    } else {
+        print_diff_table(&result);
+        print_diff_summary(&result);
     }
 
-    print_diff_table(&result);
-    print_diff_summary(&result);
+    // Audit
+    super::audit_helpers::log_audit(
+        crate::core::models::audit_entry::AuditAction::Diff,
+        vec![left_env.to_string(), right_env.to_string()],
+        Some(format!("{} difference(s)", result.entries.len())),
+    );
 
     Ok(())
 }
@@ -108,11 +114,17 @@ fn execute_file_diff(file1: Option<&str>, file2: Option<&str>) -> Result<()> {
 
     if result.is_empty() {
         output::success("No differences found");
-        return Ok(());
+    } else {
+        print_diff_table(&result);
+        print_diff_summary(&result);
     }
 
-    print_diff_table(&result);
-    print_diff_summary(&result);
+    // Audit
+    super::audit_helpers::log_audit(
+        crate::core::models::audit_entry::AuditAction::Diff,
+        vec![left_path.to_string(), right_path.to_string()],
+        Some(format!("{} difference(s)", result.entries.len())),
+    );
 
     Ok(())
 }

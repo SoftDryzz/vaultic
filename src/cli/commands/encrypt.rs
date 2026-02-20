@@ -77,5 +77,15 @@ fn encrypt_with<C: CipherBackend>(
     output::success(&format!("Saved to {}", dest.display()));
     println!("\n  Commit {} to the repo.", dest.display());
 
+    // Audit
+    super::audit_helpers::log_audit(
+        crate::core::models::audit_entry::AuditAction::Encrypt,
+        vec![format!("{env_name}.env.enc")],
+        Some(format!(
+            "encrypted with {cipher_name} for {} recipient(s)",
+            recipients.len()
+        )),
+    );
+
     Ok(())
 }

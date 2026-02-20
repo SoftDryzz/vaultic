@@ -107,6 +107,13 @@ fn execute_add(identity: &str) -> Result<()> {
     output::success(&format!("Added recipient: {identity}"));
     println!("\n  Re-encrypt with 'vaultic encrypt' so this recipient can decrypt.");
 
+    // Audit
+    super::audit_helpers::log_audit(
+        crate::core::models::audit_entry::AuditAction::KeyAdd,
+        vec![],
+        Some(format!("added {identity}")),
+    );
+
     Ok(())
 }
 
@@ -155,6 +162,13 @@ fn execute_remove(identity: &str) -> Result<()> {
     service.remove_key(identity)?;
     output::success(&format!("Removed recipient: {identity}"));
     println!("\n  Re-encrypt with 'vaultic encrypt --all' to revoke this recipient's access.");
+
+    // Audit
+    super::audit_helpers::log_audit(
+        crate::core::models::audit_entry::AuditAction::KeyRemove,
+        vec![],
+        Some(format!("removed {identity}")),
+    );
 
     Ok(())
 }

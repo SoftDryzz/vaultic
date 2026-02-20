@@ -96,6 +96,9 @@ log_file = "audit.log"
     output::success("Project ready.\n");
     print_next_steps(verbose);
 
+    // Audit: record the init operation
+    super::audit_helpers::log_audit_init();
+
     Ok(())
 }
 

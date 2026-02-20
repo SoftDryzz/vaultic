@@ -77,5 +77,20 @@ pub fn execute() -> Result<()> {
         output::success(&format!("{present}/{total_template} variables present"));
     }
 
+    // Audit
+    let detail = if result.is_ok() {
+        format!("{present}/{total_template} present")
+    } else {
+        format!(
+            "{present}/{total_template} present, {} missing",
+            result.missing.len()
+        )
+    };
+    super::audit_helpers::log_audit(
+        crate::core::models::audit_entry::AuditAction::Check,
+        vec![".env".to_string()],
+        Some(detail),
+    );
+
     Ok(())
 }
