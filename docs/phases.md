@@ -44,15 +44,18 @@ Adds variable detection and file comparison capabilities.
 
 ---
 
-## Phase 4 — Multi-environment and Inheritance 🔲
+## Phase 4 — Multi-environment and Inheritance ✅
 
 Enables layered environment management with smart resolution.
 
-- **Environment resolver** (`EnvResolver`): merge `base.env` + `{env}.env` with override semantics
-- **Config-driven environments**: read environment definitions and inheritance chains from `config.toml`
-- **`vaultic resolve --env <env>`**: generate the final merged file for a given environment
-- **Cross-environment diff**: `vaultic diff --env dev --env prod` compares resolved outputs
-- **Circular inheritance detection**: error with clear diagnostic when cycles are found
+- **Environment resolver** (`EnvResolver`): multi-level merge (base → shared → dev) with overlay-wins semantics and 13 unit tests
+- **Config-driven environments**: `AppConfig::load()` reads environment definitions and inheritance chains from `config.toml`
+- **`vaultic resolve --env <env>`**: decrypt layers in memory, merge from root to leaf, write resolved `.env`
+- **Cross-environment diff**: `vaultic diff --env dev --env prod` decrypts and resolves both environments before comparing
+- **Circular inheritance detection**: error with clear diagnostic when cycles are found (e.g. `dev → staging → dev`)
+- **In-memory decryption**: `decrypt_to_bytes` avoids temporary files during resolution
+- **Repeatable `--env` flag**: `Vec<String>` allows `--env dev --env prod` syntax
+- **25 tests**: 13 unit (resolver merge, chain, cycles) + 6 integration (resolve, env-diff) + 6 existing truncate tests
 
 ---
 

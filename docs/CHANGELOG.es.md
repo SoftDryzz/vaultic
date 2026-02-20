@@ -11,9 +11,21 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Planificado
 
-- Resolución multi-entorno con herencia (Fase 4)
 - Audit log con JSON lines (Fase 5)
 - Git pre-commit hook (Fase 5)
+
+## [0.4.0-alpha] - 2026-02-20
+
+### Añadido
+
+- `EnvResolver`: herencia multi-nivel de entornos con lógica de merge (overlay gana sobre base) y detección de dependencias circulares
+- `AppConfig::load()`: lectura y parseo de `.vaultic/config.toml` con definiciones de entornos
+- `vaultic resolve --env <env>`: resuelve la cadena completa de herencia, descifra capas en memoria y escribe `.env` mergeado
+- `vaultic diff --env dev --env prod`: compara dos entornos resueltos lado a lado
+- `decrypt_to_bytes` en `EncryptionService`: descifrado en memoria sin escritura a disco
+- Flag `--env` repetible: soporta múltiples valores para comparación de entornos
+- 13 tests unitarios nuevos (merge del resolver, construcción de cadena, detección de ciclos)
+- 6 tests de integración (comando resolve, diff entre entornos)
 
 ## [0.3.0-alpha] - 2026-02-20
 

@@ -11,9 +11,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Planned
 
-- Multi-environment resolution with inheritance (Phase 4)
 - Audit log with JSON lines (Phase 5)
 - Git pre-commit hook (Phase 5)
+
+## [0.4.0-alpha] - 2026-02-20
+
+### Added
+
+- `EnvResolver`: multi-level environment inheritance with merge logic (overlay wins over base) and circular dependency detection
+- `AppConfig::load()`: read and parse `.vaultic/config.toml` with environment definitions
+- `vaultic resolve --env <env>`: resolve full inheritance chain, decrypt layers in memory, and write merged `.env`
+- `vaultic diff --env dev --env prod`: compare two resolved environments side by side
+- `decrypt_to_bytes` on `EncryptionService`: in-memory decryption without disk writes
+- Repeatable `--env` flag: supports multiple values for environment comparison
+- 13 new unit tests (env resolver merge, chain building, cycle detection)
+- 6 integration tests (resolve command, environment diff)
 
 ## [0.3.0-alpha] - 2026-02-20
 

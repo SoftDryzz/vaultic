@@ -44,15 +44,18 @@ Añade capacidades de detección de variables y comparación de archivos.
 
 ---
 
-## Fase 4 — Multi-entorno y Herencia 🔲
+## Fase 4 — Multi-entorno y Herencia ✅
 
 Habilita gestión de entornos por capas con resolución inteligente.
 
-- **Resolver de entornos** (`EnvResolver`): merge de `base.env` + `{env}.env` con semántica de sobreescritura
-- **Entornos por configuración**: lectura de definiciones de entornos y cadenas de herencia desde `config.toml`
-- **`vaultic resolve --env <env>`**: genera el archivo final mergeado para un entorno dado
-- **Diff entre entornos**: `vaultic diff --env dev --env prod` compara las salidas resueltas
-- **Detección de herencia circular**: error con diagnóstico claro cuando se encuentran ciclos
+- **Resolver de entornos** (`EnvResolver`): merge multi-nivel (base → shared → dev) con semántica overlay-wins y 13 tests unitarios
+- **Entornos por configuración**: `AppConfig::load()` lee definiciones de entornos y cadenas de herencia desde `config.toml`
+- **`vaultic resolve --env <env>`**: descifra capas en memoria, mergea de raíz a hoja, escribe `.env` resuelto
+- **Diff entre entornos**: `vaultic diff --env dev --env prod` descifra y resuelve ambos entornos antes de comparar
+- **Detección de herencia circular**: error con diagnóstico claro cuando se encuentran ciclos (ej. `dev → staging → dev`)
+- **Descifrado en memoria**: `decrypt_to_bytes` evita archivos temporales durante la resolución
+- **Flag `--env` repetible**: `Vec<String>` permite sintaxis `--env dev --env prod`
+- **25 tests**: 13 unitarios (merge del resolver, cadena, ciclos) + 6 de integración (resolve, env-diff) + 6 tests de truncate existentes
 
 ---
 

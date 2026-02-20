@@ -58,11 +58,12 @@ vaultic decrypt --env dev
 | `vaultic decrypt [file]` | Decrypt secret files | ✅ |
 | `vaultic check` | Verify missing variables against template | ✅ |
 | `vaultic diff <file1> <file2>` | Compare two secret files side by side | ✅ |
+| `vaultic diff --env dev --env prod` | Compare two resolved environments | ✅ |
 | `vaultic keys setup` | Generate or import a key | ✅ |
 | `vaultic keys add <key>` | Add a recipient | ✅ |
 | `vaultic keys list` | List authorized recipients | ✅ |
 | `vaultic keys remove <key>` | Remove a recipient | ✅ |
-| `vaultic resolve --env <env>` | Generate resolved file with inheritance | Planned |
+| `vaultic resolve --env <env>` | Generate resolved file with inheritance | ✅ |
 | `vaultic log` | Show operation history | Planned |
 | `vaultic status` | Show full project status | Planned |
 | `vaultic hook install` | Install git pre-commit hook | Planned |
@@ -74,7 +75,7 @@ vaultic decrypt --env dev
 | Phase 1 | Foundation — architecture, CLI, CI/CD | ✅ |
 | Phase 2 | Encryption — age + GPG backends, key management | ✅ |
 | Phase 3 | Diff & Check — dotenv parser, variable comparison | ✅ |
-| Phase 4 | Multi-environment — inheritance, resolution | Planned |
+| Phase 4 | Multi-environment — inheritance, resolution | ✅ |
 | Phase 5 | Audit & Polish — logging, status, hooks | Planned |
 
 See [Development Phases](docs/phases.md) for detailed information.

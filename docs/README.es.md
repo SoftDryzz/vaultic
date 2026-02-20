@@ -58,11 +58,12 @@ vaultic decrypt --env dev
 | `vaultic decrypt [archivo]` | Descifra archivos de secretos | ✅ |
 | `vaultic check` | Verifica variables faltantes contra el template | ✅ |
 | `vaultic diff <archivo1> <archivo2>` | Compara dos archivos de secretos lado a lado | ✅ |
+| `vaultic diff --env dev --env prod` | Compara dos entornos resueltos | ✅ |
 | `vaultic keys setup` | Genera o importa una clave | ✅ |
 | `vaultic keys add <clave>` | Añade un recipient | ✅ |
 | `vaultic keys list` | Lista recipients autorizados | ✅ |
 | `vaultic keys remove <clave>` | Elimina un recipient | ✅ |
-| `vaultic resolve --env <env>` | Genera archivo resuelto con herencia | Planificado |
+| `vaultic resolve --env <env>` | Genera archivo resuelto con herencia | ✅ |
 | `vaultic log` | Muestra historial de operaciones | Planificado |
 | `vaultic status` | Muestra estado completo del proyecto | Planificado |
 | `vaultic hook install` | Instala git pre-commit hook | Planificado |
@@ -74,7 +75,7 @@ vaultic decrypt --env dev
 | Fase 1 | Fundación — arquitectura, CLI, CI/CD | ✅ |
 | Fase 2 | Cifrado — backends age + GPG, gestión de claves | ✅ |
 | Fase 3 | Diff y Check — parser dotenv, comparación de variables | ✅ |
-| Fase 4 | Multi-entorno — herencia, resolución | Planificado |
+| Fase 4 | Multi-entorno — herencia, resolución | ✅ |
 | Fase 5 | Auditoría y Pulido — logging, estado, hooks | Planificado |
 
 Consulta [Fases de desarrollo](phases.es.md) para más detalle.
