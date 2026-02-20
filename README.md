@@ -4,6 +4,8 @@
 [![crates.io](https://img.shields.io/crates/v/vaultic.svg)](https://crates.io/crates/vaultic)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
 
+> English | **[Español](docs/README.es.md)**
+
 **Secure your secrets. Sync your team. Trust your configs.**
 
 Vaultic is a CLI tool for managing secrets and configuration files securely across development teams. It encrypts your sensitive files, syncs them via Git, detects missing variables, and audits every change.

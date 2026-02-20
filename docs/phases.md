@@ -3,6 +3,8 @@
 Overview of each development phase, its scope, and current status.
 For the detailed architectural specification, see the project's internal documentation.
 
+> English | **[Español](phases.es.md)**
+
 ---
 
 ## Phase 1 — Foundation ✅
@@ -13,7 +15,7 @@ Establishes the project skeleton and architectural boundaries.
 - **Domain layer** defined: models, traits (ports), service signatures, and typed error handling
 - **CLI parsing** with clap: all 10 commands registered with global flags (`--cipher`, `--env`, `--verbose`)
 - **CI/CD pipelines** configured: format + lint + test on three platforms; release workflow for binaries and crates.io
-- **Project metadata**: README with badges, MIT license, `.gitignore`
+- **Project metadata**: README with badges, AGPL-3.0 license, `.gitignore`
 
 ---
 
