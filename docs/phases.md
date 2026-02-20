@@ -19,15 +19,16 @@ Establishes the project skeleton and architectural boundaries.
 
 ---
 
-## Phase 2 — Encryption 🔲
+## Phase 2 — Encryption ✅
 
 Implements the core encryption engine with dual backend support.
 
-- **Age backend** (`AgeBackend`): encrypt/decrypt using X25519 + ChaCha20-Poly1305
-- **GPG backend** (`GpgBackend`): encrypt/decrypt using system GPG keyring
-- **Strategy pattern** operational: select backend via `--cipher age|gpg` flag
-- **Key management**: `vaultic keys add`, `keys list`, `keys remove` — manage authorized recipients
-- **`vaultic init`** creates `.vaultic/` directory structure with `config.toml` and `recipients.txt`
+- **Age backend** (`AgeBackend`): encrypt/decrypt using X25519 + ChaCha20-Poly1305 with ASCII-armored output
+- **GPG backend** (`GpgBackend`): shell-based integration with system GPG, no C dependencies
+- **Strategy pattern** operational: select backend via `--cipher age|gpg` flag, same service orchestrates both
+- **Key management**: `vaultic keys setup/add/list/remove` — interactive onboarding + recipient management
+- **`vaultic init`** creates `.vaultic/` directory structure with interactive key detection and generation
+- **27 tests**: 15 unit (backends + key store) + 12 integration (full CLI workflows)
 
 ---
 

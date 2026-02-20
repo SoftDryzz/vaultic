@@ -11,15 +11,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Planned
 
-- Age encryption backend (Phase 2)
-- GPG encryption backend (Phase 2)
-- Encrypt/decrypt commands operational (Phase 2)
-- Key management: add, list, remove recipients (Phase 2)
 - Dotenv parser with variable detection (Phase 3)
 - Diff and check commands (Phase 3)
 - Multi-environment resolution with inheritance (Phase 4)
 - Audit log with JSON lines (Phase 5)
 - Git pre-commit hook (Phase 5)
+
+## [0.2.0-alpha] - 2026-02-20
+
+### Added
+
+- Age encryption backend (`AgeBackend`): X25519 + ChaCha20-Poly1305 with ASCII-armored output
+- GPG encryption backend (`GpgBackend`): shell-based integration with system GPG
+- File-based key store (`FileKeyStore`): manage recipients via `.vaultic/recipients.txt`
+- `EncryptionService`: orchestrates cipher backend + key store for file encryption/decryption
+- `KeyService`: manages recipient keys through the key store
+- `vaultic init`: interactive project setup with key detection and generation
+- `vaultic encrypt`: encrypt files for all authorized recipients
+- `vaultic decrypt`: decrypt files using the local private key
+- `vaultic keys setup`: interactive key generation for new users
+- `vaultic keys add/list/remove`: manage authorized recipients
+- 15 unit tests (age backend, gpg backend, file key store)
+- 12 integration tests (init, encrypt, decrypt, keys, error paths)
 
 ## [0.1.0-alpha] - 2026-02-19
 

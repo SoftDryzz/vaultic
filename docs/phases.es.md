@@ -19,15 +19,16 @@ Establece el esqueleto del proyecto y los límites arquitectónicos.
 
 ---
 
-## Fase 2 — Cifrado 🔲
+## Fase 2 — Cifrado ✅
 
 Implementa el motor de cifrado principal con soporte dual de backends.
 
-- **Backend age** (`AgeBackend`): cifrado/descifrado usando X25519 + ChaCha20-Poly1305
-- **Backend GPG** (`GpgBackend`): cifrado/descifrado usando el keyring GPG del sistema
-- **Strategy pattern** operativo: selección de backend vía flag `--cipher age|gpg`
-- **Gestión de claves**: `vaultic keys add`, `keys list`, `keys remove` — gestión de recipients autorizados
-- **`vaultic init`** crea la estructura del directorio `.vaultic/` con `config.toml` y `recipients.txt`
+- **Backend age** (`AgeBackend`): cifrado/descifrado usando X25519 + ChaCha20-Poly1305 con salida ASCII-armored
+- **Backend GPG** (`GpgBackend`): integración shell con GPG del sistema, sin dependencias C
+- **Strategy pattern** operativo: selección de backend vía flag `--cipher age|gpg`, el mismo servicio orquesta ambos
+- **Gestión de claves**: `vaultic keys setup/add/list/remove` — onboarding interactivo + gestión de recipients
+- **`vaultic init`** crea la estructura del directorio `.vaultic/` con detección y generación interactiva de claves
+- **27 tests**: 15 unitarios (backends + key store) + 12 de integración (flujos CLI completos)
 
 ---
 

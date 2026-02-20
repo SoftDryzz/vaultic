@@ -9,17 +9,17 @@ pub struct KeyService<K: KeyStore> {
 
 impl<K: KeyStore> KeyService<K> {
     /// Add a new recipient.
-    pub fn add_key(&self, _identity: &KeyIdentity) -> Result<()> {
-        todo!()
+    pub fn add_key(&self, identity: &KeyIdentity) -> Result<()> {
+        self.store.add(identity)
     }
 
     /// List all authorized recipients.
     pub fn list_keys(&self) -> Result<Vec<KeyIdentity>> {
-        todo!()
+        self.store.list()
     }
 
     /// Remove a recipient by public key.
-    pub fn remove_key(&self, _public_key: &str) -> Result<()> {
-        todo!()
+    pub fn remove_key(&self, public_key: &str) -> Result<()> {
+        self.store.remove(public_key)
     }
 }
