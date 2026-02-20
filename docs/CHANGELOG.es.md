@@ -11,11 +11,22 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Planificado
 
-- Parser dotenv con detección de variables (Fase 3)
-- Comandos diff y check (Fase 3)
 - Resolución multi-entorno con herencia (Fase 4)
 - Audit log con JSON lines (Fase 5)
 - Git pre-commit hook (Fase 5)
+
+## [0.3.0-alpha] - 2026-02-20
+
+### Añadido
+
+- Parser dotenv (`DotenvParser`): parseo y serialización de archivos `.env` preservando comentarios, líneas vacías y orden
+- Enum `Line` en el modelo (`Entry`/`Comment`/`Blank`) para round-trips sin pérdida de formato
+- `DiffService`: comparación de dos archivos de secretos detectando variables añadidas, eliminadas y modificadas
+- `CheckService`: validación de `.env` local contra `.env.template` reportando variables faltantes, extra y con valores vacíos
+- `vaultic check`: comando CLI con output con colores para validación de template
+- `vaultic diff <archivo1> <archivo2>`: comando CLI con tabla formateada mostrando diferencias de variables
+- 27 tests unitarios (dotenv parser, diff service, check service)
+- 11 tests de integración (comandos check y diff con rutas de error)
 
 ## [0.2.0-alpha] - 2026-02-20
 

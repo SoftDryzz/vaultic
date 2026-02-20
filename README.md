@@ -51,21 +51,33 @@ vaultic decrypt --env dev
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `vaultic init` | Initialize Vaultic in the current project |
-| `vaultic encrypt [file]` | Encrypt secret files |
-| `vaultic decrypt [file]` | Decrypt secret files |
-| `vaultic check` | Verify missing variables against template |
-| `vaultic diff` | Compare secret files or environments |
-| `vaultic resolve --env <env>` | Generate resolved file with inheritance |
-| `vaultic keys setup` | Generate or import a key |
-| `vaultic keys add <key>` | Add a recipient |
-| `vaultic keys list` | List authorized recipients |
-| `vaultic keys remove <key>` | Remove a recipient |
-| `vaultic log` | Show operation history |
-| `vaultic status` | Show full project status |
-| `vaultic hook install` | Install git pre-commit hook |
+| Command | Description | Status |
+|---------|-------------|--------|
+| `vaultic init` | Initialize Vaultic in the current project | ✅ |
+| `vaultic encrypt [file]` | Encrypt secret files | ✅ |
+| `vaultic decrypt [file]` | Decrypt secret files | ✅ |
+| `vaultic check` | Verify missing variables against template | ✅ |
+| `vaultic diff <file1> <file2>` | Compare two secret files side by side | ✅ |
+| `vaultic keys setup` | Generate or import a key | ✅ |
+| `vaultic keys add <key>` | Add a recipient | ✅ |
+| `vaultic keys list` | List authorized recipients | ✅ |
+| `vaultic keys remove <key>` | Remove a recipient | ✅ |
+| `vaultic resolve --env <env>` | Generate resolved file with inheritance | Planned |
+| `vaultic log` | Show operation history | Planned |
+| `vaultic status` | Show full project status | Planned |
+| `vaultic hook install` | Install git pre-commit hook | Planned |
+
+## Development Status
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| Phase 1 | Foundation — architecture, CLI, CI/CD | ✅ |
+| Phase 2 | Encryption — age + GPG backends, key management | ✅ |
+| Phase 3 | Diff & Check — dotenv parser, variable comparison | ✅ |
+| Phase 4 | Multi-environment — inheritance, resolution | Planned |
+| Phase 5 | Audit & Polish — logging, status, hooks | Planned |
+
+See [Development Phases](docs/phases.md) for detailed information.
 
 ## Security
 

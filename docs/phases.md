@@ -32,15 +32,15 @@ Implements the core encryption engine with dual backend support.
 
 ---
 
-## Phase 3 — Diff and Check 🔲
+## Phase 3 — Diff and Check ✅
 
 Adds variable detection and file comparison capabilities.
 
-- **Dotenv parser** (`DotenvParser`): parse and serialize `.env` files preserving comments and order
-- **Check command**: compare local `.env` against `.env.template` — report missing, extra, and empty variables
-- **Diff command**: compare two secret files showing added, removed, and modified keys
+- **Dotenv parser** (`DotenvParser`): parse and serialize `.env` files preserving comments, blank lines, and order with `Line` enum (`Entry`/`Comment`/`Blank`)
+- **Check command**: compare local `.env` against `.env.template` — report missing, extra, and empty variables with summary counts
+- **Diff command**: compare two secret files showing added, removed, and modified keys in a formatted table
 - **Colored output**: formatted tables and status indicators for diff/check results
-- **Integration tests** for all comparison scenarios
+- **38 tests**: 27 unit (dotenv parser + diff service + check service) + 11 integration (check and diff CLI commands)
 
 ---
 

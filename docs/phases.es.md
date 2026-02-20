@@ -32,15 +32,15 @@ Implementa el motor de cifrado principal con soporte dual de backends.
 
 ---
 
-## Fase 3 — Diff y Check 🔲
+## Fase 3 — Diff y Check ✅
 
 Añade capacidades de detección de variables y comparación de archivos.
 
-- **Parser dotenv** (`DotenvParser`): parseo y serialización de archivos `.env` preservando comentarios y orden
-- **Comando check**: compara `.env` local contra `.env.template` — reporta variables faltantes, extra y vacías
-- **Comando diff**: compara dos archivos de secretos mostrando claves añadidas, eliminadas y modificadas
+- **Parser dotenv** (`DotenvParser`): parseo y serialización de archivos `.env` preservando comentarios, líneas vacías y orden con enum `Line` (`Entry`/`Comment`/`Blank`)
+- **Comando check**: compara `.env` local contra `.env.template` — reporta variables faltantes, extra y con valores vacíos con conteos resumidos
+- **Comando diff**: compara dos archivos de secretos mostrando claves añadidas, eliminadas y modificadas en tabla formateada
 - **Output con colores**: tablas formateadas e indicadores de estado para resultados de diff/check
-- **Tests de integración** para todos los escenarios de comparación
+- **38 tests**: 27 unitarios (dotenv parser + diff service + check service) + 11 de integración (comandos check y diff)
 
 ---
 

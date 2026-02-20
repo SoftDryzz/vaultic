@@ -11,11 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Planned
 
-- Dotenv parser with variable detection (Phase 3)
-- Diff and check commands (Phase 3)
 - Multi-environment resolution with inheritance (Phase 4)
 - Audit log with JSON lines (Phase 5)
 - Git pre-commit hook (Phase 5)
+
+## [0.3.0-alpha] - 2026-02-20
+
+### Added
+
+- Dotenv parser (`DotenvParser`): parse and serialize `.env` files preserving comments, blank lines, and ordering
+- `Line` enum model (`Entry`/`Comment`/`Blank`) for lossless file round-trips
+- `DiffService`: compare two secret files detecting added, removed, and modified variables
+- `CheckService`: validate local `.env` against `.env.template` reporting missing, extra, and empty-value variables
+- `vaultic check`: CLI command with colored output for template validation
+- `vaultic diff <file1> <file2>`: CLI command with formatted table showing variable differences
+- 27 unit tests (dotenv parser, diff service, check service)
+- 11 integration tests (check and diff CLI commands with error paths)
 
 ## [0.2.0-alpha] - 2026-02-20
 
