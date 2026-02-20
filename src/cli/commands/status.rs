@@ -80,7 +80,10 @@ fn print_environments(config: &AppConfig, vaultic_dir: &Path) {
 
         if enc_path.exists() {
             let meta = std::fs::metadata(&enc_path).ok();
-            let size = meta.as_ref().map(|m| format_bytes(m.len())).unwrap_or_default();
+            let size = meta
+                .as_ref()
+                .map(|m| format_bytes(m.len()))
+                .unwrap_or_default();
             println!(
                 "  {} {:<12} {} {}",
                 "✓".green(),

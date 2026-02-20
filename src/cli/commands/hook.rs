@@ -1,8 +1,8 @@
 use std::path::Path;
 
 use crate::adapters::git::git_hook;
-use crate::cli::output;
 use crate::cli::HookAction;
+use crate::cli::output;
 use crate::core::errors::{Result, VaulticError};
 use crate::core::models::audit_entry::AuditAction;
 

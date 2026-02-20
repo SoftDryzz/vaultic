@@ -42,7 +42,14 @@ pub fn execute(author: Option<&str>, since: Option<&str>, last: Option<usize>) -
 
     // Apply --last N (take from the end)
     let display: Vec<&AuditEntry> = match last {
-        Some(n) => entries.iter().rev().take(n).collect::<Vec<_>>().into_iter().rev().collect(),
+        Some(n) => entries
+            .iter()
+            .rev()
+            .take(n)
+            .collect::<Vec<_>>()
+            .into_iter()
+            .rev()
+            .collect(),
         None => entries.iter().collect(),
     };
 
@@ -64,12 +71,7 @@ fn parse_since(s: &str) -> Result<chrono::DateTime<Utc>> {
                 "Invalid date format: '{s}'. Expected ISO 8601 (YYYY-MM-DD), e.g. 2026-01-15"
             ),
         })
-        .map(|d| {
-            Utc.from_utc_datetime(
-                &d.and_hms_opt(0, 0, 0)
-                    .expect("midnight is always valid"),
-            )
-        })
+        .map(|d| Utc.from_utc_datetime(&d.and_hms_opt(0, 0, 0).expect("midnight is always valid")))
 }
 
 /// Print a single audit entry as a formatted row.
@@ -81,12 +83,7 @@ fn print_entry(entry: &AuditEntry) {
     } else {
         entry.files.join(", ")
     };
-    let detail = entry
-        .detail
-        .as_deref()
-        .unwrap_or("")
-        .dimmed()
-        .to_string();
+    let detail = entry.detail.as_deref().unwrap_or("").dimmed().to_string();
 
     println!(
         "  {} {} {:<10} {} {}",

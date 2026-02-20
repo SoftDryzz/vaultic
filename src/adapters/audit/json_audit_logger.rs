@@ -39,9 +39,7 @@ impl JsonAuditLogger {
 
     /// Check whether auditing is enabled in the configuration.
     /// Returns `true` when the section is absent (enabled by default).
-    pub fn is_enabled(
-        audit_section: Option<&crate::config::app_config::AuditSection>,
-    ) -> bool {
+    pub fn is_enabled(audit_section: Option<&crate::config::app_config::AuditSection>) -> bool {
         audit_section.map(|a| a.enabled).unwrap_or(true)
     }
 }
@@ -74,11 +72,7 @@ impl AuditLogger for JsonAuditLogger {
         Ok(())
     }
 
-    fn query(
-        &self,
-        author: Option<&str>,
-        since: Option<DateTime<Utc>>,
-    ) -> Result<Vec<AuditEntry>> {
+    fn query(&self, author: Option<&str>, since: Option<DateTime<Utc>>) -> Result<Vec<AuditEntry>> {
         if !self.log_path.exists() {
             return Ok(Vec::new());
         }
