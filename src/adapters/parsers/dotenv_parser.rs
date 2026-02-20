@@ -58,11 +58,13 @@ impl DotenvParser {
 
 /// Remove matching surrounding quotes (single or double) from a value.
 fn strip_quotes(s: &str) -> String {
-    if s.len() >= 2
-        && ((s.starts_with('"') && s.ends_with('"'))
-            || (s.starts_with('\'') && s.ends_with('\'')))
-    {
-        return s[1..s.len() - 1].to_string();
+    let bytes = s.as_bytes();
+    if bytes.len() >= 2 {
+        let first = bytes[0];
+        let last = bytes[bytes.len() - 1];
+        if (first == b'"' && last == b'"') || (first == b'\'' && last == b'\'') {
+            return s[1..s.len() - 1].to_string();
+        }
     }
     s.to_string()
 }
