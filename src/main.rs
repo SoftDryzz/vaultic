@@ -1,6 +1,3 @@
-// Phase 5 traits and models are defined but not yet wired up
-#![allow(dead_code)]
-
 mod adapters;
 mod cli;
 mod config;

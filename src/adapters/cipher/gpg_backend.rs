@@ -23,6 +23,7 @@ impl GpgBackend {
     }
 
     /// Create a new backend with a custom gpg binary path.
+    #[allow(dead_code)]
     pub fn with_path(gpg_path: PathBuf) -> Self {
         Self { gpg_path }
     }

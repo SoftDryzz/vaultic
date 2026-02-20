@@ -59,15 +59,18 @@ Enables layered environment management with smart resolution.
 
 ---
 
-## Phase 5 — Audit and Polish 🔲
+## Phase 5 — Audit and Polish ✅
 
 Completes the feature set with audit logging, status reporting, and UX polish.
 
-- **Audit logger** (`JsonAuditLogger`): record every operation as JSON lines in `.vaultic/audit.log`
-- **`vaultic log`** with filters: `--author`, `--since`, `--last N`
-- **`vaultic status`**: full project overview — keys, environments, sync state, variable counts
-- **Git pre-commit hook**: `vaultic hook install` — blocks plaintext secrets from being committed
+- **Audit logger** (`JsonAuditLogger`): append-only JSON lines in `.vaultic/audit.log` with filtered queries by author and date
+- **Audit wiring**: all commands record audit entries via shared `audit_helpers` module with non-blocking logging and git identity resolution
+- **`vaultic log`** with filters: `--author` (case-insensitive name/email), `--since` (ISO 8601), `--last N`
+- **`vaultic status`**: full project dashboard — config, recipients, encrypted environments with file sizes, local state (.env, template, gitignore), audit entry count
+- **Git pre-commit hook**: `vaultic hook install/uninstall` — blocks plaintext `.env` files from being committed, safe install with foreign hook detection
 - **Descriptive error messages**: every error includes cause, context, and suggested next step
+- **30 new tests**: 16 unit (9 audit logger + 7 git hook) + 14 integration (audit, log, status, hook)
+- Removed global `#![allow(dead_code)]` — targeted annotations on reserved API surface
 
 ---
 

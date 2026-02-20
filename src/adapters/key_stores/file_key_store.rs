@@ -27,6 +27,7 @@ impl FileKeyStore {
     }
 
     /// Return the file path this store reads from.
+    #[allow(dead_code)]
     pub fn path(&self) -> &Path {
         &self.path
     }

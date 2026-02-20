@@ -64,9 +64,9 @@ vaultic decrypt --env dev
 | `vaultic keys list` | List authorized recipients | ✅ |
 | `vaultic keys remove <key>` | Remove a recipient | ✅ |
 | `vaultic resolve --env <env>` | Generate resolved file with inheritance | ✅ |
-| `vaultic log` | Show operation history | Planned |
-| `vaultic status` | Show full project status | Planned |
-| `vaultic hook install` | Install git pre-commit hook | Planned |
+| `vaultic log` | Show operation history | ✅ |
+| `vaultic status` | Show full project status | ✅ |
+| `vaultic hook install` | Install git pre-commit hook | ✅ |
 
 ## Development Status
 
@@ -76,7 +76,7 @@ vaultic decrypt --env dev
 | Phase 2 | Encryption — age + GPG backends, key management | ✅ |
 | Phase 3 | Diff & Check — dotenv parser, variable comparison | ✅ |
 | Phase 4 | Multi-environment — inheritance, resolution | ✅ |
-| Phase 5 | Audit & Polish — logging, status, hooks | Planned |
+| Phase 5 | Audit & Polish — logging, status, hooks | ✅ |
 
 See [Development Phases](docs/phases.md) for detailed information.
 

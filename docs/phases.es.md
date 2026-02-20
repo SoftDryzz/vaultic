@@ -59,15 +59,18 @@ Habilita gestión de entornos por capas con resolución inteligente.
 
 ---
 
-## Fase 5 — Auditoría y Pulido 🔲
+## Fase 5 — Auditoría y Pulido ✅
 
 Completa el conjunto de funcionalidades con audit log, reporte de estado y pulido de UX.
 
-- **Audit logger** (`JsonAuditLogger`): registra cada operación como JSON lines en `.vaultic/audit.log`
-- **`vaultic log`** con filtros: `--author`, `--since`, `--last N`
-- **`vaultic status`**: vista general completa del proyecto — claves, entornos, estado de sincronización, conteo de variables
-- **Git pre-commit hook**: `vaultic hook install` — bloquea secretos en texto plano antes de commitear
+- **Audit logger** (`JsonAuditLogger`): JSON lines append-only en `.vaultic/audit.log` con consultas filtradas por autor y fecha
+- **Cableado del audit**: todos los comandos registran entradas de auditoría vía módulo compartido `audit_helpers` con logging no bloqueante y resolución de identidad git
+- **`vaultic log`** con filtros: `--author` (nombre/email, case-insensitive), `--since` (ISO 8601), `--last N`
+- **`vaultic status`**: dashboard completo del proyecto — config, recipients, entornos cifrados con tamaño, estado local (.env, template, gitignore), conteo de entradas audit
+- **Git pre-commit hook**: `vaultic hook install/uninstall` — bloquea archivos `.env` en texto plano antes de commitear, instalación segura con detección de hooks ajenos
 - **Mensajes de error descriptivos**: cada error incluye causa, contexto y siguiente paso sugerido
+- **30 nuevos tests**: 16 unitarios (9 audit logger + 7 git hook) + 14 integración (audit, log, status, hook)
+- Eliminado `#![allow(dead_code)]` global — anotaciones específicas en superficie API reservada
 
 ---
 

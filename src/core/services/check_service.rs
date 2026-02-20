@@ -21,6 +21,7 @@ impl CheckResult {
     }
 
     /// Total number of issues found.
+    #[allow(dead_code)]
     pub fn issue_count(&self) -> usize {
         self.missing.len() + self.extra.len() + self.empty_values.len()
     }

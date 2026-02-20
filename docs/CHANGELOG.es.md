@@ -9,10 +9,23 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
-### Planificado
+## [0.5.0-alpha] - 2026-02-21
 
-- Audit log con JSON lines (Fase 5)
-- Git pre-commit hook (Fase 5)
+### Añadido
+
+- `JsonAuditLogger`: logger append-only en formato JSON lines con consultas filtradas por autor y fecha
+- Cableado del audit: todos los comandos (init, encrypt, decrypt, keys, resolve, check, diff) registran entradas de auditoría
+- Módulo `audit_helpers`: resolución de identidad git compartida y logging de auditoría no bloqueante
+- `vaultic log`: muestra historial de auditoría con filtros `--author`, `--since` y `--last N`
+- `vaultic status`: dashboard completo del proyecto mostrando config, recipients, entornos cifrados, estado local y estado del audit
+- `vaultic hook install/uninstall`: hook pre-commit de git que bloquea archivos `.env` en texto plano
+- Adapter `git_hook`: instalación/desinstalación segura con detección de hooks ajenos mediante comentarios marcadores
+- Eliminado `#![allow(dead_code)]` global — todos los items sin uso tienen anotaciones específicas
+- SECURITY.md: modelo de cifrado, respuesta ante incidentes, reporte de vulnerabilidades (inglés + español)
+- CONTRIBUTING.md: acuerdo de contribución para licencia dual, guía de desarrollo (inglés + español)
+- COMMERCIAL.md: FAQ de licencia dual para organizaciones (inglés + español)
+- 16 nuevos tests unitarios (9 audit logger, 7 git hook)
+- 14 nuevos tests de integración (audit, log, status, hook)
 
 ## [0.4.0-alpha] - 2026-02-20
 

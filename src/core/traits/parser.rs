@@ -13,5 +13,6 @@ pub trait ConfigParser: Send + Sync {
     fn serialize(&self, secrets: &SecretFile) -> Result<String>;
 
     /// File extensions this parser handles (e.g. `[".env"]`).
+    #[allow(dead_code)]
     fn supported_extensions(&self) -> &[&str];
 }
