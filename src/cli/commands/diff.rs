@@ -150,10 +150,53 @@ fn print_diff_summary(result: &DiffResult) {
 }
 
 /// Truncate a string to `max_len` characters, appending "..." if needed.
+/// Uses char boundaries to avoid panic on multibyte UTF-8 sequences.
 fn truncate(s: &str, max_len: usize) -> String {
-    if s.len() <= max_len {
+    let char_count = s.chars().count();
+    if char_count <= max_len {
         s.to_string()
     } else {
-        format!("{}...", &s[..max_len.saturating_sub(3)])
+        let limit = max_len.saturating_sub(3);
+        let truncated: String = s.chars().take(limit).collect();
+        format!("{truncated}...")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn truncate_short_string_unchanged() {
+        assert_eq!(truncate("hello", 10), "hello");
+    }
+
+    #[test]
+    fn truncate_exact_length_unchanged() {
+        assert_eq!(truncate("hello", 5), "hello");
+    }
+
+    #[test]
+    fn truncate_long_string() {
+        assert_eq!(truncate("hello world!", 8), "hello...");
+    }
+
+    #[test]
+    fn truncate_unicode_safe() {
+        // "contraseña" has 10 chars but 11 bytes (ñ = 2 bytes)
+        let result = truncate("contraseña", 8);
+        assert_eq!(result, "contr...");
+        // Should not panic
+        let _ = truncate("日本語テスト", 5);
+    }
+
+    #[test]
+    fn truncate_empty_string() {
+        assert_eq!(truncate("", 5), "");
+    }
+
+    #[test]
+    fn truncate_max_len_zero() {
+        assert_eq!(truncate("hello", 0), "...");
     }
 }
