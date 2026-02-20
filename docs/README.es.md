@@ -80,14 +80,20 @@ vaultic decrypt --env dev
 
 Consulta [Fases de desarrollo](phases.es.md) para más detalle.
 
+## Contribuir
+
+¡Las contribuciones son bienvenidas! Por favor lee nuestra [Guía de Contribución](CONTRIBUTING.es.md) antes de enviar un pull request.
+
+Nota: Vaultic usa un modelo de licencia dual (AGPLv3 + Comercial). Al contribuir, aceptas los términos descritos en la guía de contribución.
+
 ## Seguridad
 
 Los archivos `.enc` cifrados usan criptografía asimétrica. Solo los recipients autorizados pueden descifrarlos con su clave privada. Las claves públicas en el repositorio solo se usan para cifrar y no suponen ningún riesgo.
 
-Consulta [SECURITY.md](../SECURITY.md) para la política de seguridad completa.
+Consulta [SECURITY.md](SECURITY.es.md) para la política de seguridad completa.
 
 ## Licencia
 
 Este proyecto está licenciado bajo la [GNU Affero General Public License v3.0](../LICENSE).
 
-Licencias comerciales disponibles para organizaciones que requieran términos alternativos. Contacto: legal@softdryzz.com
+Licencias comerciales disponibles para organizaciones que requieran términos alternativos. Consulta [COMMERCIAL.md](COMMERCIAL.es.md) para más información o contacta: legal@softdryzz.com

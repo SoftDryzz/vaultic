@@ -80,6 +80,12 @@ vaultic decrypt --env dev
 
 See [Development Phases](docs/phases.md) for detailed information.
 
+## Contributing
+
+We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) before submitting a pull request.
+
+Note: Vaultic uses a dual licensing model (AGPLv3 + Commercial). By contributing, you agree to the terms described in the contributing guide.
+
 ## Security
 
 Encrypted `.enc` files use asymmetric cryptography. Only authorized recipients can decrypt them with their private key. Public keys in the repository are only used for encryption and pose no risk.
@@ -90,4 +96,4 @@ See [SECURITY.md](SECURITY.md) for the full security policy.
 
 This project is licensed under the [GNU Affero General Public License v3.0](LICENSE).
 
-Commercial licensing is available for organizations that require alternative terms. Contact: legal@softdryzz.com
+Commercial licensing is available for organizations that require alternative terms. See [COMMERCIAL.md](COMMERCIAL.md) for details or contact: legal@softdryzz.com
