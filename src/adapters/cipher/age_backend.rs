@@ -303,4 +303,23 @@ mod tests {
         let result = backend.encrypt(b"data", &[]);
         assert!(result.is_err());
     }
+
+    #[test]
+    fn backend_name_is_age() {
+        let dir = tempfile::tempdir().unwrap();
+        let key_path = dir.path().join("keys.txt");
+        let backend = AgeBackend::new(key_path);
+        assert_eq!(backend.name(), "age");
+    }
+
+    #[test]
+    fn decrypt_corrupt_data_fails() {
+        let dir = tempfile::tempdir().unwrap();
+        let key_path = dir.path().join("keys.txt");
+        AgeBackend::generate_identity(&key_path).unwrap();
+
+        let backend = AgeBackend::new(key_path);
+        let result = backend.decrypt(b"this is not valid ciphertext");
+        assert!(result.is_err());
+    }
 }

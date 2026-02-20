@@ -258,4 +258,32 @@ mod tests {
 
         assert_eq!(file.get("KEY"), Some("value"));
     }
+
+    #[test]
+    fn parse_mismatched_quotes_kept_as_is() {
+        let parser = DotenvParser;
+        // Mismatched quotes should not be stripped
+        let content = "KEY=\"value'";
+        let file = parser.parse(content).unwrap();
+
+        assert_eq!(file.get("KEY"), Some("\"value'"));
+    }
+
+    #[test]
+    fn parse_single_quote_char_value() {
+        let parser = DotenvParser;
+        let content = "KEY='";
+        let file = parser.parse(content).unwrap();
+
+        assert_eq!(file.get("KEY"), Some("'"));
+    }
+
+    #[test]
+    fn parse_empty_quoted_value() {
+        let parser = DotenvParser;
+        let content = "KEY=\"\"";
+        let file = parser.parse(content).unwrap();
+
+        assert_eq!(file.get("KEY"), Some(""));
+    }
 }

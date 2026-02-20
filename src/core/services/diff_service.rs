@@ -174,6 +174,21 @@ mod tests {
     }
 
     #[test]
+    fn keys_are_case_sensitive() {
+        let svc = DiffService;
+        let a = make_file(&[("key", "lower")]);
+        let b = make_file(&[("KEY", "upper")]);
+        let result = svc.diff(&a, &b, "a", "b").unwrap();
+
+        // "key" and "KEY" are different variables
+        assert_eq!(result.entries.len(), 2);
+        assert_eq!(result.entries[0].key, "KEY");
+        assert_eq!(result.entries[0].kind, DiffKind::Added);
+        assert_eq!(result.entries[1].key, "key");
+        assert_eq!(result.entries[1].kind, DiffKind::Removed);
+    }
+
+    #[test]
     fn empty_files_produce_empty_diff() {
         let svc = DiffService;
         let a = make_file(&[]);

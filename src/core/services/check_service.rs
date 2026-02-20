@@ -166,4 +166,29 @@ mod tests {
 
         assert_eq!(result.extra, vec!["A", "B"]);
     }
+
+    #[test]
+    fn only_empty_values_is_not_ok() {
+        let svc = CheckService;
+        let local = make_file(&[("DB", ""), ("PORT", "")]);
+        let template = make_file(&[("DB", ""), ("PORT", "")]);
+        let result = svc.check(&local, &template).unwrap();
+
+        assert!(result.missing.is_empty());
+        assert!(result.extra.is_empty());
+        assert_eq!(result.empty_values.len(), 2);
+        assert!(!result.is_ok());
+        assert_eq!(result.issue_count(), 2);
+    }
+
+    #[test]
+    fn zero_issues_reports_ok() {
+        let svc = CheckService;
+        let local = make_file(&[("A", "val")]);
+        let template = make_file(&[("A", "")]);
+        let result = svc.check(&local, &template).unwrap();
+
+        assert!(result.is_ok());
+        assert_eq!(result.issue_count(), 0);
+    }
 }
