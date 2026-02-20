@@ -1,18 +1,14 @@
-use std::collections::HashMap;
 use std::path::Path;
 
 use colored::Colorize;
 
-use crate::adapters::cipher::age_backend::AgeBackend;
-use crate::adapters::key_stores::file_key_store::FileKeyStore;
 use crate::adapters::parsers::dotenv_parser::DotenvParser;
+use crate::cli::commands::crypto_helpers;
 use crate::cli::output;
 use crate::config::app_config::AppConfig;
 use crate::core::errors::{Result, VaulticError};
 use crate::core::models::diff_result::{DiffKind, DiffResult};
-use crate::core::models::secret_file::SecretFile;
 use crate::core::services::diff_service::DiffService;
-use crate::core::services::encryption_service::EncryptionService;
 use crate::core::services::env_resolver::EnvResolver;
 use crate::core::traits::parser::ConfigParser;
 
@@ -53,12 +49,14 @@ fn execute_env_diff(left_env: &str, right_env: &str, cipher: &str) -> Result<()>
 
     // Resolve left environment
     let left_chain = resolver.build_chain(left_env, &config)?;
-    let left_files = load_env_files(&left_chain, vaultic_dir, cipher, &parser)?;
+    let left_files =
+        crypto_helpers::load_env_files(&left_chain, vaultic_dir, cipher, &parser, false)?;
     let left = resolver.resolve(left_env, &config, &left_files)?;
 
     // Resolve right environment
     let right_chain = resolver.build_chain(right_env, &config)?;
-    let right_files = load_env_files(&right_chain, vaultic_dir, cipher, &parser)?;
+    let right_files =
+        crypto_helpers::load_env_files(&right_chain, vaultic_dir, cipher, &parser, false)?;
     let right = resolver.resolve(right_env, &config, &right_files)?;
 
     let svc = DiffService;
@@ -117,61 +115,6 @@ fn execute_file_diff(file1: Option<&str>, file2: Option<&str>) -> Result<()> {
     print_diff_summary(&result);
 
     Ok(())
-}
-
-/// Load and decrypt env files for each layer in the chain.
-fn load_env_files(
-    chain: &[String],
-    vaultic_dir: &Path,
-    cipher: &str,
-    parser: &DotenvParser,
-) -> Result<HashMap<String, SecretFile>> {
-    let mut files = HashMap::new();
-
-    for name in chain {
-        let enc_path = vaultic_dir.join(format!("{name}.env.enc"));
-
-        if !enc_path.exists() {
-            continue;
-        }
-
-        let plaintext_bytes = decrypt_in_memory(&enc_path, vaultic_dir, cipher)?;
-        let plaintext =
-            String::from_utf8(plaintext_bytes).map_err(|_| VaulticError::ParseError {
-                file: enc_path.clone(),
-                detail: "Decrypted content is not valid UTF-8".into(),
-            })?;
-
-        let secret_file = parser.parse(&plaintext)?;
-        files.insert(name.clone(), secret_file);
-    }
-
-    Ok(files)
-}
-
-/// Decrypt a single encrypted file in memory.
-fn decrypt_in_memory(enc_path: &Path, vaultic_dir: &Path, cipher: &str) -> Result<Vec<u8>> {
-    let key_store = FileKeyStore::new(vaultic_dir.join("recipients.txt"));
-
-    match cipher {
-        "age" => {
-            let identity_path = AgeBackend::default_identity_path()?;
-            if !identity_path.exists() {
-                return Err(VaulticError::EncryptionFailed {
-                    reason: format!("No private key found at {}", identity_path.display()),
-                });
-            }
-            let backend = AgeBackend::new(identity_path);
-            let service = EncryptionService {
-                cipher: backend,
-                key_store,
-            };
-            service.decrypt_to_bytes(enc_path)
-        }
-        other => Err(VaulticError::InvalidConfig {
-            detail: format!("Unknown cipher backend: '{other}'. Use 'age' or 'gpg'."),
-        }),
-    }
 }
 
 /// Print the diff results as a formatted table.

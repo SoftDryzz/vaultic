@@ -1,4 +1,5 @@
 pub mod check;
+pub mod crypto_helpers;
 pub mod decrypt;
 pub mod diff;
 pub mod encrypt;
