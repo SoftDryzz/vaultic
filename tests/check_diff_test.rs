@@ -199,3 +199,57 @@ fn diff_requires_two_files() {
         .failure()
         .stderr(predicate::str::contains("requires two files"));
 }
+
+#[test]
+fn check_with_comments_in_files() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    dir.child(".env")
+        .write_str("# Database\nDB_HOST=localhost\n\n# API\nAPI_KEY=secret")
+        .unwrap();
+    dir.child(".env.template")
+        .write_str("# Database\nDB_HOST=\n\n# API\nAPI_KEY=")
+        .unwrap();
+
+    vaultic()
+        .current_dir(dir.path())
+        .arg("check")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("2/2 variables present"));
+}
+
+#[test]
+fn diff_with_quoted_values() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    dir.child("a.env")
+        .write_str("SECRET=\"old secret\"")
+        .unwrap();
+    dir.child("b.env")
+        .write_str("SECRET=\"new secret\"")
+        .unwrap();
+
+    vaultic()
+        .current_dir(dir.path())
+        .args(["diff", "a.env", "b.env"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("SECRET"))
+        .stdout(predicate::str::contains("1 modified"));
+}
+
+#[test]
+fn check_all_good_message() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    dir.child(".env").write_str("KEY=value").unwrap();
+    dir.child(".env.template").write_str("KEY=").unwrap();
+
+    vaultic()
+        .current_dir(dir.path())
+        .arg("check")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("all good"));
+}

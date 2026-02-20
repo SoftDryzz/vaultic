@@ -304,3 +304,27 @@ fn unknown_cipher_fails() {
         .failure()
         .stderr(predicate::str::contains("Unknown cipher"));
 }
+
+#[test]
+fn keys_add_with_label_shows_in_list() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    vaultic()
+        .current_dir(dir.path())
+        .arg("init")
+        .write_stdin("n\n")
+        .assert()
+        .success();
+
+    // Add key with a label comment in the recipients file
+    let recipients_path = dir.path().join(".vaultic/recipients.txt");
+    std::fs::write(&recipients_path, "age1labeltest # team-lead\n").unwrap();
+
+    vaultic()
+        .current_dir(dir.path())
+        .args(["keys", "list"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("age1labeltest"))
+        .stdout(predicate::str::contains("team-lead"));
+}
