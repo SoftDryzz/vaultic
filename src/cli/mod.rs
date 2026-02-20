@@ -14,9 +14,9 @@ pub struct Cli {
     #[arg(long, global = true, default_value = "age")]
     pub cipher: String,
 
-    /// Target environment (dev, staging, prod...)
+    /// Target environment(s). Repeat for diff: --env dev --env prod
     #[arg(long, global = true)]
-    pub env: Option<String>,
+    pub env: Vec<String>,
 
     /// Verbose output
     #[arg(short, long, global = true)]
