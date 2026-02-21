@@ -12,6 +12,8 @@ pub enum AuditAction {
     Check,
     Diff,
     Resolve,
+    HookInstall,
+    HookUninstall,
 }
 
 /// A single entry in the audit log (JSON lines format).

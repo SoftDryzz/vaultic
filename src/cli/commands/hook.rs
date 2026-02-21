@@ -31,7 +31,7 @@ fn execute_install() -> Result<()> {
     println!("\n  The hook will block commits that include plaintext .env files.");
     println!("  To remove it later: vaultic hook uninstall");
 
-    super::audit_helpers::log_audit(AuditAction::Init, vec![], Some("hook installed".into()));
+    super::audit_helpers::log_audit(AuditAction::HookInstall, vec![], None);
 
     Ok(())
 }
@@ -51,7 +51,7 @@ fn execute_uninstall() -> Result<()> {
 
     output::success("Pre-commit hook removed");
 
-    super::audit_helpers::log_audit(AuditAction::Init, vec![], Some("hook uninstalled".into()));
+    super::audit_helpers::log_audit(AuditAction::HookUninstall, vec![], None);
 
     Ok(())
 }

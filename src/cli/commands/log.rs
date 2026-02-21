@@ -77,6 +77,7 @@ fn parse_since(s: &str) -> Result<chrono::DateTime<Utc>> {
 /// Print a single audit entry as a formatted row.
 fn print_entry(entry: &AuditEntry) {
     let date = entry.timestamp.format("%Y-%m-%d %H:%M:%S");
+    let author = truncate_author(&entry.author, 10);
     let action = format_action(&entry.action);
     let files = if entry.files.is_empty() {
         "—".dimmed().to_string()
@@ -84,15 +85,30 @@ fn print_entry(entry: &AuditEntry) {
         entry.files.join(", ")
     };
     let detail = entry.detail.as_deref().unwrap_or("").dimmed().to_string();
+    let sep = "│".dimmed();
 
     println!(
-        "  {} {} {:<10} {} {}",
+        "  {} {sep} {:<10} {sep} {:<10} {sep} {} {}",
         date.to_string().dimmed(),
-        "│".dimmed(),
+        author,
         action,
         files,
         detail,
     );
+}
+
+/// Truncate an author name for display.
+fn truncate_author(author: &str, max_len: usize) -> String {
+    let char_count = author.chars().count();
+    if char_count <= max_len {
+        author.to_string()
+    } else {
+        author
+            .chars()
+            .take(max_len.saturating_sub(1))
+            .collect::<String>()
+            + "…"
+    }
 }
 
 /// Format an AuditAction as a colored string.
@@ -106,5 +122,7 @@ fn format_action(action: &AuditAction) -> String {
         AuditAction::Check => "check".yellow().to_string(),
         AuditAction::Diff => "diff".yellow().to_string(),
         AuditAction::Resolve => "resolve".blue().to_string(),
+        AuditAction::HookInstall => "hook +".green().to_string(),
+        AuditAction::HookUninstall => "hook -".red().to_string(),
     }
 }
