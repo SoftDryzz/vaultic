@@ -14,6 +14,9 @@ pub struct AppConfig {
 
 impl AppConfig {
     /// Load the configuration from `.vaultic/config.toml`.
+    ///
+    /// After parsing, validates environment names and the audit log filename
+    /// to prevent path traversal attacks from a compromised config file.
     pub fn load(vaultic_dir: &Path) -> Result<Self> {
         let config_path = vaultic_dir.join("config.toml");
         if !config_path.exists() {
@@ -22,9 +25,24 @@ impl AppConfig {
             });
         }
         let content = std::fs::read_to_string(&config_path)?;
-        toml::from_str(&content).map_err(|e| VaulticError::InvalidConfig {
+        let config: Self = toml::from_str(&content).map_err(|e| VaulticError::InvalidConfig {
             detail: format!("Failed to parse config.toml: {e}"),
-        })
+        })?;
+
+        // Validate environment names from config
+        for env_name in config.environments.keys() {
+            crate::cli::context::validate_env_name(env_name)?;
+        }
+
+        // Validate audit log filename
+        if let Some(audit) = &config.audit {
+            crate::cli::context::validate_simple_filename(
+                &audit.log_file,
+                "audit log file",
+            )?;
+        }
+
+        Ok(config)
     }
 
     /// Get the file name for a given environment, defaulting to `{name}.env`.

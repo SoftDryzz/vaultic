@@ -14,6 +14,14 @@ fn main() {
     cli::output::init(args.verbose, args.quiet);
     cli::context::init(args.config.as_deref());
 
+    // Validate all --env values before dispatching any command
+    for env_name in &args.env {
+        if let Err(e) = cli::context::validate_env_name(env_name) {
+            cli::output::error(&format!("Error: {e}"));
+            std::process::exit(1);
+        }
+    }
+
     // For commands that expect a single env, use the first --env value
     let single_env = args.env.first().map(|s| s.as_str());
 
