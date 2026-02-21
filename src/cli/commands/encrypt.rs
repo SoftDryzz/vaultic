@@ -148,18 +148,24 @@ fn encrypt_with<C: CipherBackend>(
         key_store: key_store.clone(),
     };
 
-    output::header(&format!("Encrypting with {cipher_name} for {env_name}"));
     output::detail(&format!("Source: {}", source.display()));
     for r in &recipients {
         output::detail(&format!("Recipient: {}", r.public_key));
     }
 
-    service.encrypt_file(source, dest)?;
-
-    output::success(&format!(
-        "Encrypted with {cipher_name} for {} recipient(s)",
+    let sp = output::spinner(&format!(
+        "Encrypting {env_name} with {cipher_name} for {} recipient(s)...",
         recipients.len()
     ));
+    service.encrypt_file(source, dest)?;
+    output::finish_spinner(
+        sp,
+        &format!(
+            "Encrypted with {cipher_name} for {} recipient(s)",
+            recipients.len()
+        ),
+    );
+
     output::success(&format!("Saved to {}", dest.display()));
     println!("\n  Commit {} to the repo.", dest.display());
 

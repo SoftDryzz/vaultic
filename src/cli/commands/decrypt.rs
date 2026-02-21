@@ -98,10 +98,10 @@ fn decrypt_with<C: CipherBackend>(
 
     let service = EncryptionService { cipher, key_store };
 
-    output::header(&format!("Decrypting {env_name} with {cipher_name}"));
     output::detail(&format!("Source: {}", source.display()));
     output::detail(&format!("Destination: {}", dest.display()));
 
+    let sp = output::spinner(&format!("Decrypting {env_name} with {cipher_name}..."));
     service.decrypt_file(source, dest)?;
 
     // Count variables in decrypted file
@@ -114,7 +114,7 @@ fn decrypt_with<C: CipherBackend>(
         })
         .count();
 
-    output::success(&format!("Decrypted {}", source.display()));
+    output::finish_spinner(sp, &format!("Decrypted {}", source.display()));
     output::success(&format!("Generated .env with {var_count} variables"));
     println!("\n  Run 'vaultic check' to verify no variables are missing.");
 

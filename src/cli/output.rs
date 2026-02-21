@@ -1,6 +1,8 @@
 use std::sync::OnceLock;
+use std::time::Duration;
 
 use colored::Colorize;
+use indicatif::{ProgressBar, ProgressStyle};
 
 /// Verbosity level for CLI output.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -59,5 +61,30 @@ pub fn header(msg: &str) {
 pub fn detail(msg: &str) {
     if verbosity() == Verbosity::Verbose {
         println!("  {} {}", "·".dimmed(), msg);
+    }
+}
+
+/// Start a spinner with the given message. Returns `None` in quiet mode.
+pub fn spinner(msg: &str) -> Option<ProgressBar> {
+    if verbosity() == Verbosity::Quiet {
+        return None;
+    }
+    let pb = ProgressBar::new_spinner();
+    pb.set_style(
+        ProgressStyle::default_spinner()
+            .tick_chars("⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏ ")
+            .template("  {spinner:.green} {msg}")
+            .expect("valid spinner template"),
+    );
+    pb.set_message(msg.to_string());
+    pb.enable_steady_tick(Duration::from_millis(80));
+    Some(pb)
+}
+
+/// Finish a spinner with a success message.
+pub fn finish_spinner(spinner: Option<ProgressBar>, msg: &str) {
+    if let Some(pb) = spinner {
+        pb.finish_and_clear();
+        success(msg);
     }
 }
