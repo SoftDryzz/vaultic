@@ -193,6 +193,39 @@ fn try_auto_add_recipient(public_key: &str) {
     }
 }
 
+/// Validate that a string is a plausible recipient key.
+///
+/// For age keys: must parse as `age::x25519::Recipient`.
+/// For GPG keys: must be a hex fingerprint (16+ hex chars) or an email address.
+fn validate_recipient_key(identity: &str) -> Result<()> {
+    if identity.starts_with("age1") {
+        identity
+            .parse::<age::x25519::Recipient>()
+            .map_err(|e: &str| VaulticError::InvalidConfig {
+                detail: format!(
+                    "Invalid age public key: {e}\n\n  \
+                     A valid age public key starts with 'age1' and is 62 characters long.\n  \
+                     Example: age1ql3z7hjy54pw3hyww5ayyfg7zqgvc7w3j2elw8zmrj2kg5sfn9aqmcac8p"
+                ),
+            })?;
+    } else if identity.contains('@') {
+        // GPG email identifier — accept as-is
+    } else if identity.len() >= 16 && identity.chars().all(|c| c.is_ascii_hexdigit()) {
+        // GPG hex fingerprint — accept as-is
+    } else {
+        return Err(VaulticError::InvalidConfig {
+            detail: format!(
+                "Unrecognized key format: '{identity}'\n\n  \
+                 Expected one of:\n  \
+                 → age public key (starts with 'age1')\n  \
+                 → GPG fingerprint (hex, 16+ characters)\n  \
+                 → GPG email identifier (contains '@')"
+            ),
+        });
+    }
+    Ok(())
+}
+
 /// Add a recipient public key.
 fn execute_add(identity: &str) -> Result<()> {
     let vaultic_dir = crate::cli::context::vaultic_dir();
@@ -201,6 +234,8 @@ fn execute_add(identity: &str) -> Result<()> {
             detail: "Vaultic not initialized. Run 'vaultic init' first.".into(),
         });
     }
+
+    validate_recipient_key(identity)?;
 
     let store = FileKeyStore::new(vaultic_dir.join("recipients.txt"));
     let service = KeyService { store };
@@ -279,4 +314,48 @@ fn execute_remove(identity: &str) -> Result<()> {
     );
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn validate_valid_age_key() {
+        // Generate a real age key to test with
+        let dir = tempfile::tempdir().unwrap();
+        let key_path = dir.path().join("keys.txt");
+        let public_key = AgeBackend::generate_identity(&key_path).unwrap();
+
+        assert!(validate_recipient_key(&public_key).is_ok());
+    }
+
+    #[test]
+    fn validate_invalid_age_key() {
+        let result = validate_recipient_key("age1invalidkey");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn validate_gpg_email() {
+        assert!(validate_recipient_key("user@example.com").is_ok());
+    }
+
+    #[test]
+    fn validate_gpg_fingerprint() {
+        assert!(validate_recipient_key("ABCDEF1234567890").is_ok());
+    }
+
+    #[test]
+    fn validate_short_hex_rejected() {
+        // Less than 16 hex chars — not a valid GPG fingerprint
+        let result = validate_recipient_key("ABCDEF12345");
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn validate_random_string_rejected() {
+        let result = validate_recipient_key("not-a-key");
+        assert!(result.is_err());
+    }
 }
