@@ -40,12 +40,18 @@ pub enum Commands {
     Encrypt {
         /// File to encrypt (default: .env)
         file: Option<String>,
+        /// Re-encrypt all environments for current recipients
+        #[arg(long)]
+        all: bool,
     },
 
     /// Decrypt secret files
     Decrypt {
         /// File to decrypt
         file: Option<String>,
+        /// Path to private key file
+        #[arg(long)]
+        key: Option<String>,
     },
 
     /// Verify missing variables against template

@@ -12,7 +12,14 @@ use crate::core::traits::cipher::CipherBackend;
 ///
 /// Decrypts an encrypted file from `.vaultic/` and writes
 /// the plaintext to the working directory.
-pub fn execute(file: Option<&str>, env: Option<&str>, cipher: &str) -> Result<()> {
+/// When `key_path` is provided, uses that file as the private key
+/// instead of the default location.
+pub fn execute(
+    file: Option<&str>,
+    env: Option<&str>,
+    cipher: &str,
+    key_path: Option<&str>,
+) -> Result<()> {
     let vaultic_dir = Path::new(".vaultic");
     if !vaultic_dir.exists() {
         return Err(VaulticError::InvalidConfig {
@@ -37,18 +44,30 @@ pub fn execute(file: Option<&str>, env: Option<&str>, cipher: &str) -> Result<()
 
     match cipher {
         "age" => {
-            let identity_path = AgeBackend::default_identity_path()?;
-            if !identity_path.exists() {
-                return Err(VaulticError::EncryptionFailed {
-                    reason: format!(
-                        "No private key found at {}\n\n  Solutions:\n    \
-                         → New here? Run 'vaultic keys setup' to generate a key\n    \
-                         → Have a key? Use --key <path> to specify the location\n    \
-                         → Lost your key? Ask an admin to re-add you as a recipient",
-                        identity_path.display()
-                    ),
-                });
-            }
+            let identity_path = match key_path {
+                Some(p) => {
+                    let path = PathBuf::from(p);
+                    if !path.exists() {
+                        return Err(VaulticError::FileNotFound { path });
+                    }
+                    path
+                }
+                None => {
+                    let path = AgeBackend::default_identity_path()?;
+                    if !path.exists() {
+                        return Err(VaulticError::EncryptionFailed {
+                            reason: format!(
+                                "No private key found at {}\n\n  Solutions:\n    \
+                                 → New here? Run 'vaultic keys setup' to generate a key\n    \
+                                 → Have a key? Use --key <path> to specify the location\n    \
+                                 → Lost your key? Ask an admin to re-add you as a recipient",
+                                path.display()
+                            ),
+                        });
+                    }
+                    path
+                }
+            };
             let backend = AgeBackend::new(identity_path);
             decrypt_with(backend, key_store, &source, &dest, env_name)
         }

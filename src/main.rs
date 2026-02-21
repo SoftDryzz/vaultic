@@ -15,12 +15,15 @@ fn main() {
 
     let result = match &args.command {
         Commands::Init => cli::commands::init::execute(args.verbose),
-        Commands::Encrypt { file } => {
-            cli::commands::encrypt::execute(file.as_deref(), single_env, &args.cipher)
+        Commands::Encrypt { file, all } => {
+            cli::commands::encrypt::execute(file.as_deref(), single_env, &args.cipher, *all)
         }
-        Commands::Decrypt { file } => {
-            cli::commands::decrypt::execute(file.as_deref(), single_env, &args.cipher)
-        }
+        Commands::Decrypt { file, key } => cli::commands::decrypt::execute(
+            file.as_deref(),
+            single_env,
+            &args.cipher,
+            key.as_deref(),
+        ),
         Commands::Check => cli::commands::check::execute(),
         Commands::Diff { file1, file2 } => cli::commands::diff::execute(
             file1.as_deref(),
