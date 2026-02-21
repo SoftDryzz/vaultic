@@ -10,7 +10,7 @@ use crate::core::errors::{Result, VaulticError};
 /// Creates the `.vaultic/` directory structure, generates config defaults,
 /// and optionally sets up encryption keys via interactive prompts.
 pub fn execute() -> Result<()> {
-    let vaultic_dir = Path::new(".vaultic");
+    let vaultic_dir = crate::cli::context::vaultic_dir();
 
     if vaultic_dir.exists() {
         return Err(VaulticError::InvalidConfig {

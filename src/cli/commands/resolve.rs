@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use crate::adapters::parsers::dotenv_parser::DotenvParser;
 use crate::cli::commands::crypto_helpers;
 use crate::cli::output;
@@ -14,7 +12,7 @@ use crate::core::traits::parser::ConfigParser;
 /// decrypting each layer in memory, merging from base to leaf,
 /// and writing the result to `.env`.
 pub fn execute(env: Option<&str>, cipher: &str) -> Result<()> {
-    let vaultic_dir = Path::new(".vaultic");
+    let vaultic_dir = crate::cli::context::vaultic_dir();
     if !vaultic_dir.exists() {
         return Err(VaulticError::InvalidConfig {
             detail: "Vaultic not initialized. Run 'vaultic init' first.".into(),

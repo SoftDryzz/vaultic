@@ -16,7 +16,7 @@ use crate::core::traits::key_store::KeyStore;
 /// and stores the ciphertext in `.vaultic/`.
 /// When `all` is true, re-encrypts every environment defined in config.
 pub fn execute(file: Option<&str>, env: Option<&str>, cipher: &str, all: bool) -> Result<()> {
-    let vaultic_dir = Path::new(".vaultic");
+    let vaultic_dir = crate::cli::context::vaultic_dir();
     if !vaultic_dir.exists() {
         return Err(VaulticError::InvalidConfig {
             detail: "Vaultic not initialized. Run 'vaultic init' first.".into(),

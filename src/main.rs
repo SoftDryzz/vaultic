@@ -10,8 +10,9 @@ use cli::{Cli, Commands};
 fn main() {
     let args = Cli::parse();
 
-    // Initialize output verbosity before any command runs
+    // Initialize global CLI state before any command runs
     cli::output::init(args.verbose, args.quiet);
+    cli::context::init(args.config.as_deref());
 
     // For commands that expect a single env, use the first --env value
     let single_env = args.env.first().map(|s| s.as_str());

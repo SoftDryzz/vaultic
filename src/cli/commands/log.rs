@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use chrono::{NaiveDate, TimeZone, Utc};
 use colored::Colorize;
 
@@ -15,7 +13,7 @@ use crate::core::traits::audit::AuditLogger;
 /// Displays the audit log with optional filters for author, date,
 /// and entry count.
 pub fn execute(author: Option<&str>, since: Option<&str>, last: Option<usize>) -> Result<()> {
-    let vaultic_dir = Path::new(".vaultic");
+    let vaultic_dir = crate::cli::context::vaultic_dir();
     if !vaultic_dir.exists() {
         return Err(VaulticError::InvalidConfig {
             detail: "Vaultic not initialized. Run 'vaultic init' first.".into(),

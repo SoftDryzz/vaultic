@@ -13,7 +13,7 @@ use crate::core::services::key_service::KeyService;
 /// Displays a full overview of the project state: configuration,
 /// keys, encrypted environments, and local file status.
 pub fn execute() -> Result<()> {
-    let vaultic_dir = Path::new(".vaultic");
+    let vaultic_dir = crate::cli::context::vaultic_dir();
     if !vaultic_dir.exists() {
         return Err(VaulticError::InvalidConfig {
             detail: "Vaultic not initialized. Run 'vaultic init' first.".into(),

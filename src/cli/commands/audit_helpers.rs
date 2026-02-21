@@ -1,4 +1,3 @@
-use std::path::Path;
 use std::process::Command;
 
 use chrono::Utc;
@@ -44,7 +43,7 @@ pub fn git_author() -> (String, Option<String>) {
 /// Record an audit event. Warns on failure instead of propagating
 /// the error, since audit should not block the main operation.
 pub fn log_audit(action: AuditAction, files: Vec<String>, detail: Option<String>) {
-    let vaultic_dir = Path::new(".vaultic");
+    let vaultic_dir = crate::cli::context::vaultic_dir();
 
     let config = AppConfig::load(vaultic_dir).ok();
 
@@ -75,7 +74,7 @@ pub fn log_audit(action: AuditAction, files: Vec<String>, detail: Option<String>
 /// Record an audit event right after `vaultic init`, before config
 /// exists. Uses default values for the logger path.
 pub fn log_audit_init() {
-    let vaultic_dir = Path::new(".vaultic");
+    let vaultic_dir = crate::cli::context::vaultic_dir();
     let logger = JsonAuditLogger::new(vaultic_dir, "audit.log");
     let (author, email) = git_author();
 
