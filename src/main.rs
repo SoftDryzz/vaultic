@@ -10,11 +10,14 @@ use cli::{Cli, Commands};
 fn main() {
     let args = Cli::parse();
 
+    // Initialize output verbosity before any command runs
+    cli::output::init(args.verbose, args.quiet);
+
     // For commands that expect a single env, use the first --env value
     let single_env = args.env.first().map(|s| s.as_str());
 
     let result = match &args.command {
-        Commands::Init => cli::commands::init::execute(args.verbose),
+        Commands::Init => cli::commands::init::execute(),
         Commands::Encrypt { file, all } => {
             cli::commands::encrypt::execute(file.as_deref(), single_env, &args.cipher, *all)
         }

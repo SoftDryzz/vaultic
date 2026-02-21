@@ -99,6 +99,8 @@ fn decrypt_with<C: CipherBackend>(
     let service = EncryptionService { cipher, key_store };
 
     output::header(&format!("Decrypting {env_name} with {cipher_name}"));
+    output::detail(&format!("Source: {}", source.display()));
+    output::detail(&format!("Destination: {}", dest.display()));
 
     service.decrypt_file(source, dest)?;
 

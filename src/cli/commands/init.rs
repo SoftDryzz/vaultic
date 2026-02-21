@@ -9,7 +9,7 @@ use crate::core::errors::{Result, VaulticError};
 ///
 /// Creates the `.vaultic/` directory structure, generates config defaults,
 /// and optionally sets up encryption keys via interactive prompts.
-pub fn execute(verbose: bool) -> Result<()> {
+pub fn execute() -> Result<()> {
     let vaultic_dir = Path::new(".vaultic");
 
     if vaultic_dir.exists() {
@@ -94,7 +94,7 @@ log_file = "audit.log"
     }
 
     output::success("Project ready.\n");
-    print_next_steps(verbose);
+    print_next_steps();
 
     // Audit: record the init operation
     super::audit_helpers::log_audit_init();
@@ -183,18 +183,15 @@ fn print_key_warning(identity_path: &Path) {
 }
 
 /// Print next steps after init.
-fn print_next_steps(verbose: bool) {
+fn print_next_steps() {
     println!("  Next steps:");
     println!("     1. Create your .env with the project variables");
     println!("     2. Run 'vaultic encrypt' to encrypt it");
     println!("     3. Commit .vaultic/ to the repo");
     println!("     4. Share your PUBLIC key with the team");
 
-    if verbose {
-        println!();
-        println!("  Files created:");
-        println!("     .vaultic/config.toml      — Vaultic configuration");
-        println!("     .vaultic/recipients.txt   — Authorized public keys");
-        println!("     .env.template             — Variable template (commit this)");
-    }
+    output::detail("Files created:");
+    output::detail("  .vaultic/config.toml      — Vaultic configuration");
+    output::detail("  .vaultic/recipients.txt   — Authorized public keys");
+    output::detail("  .env.template             — Variable template (commit this)");
 }

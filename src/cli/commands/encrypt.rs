@@ -78,7 +78,6 @@ fn encrypt_all(vaultic_dir: &Path, cipher: &str) -> Result<()> {
         success_count += 1;
     }
 
-    println!();
     output::success(&format!(
         "Re-encrypted {success_count} environment(s), skipped {skip_count}"
     ));
@@ -150,6 +149,10 @@ fn encrypt_with<C: CipherBackend>(
     };
 
     output::header(&format!("Encrypting with {cipher_name} for {env_name}"));
+    output::detail(&format!("Source: {}", source.display()));
+    for r in &recipients {
+        output::detail(&format!("Recipient: {}", r.public_key));
+    }
 
     service.encrypt_file(source, dest)?;
 
