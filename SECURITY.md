@@ -51,14 +51,14 @@ We will acknowledge receipt within 48 hours and aim to provide an initial assess
 
 1. Remove the recipient: `vaultic keys remove <key>`
 2. Generate a new key: `vaultic keys setup`
-3. Re-encrypt all environments for the updated recipient list
+3. Re-encrypt all environments: `vaultic encrypt --all`
 4. Rotate any secrets that were accessible with the compromised key
 5. Previously encrypted files in Git history remain at risk — rotate affected secrets
 
 ### Team member departure
 
 1. Remove their public key: `vaultic keys remove <key>`
-2. Re-encrypt all environments: this ensures new encryptions exclude the removed key
+2. Re-encrypt all environments: `vaultic encrypt --all` (ensures new encryptions exclude the removed key)
 3. Rotate sensitive secrets (production API keys, database passwords, signing keys)
 
 ## Security Design Principles
@@ -67,3 +67,5 @@ We will acknowledge receipt within 48 hours and aim to provide an initial assess
 - **No network calls**: Vaultic v1 operates entirely offline — no telemetry, no cloud dependencies
 - **No secret values in logs**: the audit log records operations and metadata, never variable values
 - **Encryption is always asymmetric**: secrets are encrypted to specific recipients, never with symmetric passwords
+- **Integrity verification**: encrypt and decrypt operations record a SHA-256 hash of the resulting file in the audit log, enabling tamper detection
+- **Recipient key validation**: public keys are validated at add time (age Bech32 format, GPG fingerprint format) to prevent typos from causing silent failures

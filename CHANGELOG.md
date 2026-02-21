@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `vaultic encrypt --all`: re-encrypt all environments for current recipients (key rotation, recipient changes)
+- `vaultic decrypt --key <path>`: specify a custom private key location instead of the default
+- `--quiet` / `--verbose` flags: suppress non-error output or show detailed information across all commands
+- `--config <path>` flag: use a custom vaultic directory instead of the default `.vaultic/`
+- GPG support in `decrypt_in_memory`: `vaultic resolve --cipher gpg` and `vaultic diff --cipher gpg` now work correctly
+- `vaultic keys setup`: import existing age key from file (option 2), use existing GPG key from keyring (option 3, when GPG detected)
+- Public key validation at `vaultic keys add`: validates age keys as `x25519::Recipient`, accepts GPG fingerprints and email identifiers
+- SHA-256 `state_hash` in audit log: encrypt and decrypt operations now record the hash of the resulting file for integrity verification
+- "Your key" section in `vaultic status`: shows private key location, public key, and whether you are in the recipients list
+- GPG keyring detection during `vaultic init`: when no age key exists but GPG is available, offers a choice between age and GPG
+
+### Fixed
+
+- `truncate_key` no longer panics on non-ASCII characters (e.g. GPG identities with names like "María")
+- `vaultic log` now shows the author column as specified in the documentation
+- Hook commands now log proper `HookInstall`/`HookUninstall` audit actions instead of `Init`
+
 ## [0.5.0-alpha] - 2026-02-21
 
 ### Added

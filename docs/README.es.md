@@ -54,8 +54,8 @@ vaultic decrypt --env dev
 | Comando | Descripción | Estado |
 |---------|-------------|--------|
 | `vaultic init` | Inicializa Vaultic en el proyecto actual | ✅ |
-| `vaultic encrypt [archivo]` | Cifra archivos de secretos | ✅ |
-| `vaultic decrypt [archivo]` | Descifra archivos de secretos | ✅ |
+| `vaultic encrypt [archivo]` | Cifra archivos de secretos (`--all` para re-cifrar todos los entornos) | ✅ |
+| `vaultic decrypt [archivo]` | Descifra archivos de secretos (`--key <ruta>` para clave personalizada) | ✅ |
 | `vaultic check` | Verifica variables faltantes contra el template | ✅ |
 | `vaultic diff <archivo1> <archivo2>` | Compara dos archivos de secretos lado a lado | ✅ |
 | `vaultic diff --env dev --env prod` | Compara dos entornos resueltos | ✅ |
@@ -67,6 +67,16 @@ vaultic decrypt --env dev
 | `vaultic log` | Muestra historial de operaciones | ✅ |
 | `vaultic status` | Muestra estado completo del proyecto | ✅ |
 | `vaultic hook install` | Instala git pre-commit hook | ✅ |
+
+### Flags Globales
+
+| Flag | Descripción |
+|------|-------------|
+| `--cipher <age\|gpg>` | Backend de cifrado (default: age) |
+| `--env <env>` | Entorno objetivo (repetible para diff) |
+| `--config <ruta>` | Ruta a directorio vaultic personalizado |
+| `-v, --verbose` | Salida detallada (archivos fuente, recipients, etc.) |
+| `-q, --quiet` | Solo errores |
 
 ## Estado del desarrollo
 

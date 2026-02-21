@@ -54,8 +54,8 @@ vaultic decrypt --env dev
 | Command | Description | Status |
 |---------|-------------|--------|
 | `vaultic init` | Initialize Vaultic in the current project | ✅ |
-| `vaultic encrypt [file]` | Encrypt secret files | ✅ |
-| `vaultic decrypt [file]` | Decrypt secret files | ✅ |
+| `vaultic encrypt [file]` | Encrypt secret files (`--all` to re-encrypt all envs) | ✅ |
+| `vaultic decrypt [file]` | Decrypt secret files (`--key <path>` for custom key) | ✅ |
 | `vaultic check` | Verify missing variables against template | ✅ |
 | `vaultic diff <file1> <file2>` | Compare two secret files side by side | ✅ |
 | `vaultic diff --env dev --env prod` | Compare two resolved environments | ✅ |
@@ -67,6 +67,16 @@ vaultic decrypt --env dev
 | `vaultic log` | Show operation history | ✅ |
 | `vaultic status` | Show full project status | ✅ |
 | `vaultic hook install` | Install git pre-commit hook | ✅ |
+
+### Global Flags
+
+| Flag | Description |
+|------|-------------|
+| `--cipher <age\|gpg>` | Encryption backend (default: age) |
+| `--env <env>` | Target environment (repeatable for diff) |
+| `--config <path>` | Custom vaultic directory path |
+| `-v, --verbose` | Detailed output (source files, recipients, etc.) |
+| `-q, --quiet` | Suppress all output except errors |
 
 ## Development Status
 

@@ -74,6 +74,21 @@ Completes the feature set with audit logging, status reporting, and UX polish.
 
 ---
 
+## Post-Phase 5 — v1.0 Hardening 🔲
+
+Bug fixes, missing features, input validation, and polish toward the v1.0 release.
+
+- **Bug fixes**: `truncate_key` panic on non-ASCII, missing `--all`/`--key` flags, hook audit actions, log author column
+- **CLI flags wired**: `--quiet`/`--verbose` across all commands, `--config` for custom vaultic directory
+- **GPG parity**: GPG backend now works in resolve, diff, init detection, and keys setup
+- **Key management**: `keys setup` offers import existing age key and GPG keyring options; `keys add` validates key format before storing
+- **Audit integrity**: SHA-256 `state_hash` recorded for encrypt/decrypt operations
+- **Status dashboard**: "Your key" section showing private key location, public key, and recipient list status
+- **Input validation**: environment name sanitization, audit log path validation (in progress)
+- **Error message quality**: cause + solution pattern for all error variants (in progress)
+
+---
+
 ## Legend
 
 | Symbol | Meaning |

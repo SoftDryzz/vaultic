@@ -9,6 +9,25 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
+### Añadido
+
+- `vaultic encrypt --all`: re-cifra todos los entornos para los recipients actuales (rotación de claves, cambios de recipients)
+- `vaultic decrypt --key <ruta>`: especifica una ubicación de clave privada personalizada
+- Flags `--quiet` / `--verbose`: suprime la salida no esencial o muestra información detallada en todos los comandos
+- Flag `--config <ruta>`: usa un directorio vaultic personalizado en lugar del `.vaultic/` por defecto
+- Soporte GPG en `decrypt_in_memory`: `vaultic resolve --cipher gpg` y `vaultic diff --cipher gpg` ahora funcionan correctamente
+- `vaultic keys setup`: importar clave age existente desde archivo (opción 2), usar clave GPG existente del keyring (opción 3, cuando GPG está disponible)
+- Validación de clave pública en `vaultic keys add`: valida claves age como `x25519::Recipient`, acepta fingerprints GPG e identificadores email
+- SHA-256 `state_hash` en audit log: las operaciones encrypt y decrypt ahora registran el hash del archivo resultante para verificación de integridad
+- Sección "Your key" en `vaultic status`: muestra ubicación de clave privada, clave pública y si estás en la lista de recipients
+- Detección de keyring GPG durante `vaultic init`: cuando no existe clave age pero GPG está disponible, ofrece elegir entre age y GPG
+
+### Corregido
+
+- `truncate_key` ya no produce panic con caracteres no-ASCII (ej. identidades GPG con nombres como "María")
+- `vaultic log` ahora muestra la columna de autor según la documentación
+- Los comandos hook ahora registran acciones de auditoría `HookInstall`/`HookUninstall` en lugar de `Init`
+
 ## [0.5.0-alpha] - 2026-02-21
 
 ### Añadido

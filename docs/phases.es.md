@@ -74,6 +74,21 @@ Completa el conjunto de funcionalidades con audit log, reporte de estado y pulid
 
 ---
 
+## Post-Fase 5 — Endurecimiento v1.0 🔲
+
+Corrección de bugs, funcionalidades faltantes, validación de entrada y pulido hacia la release v1.0.
+
+- **Corrección de bugs**: panic de `truncate_key` en caracteres no-ASCII, flags `--all`/`--key` faltantes, acciones de auditoría de hooks, columna de autor en log
+- **Flags CLI conectados**: `--quiet`/`--verbose` en todos los comandos, `--config` para directorio vaultic personalizado
+- **Paridad GPG**: el backend GPG ahora funciona en resolve, diff, detección en init y keys setup
+- **Gestión de claves**: `keys setup` ofrece importar clave age existente y opciones de keyring GPG; `keys add` valida formato de clave antes de almacenar
+- **Integridad del audit**: `state_hash` SHA-256 registrado para operaciones encrypt/decrypt
+- **Dashboard de estado**: sección "Your key" mostrando ubicación de clave privada, clave pública y estado en lista de recipients
+- **Validación de entrada**: sanitización de nombres de entorno, validación de ruta de audit log (en progreso)
+- **Calidad de mensajes de error**: patrón causa + solución para todas las variantes de error (en progreso)
+
+---
+
 ## Leyenda
 
 | Símbolo | Significado |

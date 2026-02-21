@@ -51,14 +51,14 @@ Confirmaremos la recepción en un plazo de 48 horas y proporcionaremos una evalu
 
 1. Elimina el destinatario: `vaultic keys remove <clave>`
 2. Genera una nueva clave: `vaultic keys setup`
-3. Re-cifra todos los entornos con la lista de destinatarios actualizada
+3. Re-cifra todos los entornos: `vaultic encrypt --all`
 4. Rota cualquier secreto accesible con la clave comprometida
 5. Los archivos cifrados anteriores en el historial de Git siguen en riesgo — rota los secretos afectados
 
 ### Salida de un miembro del equipo
 
 1. Elimina su clave pública: `vaultic keys remove <clave>`
-2. Re-cifra todos los entornos: esto asegura que los nuevos cifrados excluyan la clave eliminada
+2. Re-cifra todos los entornos: `vaultic encrypt --all` (asegura que los nuevos cifrados excluyan la clave eliminada)
 3. Rota los secretos sensibles (API keys de producción, contraseñas de base de datos, claves de firma)
 
 ## Principios de Diseño de Seguridad
@@ -67,3 +67,5 @@ Confirmaremos la recepción en un plazo de 48 horas y proporcionaremos una evalu
 - **Sin llamadas de red**: Vaultic v1 opera completamente offline — sin telemetría, sin dependencias cloud
 - **Sin valores secretos en logs**: el audit log registra operaciones y metadatos, nunca valores de variables
 - **Cifrado siempre asimétrico**: los secretos se cifran para destinatarios específicos, nunca con contraseñas simétricas
+- **Verificación de integridad**: las operaciones de cifrado y descifrado registran un hash SHA-256 del archivo resultante en el audit log, permitiendo detección de manipulación
+- **Validación de claves de recipients**: las claves públicas se validan al añadirlas (formato Bech32 para age, formato fingerprint para GPG) para prevenir errores tipográficos
