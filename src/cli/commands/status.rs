@@ -180,11 +180,14 @@ fn count_variables(content: &str) -> usize {
 
 /// Truncate a key string for display, showing start and end.
 fn truncate_key(key: &str, max_len: usize) -> String {
-    if key.len() <= max_len {
+    let char_count = key.chars().count();
+    if char_count <= max_len {
         key.to_string()
     } else {
         let keep = max_len.saturating_sub(3) / 2;
-        format!("{}...{}", &key[..keep], &key[key.len() - keep..])
+        let start: String = key.chars().take(keep).collect();
+        let end: String = key.chars().skip(char_count - keep).collect();
+        format!("{start}...{end}")
     }
 }
 
@@ -194,5 +197,41 @@ fn format_bytes(bytes: u64) -> String {
         format!("({bytes} B)")
     } else {
         format!("({:.1} KB)", bytes as f64 / 1024.0)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn truncate_key_short_string_unchanged() {
+        assert_eq!(truncate_key("abc", 10), "abc");
+    }
+
+    #[test]
+    fn truncate_key_exact_length_unchanged() {
+        assert_eq!(truncate_key("abcdefghij", 10), "abcdefghij");
+    }
+
+    #[test]
+    fn truncate_key_long_ascii() {
+        let result = truncate_key("abcdefghijklmnopqrst", 10);
+        assert!(result.contains("..."));
+        assert!(result.chars().count() <= 10);
+    }
+
+    #[test]
+    fn truncate_key_non_ascii_no_panic() {
+        let key = "María García <maria@example.com>";
+        let result = truncate_key(key, 15);
+        assert!(result.contains("..."));
+    }
+
+    #[test]
+    fn truncate_key_emoji_no_panic() {
+        let key = "🔑🔒🔐🔓🗝️🔑🔒🔐🔓🗝️";
+        let result = truncate_key(key, 5);
+        assert!(result.contains("..."));
     }
 }

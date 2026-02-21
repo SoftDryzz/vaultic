@@ -13,6 +13,7 @@ Thumbs.db
 
 # Local config and notes
 /CLAUDE.md
+/ROADMAP_1.0.md
 .claude/
 
 # Environment files (never commit secrets in plain text)
