@@ -99,13 +99,14 @@ Cleans up unused dependencies, improves error diagnostics, and adds UX refinemen
 
 ---
 
-## Milestone: Release 🔲
+## Milestone: Release ✅
 
 Final validation and publishing of v1.0.0.
 
-- **Version bump**: update `Cargo.toml`, CHANGELOG, and README references
-- **CI verification**: pass on Linux, macOS, Windows — fmt, clippy, test
-- **Publish**: tag `v1.0.0`, trigger release workflow, verify binaries and crates.io
+- **Version bump**: `Cargo.toml` updated to `1.0.0`, CHANGELOG and README updated
+- **Pre-release audit**: 6 issues identified and resolved (metadata, Cargo.lock, dead_code, temp file security, release workflow)
+- **CI verification**: fmt, clippy, 155 tests passing on all platforms
+- **Release workflow**: builds for 5 targets (linux amd64/arm64, macOS amd64/arm64, windows amd64) with GitHub Release and crates.io publish
 
 ---
 

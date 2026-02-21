@@ -7,11 +7,9 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 > **[English](../CHANGELOG.md)** | Español
 
-## [Sin publicar]
+## [1.0.0] - 2026-02-21
 
-### Milestone: Estabilidad
-
-#### Añadido
+### Añadido
 
 - `vaultic encrypt --all`: re-cifra todos los entornos para los recipients actuales (rotación de claves, cambios de recipients)
 - `vaultic decrypt --key <ruta>`: especifica una ubicación de clave privada personalizada
@@ -24,26 +22,23 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 - Sección "Your key" en `vaultic status`: muestra ubicación de clave privada, clave pública y si estás en la lista de recipients
 - Detección de keyring GPG durante `vaultic init`: cuando no existe clave age pero GPG está disponible, ofrece elegir entre age y GPG
 - Validación de entrada: nombres de entorno restringidos a `[a-zA-Z0-9_-]` para prevenir path traversal; nombre de archivo de audit log validado contra separadores de ruta
-
-#### Corregido
-
-- `truncate_key` ya no produce panic con caracteres no-ASCII (ej. identidades GPG con nombres como "María")
-- `vaultic log` ahora muestra la columna de autor según la documentación
-- Los comandos hook ahora registran acciones de auditoría `HookInstall`/`HookUninstall` en lugar de `Init`
-
-### Milestone: Pulido
-
-#### Añadido
-
 - Spinners para operaciones encrypt/decrypt usando `indicatif` para feedback visual
 - Ayuda enriquecida: `--help` detallado con descripciones y ejemplos de uso para todos los comandos
 - Parser dotenv: soporte para sintaxis `export KEY=value` de archivos `.env` estilo shell
 - Mensajes de error descriptivos: todas las variantes de error siguen el patrón "causa + contexto + solución"
 - Los errores `EnvironmentNotFound` ahora listan los entornos disponibles desde la configuración
+- Re-cifrado en memoria en `encrypt --all`: sin archivos temporales de texto plano en disco
 
-#### Cambiado
+### Corregido
+
+- `truncate_key` ya no produce panic con caracteres no-ASCII (ej. identidades GPG con nombres como "María")
+- `vaultic log` ahora muestra la columna de autor según la documentación
+- Los comandos hook ahora registran acciones de auditoría `HookInstall`/`HookUninstall` en lugar de `Init`
+
+### Cambiado
 
 - Eliminado crate `similar` sin uso (limpieza de dependencias)
+- Anotaciones `#[allow(dead_code)]` reducidas de 5 a 2 al cablear items en código de producción
 
 ## [0.5.0-alpha] - 2026-02-21
 
@@ -122,5 +117,9 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 - Licencia AGPL-3.0
 - README con badges, instalación, inicio rápido y referencia de comandos
 
-[Sin publicar]: https://github.com/SoftDryzz/vaultic/compare/v0.1.0-alpha...HEAD
+[1.0.0]: https://github.com/SoftDryzz/vaultic/compare/v0.5.0-alpha...v1.0.0
+[0.5.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.4.0-alpha...v0.5.0-alpha
+[0.4.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.3.0-alpha...v0.4.0-alpha
+[0.3.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.2.0-alpha...v0.3.0-alpha
+[0.2.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.1.0-alpha...v0.2.0-alpha
 [0.1.0-alpha]: https://github.com/SoftDryzz/vaultic/releases/tag/v0.1.0-alpha

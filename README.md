@@ -92,7 +92,7 @@ vaultic decrypt --env dev
 |-----------|-------|--------|
 | Stability | Bug fixes, CLI flags, feature gaps, input validation | ✅ |
 | Polish | Dependency cleanup, error messages, UX refinements | ✅ |
-| Release | Version bump, CI verification, publish v1.0.0 | In progress |
+| Release | Version bump, CI verification, publish v1.0.0 | ✅ |
 
 See [Development Phases](docs/phases.md) for detailed information.
 

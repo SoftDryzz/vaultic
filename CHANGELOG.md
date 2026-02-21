@@ -7,11 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > English | **[Español](docs/CHANGELOG.es.md)**
 
-## [Unreleased]
+## [1.0.0] - 2026-02-21
 
-### Milestone: Stability
-
-#### Added
+### Added
 
 - `vaultic encrypt --all`: re-encrypt all environments for current recipients (key rotation, recipient changes)
 - `vaultic decrypt --key <path>`: specify a custom private key location instead of the default
@@ -24,26 +22,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - "Your key" section in `vaultic status`: shows private key location, public key, and whether you are in the recipients list
 - GPG keyring detection during `vaultic init`: when no age key exists but GPG is available, offers a choice between age and GPG
 - Input validation: environment names restricted to `[a-zA-Z0-9_-]` to prevent path traversal; audit log filename validated against path separators
-
-#### Fixed
-
-- `truncate_key` no longer panics on non-ASCII characters (e.g. GPG identities with names like "María")
-- `vaultic log` now shows the author column as specified in the documentation
-- Hook commands now log proper `HookInstall`/`HookUninstall` audit actions instead of `Init`
-
-### Milestone: Polish
-
-#### Added
-
 - Spinners for encrypt/decrypt operations using `indicatif` for visual feedback
 - Rich help output: detailed `--help` with descriptions and usage examples for all commands
 - Dotenv parser: `export KEY=value` syntax support for shell-style `.env` files
 - Descriptive error messages: all error variants now follow the "cause + context + solution" pattern
 - `EnvironmentNotFound` errors now list available environments from config
+- In-memory re-encryption in `encrypt --all`: no plaintext temp files written to disk
 
-#### Changed
+### Fixed
+
+- `truncate_key` no longer panics on non-ASCII characters (e.g. GPG identities with names like "María")
+- `vaultic log` now shows the author column as specified in the documentation
+- Hook commands now log proper `HookInstall`/`HookUninstall` audit actions instead of `Init`
+
+### Changed
 
 - Removed unused `similar` crate (dependency cleanup)
+- Reduced `#[allow(dead_code)]` annotations from 5 to 2 by wiring items into production code
 
 ## [0.5.0-alpha] - 2026-02-21
 
@@ -122,5 +117,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AGPL-3.0 License
 - README with badges, installation, quick start, and command reference
 
-[Unreleased]: https://github.com/SoftDryzz/vaultic/compare/v0.1.0-alpha...HEAD
+[1.0.0]: https://github.com/SoftDryzz/vaultic/compare/v0.5.0-alpha...v1.0.0
+[0.5.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.4.0-alpha...v0.5.0-alpha
+[0.4.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.3.0-alpha...v0.4.0-alpha
+[0.3.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.2.0-alpha...v0.3.0-alpha
+[0.2.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.1.0-alpha...v0.2.0-alpha
 [0.1.0-alpha]: https://github.com/SoftDryzz/vaultic/releases/tag/v0.1.0-alpha

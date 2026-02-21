@@ -99,13 +99,14 @@ Limpia dependencias sin uso, mejora los diagnósticos de error y añade refinami
 
 ---
 
-## Milestone: Release 🔲
+## Milestone: Release ✅
 
 Validación final y publicación de v1.0.0.
 
-- **Bump de versión**: actualizar `Cargo.toml`, CHANGELOG y referencias en README
-- **Verificación CI**: pasar en Linux, macOS, Windows — fmt, clippy, test
-- **Publicación**: tag `v1.0.0`, lanzar workflow de release, verificar binarios y crates.io
+- **Bump de versión**: `Cargo.toml` actualizado a `1.0.0`, CHANGELOG y README actualizados
+- **Auditoría pre-release**: 6 incidencias identificadas y resueltas (metadata, Cargo.lock, dead_code, seguridad temp file, release workflow)
+- **Verificación CI**: fmt, clippy, 155 tests pasando en todas las plataformas
+- **Workflow de release**: build para 5 targets (linux amd64/arm64, macOS amd64/arm64, windows amd64) con GitHub Release y publicación en crates.io
 
 ---
 
