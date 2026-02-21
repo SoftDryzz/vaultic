@@ -69,3 +69,4 @@ We will acknowledge receipt within 48 hours and aim to provide an initial assess
 - **Encryption is always asymmetric**: secrets are encrypted to specific recipients, never with symmetric passwords
 - **Integrity verification**: encrypt and decrypt operations record a SHA-256 hash of the resulting file in the audit log, enabling tamper detection
 - **Recipient key validation**: public keys are validated at add time (age Bech32 format, GPG fingerprint format) to prevent typos from causing silent failures
+- **Input sanitization**: environment names and config file paths are validated against path traversal patterns to prevent a compromised `config.toml` from writing outside `.vaultic/`

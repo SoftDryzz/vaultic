@@ -21,6 +21,7 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 - SHA-256 `state_hash` en audit log: las operaciones encrypt y decrypt ahora registran el hash del archivo resultante para verificación de integridad
 - Sección "Your key" en `vaultic status`: muestra ubicación de clave privada, clave pública y si estás en la lista de recipients
 - Detección de keyring GPG durante `vaultic init`: cuando no existe clave age pero GPG está disponible, ofrece elegir entre age y GPG
+- Validación de entrada: nombres de entorno restringidos a `[a-zA-Z0-9_-]` para prevenir path traversal; nombre de archivo de audit log validado contra separadores de ruta
 
 ### Corregido
 

@@ -84,7 +84,7 @@ Corrección de bugs, funcionalidades faltantes, validación de entrada y pulido 
 - **Gestión de claves**: `keys setup` ofrece importar clave age existente y opciones de keyring GPG; `keys add` valida formato de clave antes de almacenar
 - **Integridad del audit**: `state_hash` SHA-256 registrado para operaciones encrypt/decrypt
 - **Dashboard de estado**: sección "Your key" mostrando ubicación de clave privada, clave pública y estado en lista de recipients
-- **Validación de entrada**: sanitización de nombres de entorno, validación de ruta de audit log (en progreso)
+- **Validación de entrada**: nombres de entorno restringidos a `[a-zA-Z0-9_-]`, nombre de archivo de audit log validado contra separadores de ruta — previene path traversal desde CLI y archivos de configuración comprometidos
 - **Calidad de mensajes de error**: patrón causa + solución para todas las variantes de error (en progreso)
 
 ---

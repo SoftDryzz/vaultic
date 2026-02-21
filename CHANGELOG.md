@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SHA-256 `state_hash` in audit log: encrypt and decrypt operations now record the hash of the resulting file for integrity verification
 - "Your key" section in `vaultic status`: shows private key location, public key, and whether you are in the recipients list
 - GPG keyring detection during `vaultic init`: when no age key exists but GPG is available, offers a choice between age and GPG
+- Input validation: environment names restricted to `[a-zA-Z0-9_-]` to prevent path traversal; audit log filename validated against path separators
 
 ### Fixed
 

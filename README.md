@@ -87,6 +87,7 @@ vaultic decrypt --env dev
 | Phase 3 | Diff & Check — dotenv parser, variable comparison | ✅ |
 | Phase 4 | Multi-environment — inheritance, resolution | ✅ |
 | Phase 5 | Audit & Polish — logging, status, hooks | ✅ |
+| v1.0 Hardening | Bug fixes, GPG parity, input validation, key management | In progress |
 
 See [Development Phases](docs/phases.md) for detailed information.
 

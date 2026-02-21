@@ -84,7 +84,7 @@ Bug fixes, missing features, input validation, and polish toward the v1.0 releas
 - **Key management**: `keys setup` offers import existing age key and GPG keyring options; `keys add` validates key format before storing
 - **Audit integrity**: SHA-256 `state_hash` recorded for encrypt/decrypt operations
 - **Status dashboard**: "Your key" section showing private key location, public key, and recipient list status
-- **Input validation**: environment name sanitization, audit log path validation (in progress)
+- **Input validation**: environment names restricted to `[a-zA-Z0-9_-]`, audit log filename validated against path separators — prevents path traversal from CLI and compromised config files
 - **Error message quality**: cause + solution pattern for all error variants (in progress)
 
 ---
