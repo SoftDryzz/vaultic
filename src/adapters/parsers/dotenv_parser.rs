@@ -28,6 +28,13 @@ impl DotenvParser {
             return Ok(Line::Comment(raw.to_string()));
         }
 
+        // Strip optional `export ` prefix
+        let trimmed = if let Some(rest) = trimmed.strip_prefix("export ") {
+            rest.trim()
+        } else {
+            trimmed
+        };
+
         // Key=Value line — find the first '='
         let Some(eq_pos) = trimmed.find('=') else {
             return Err(VaulticError::ParseError {
@@ -285,5 +292,24 @@ mod tests {
         let file = parser.parse(content).unwrap();
 
         assert_eq!(file.get("KEY"), Some(""));
+    }
+
+    #[test]
+    fn parse_export_prefix() {
+        let parser = DotenvParser;
+        let content = "export DB_HOST=localhost\nexport API_KEY=\"secret\"";
+        let file = parser.parse(content).unwrap();
+
+        assert_eq!(file.get("DB_HOST"), Some("localhost"));
+        assert_eq!(file.get("API_KEY"), Some("secret"));
+    }
+
+    #[test]
+    fn parse_mixed_export_and_plain() {
+        let parser = DotenvParser;
+        let content = "DB_HOST=localhost\nexport API_KEY=secret\nPORT=3000";
+        let file = parser.parse(content).unwrap();
+
+        assert_eq!(file.keys(), vec!["DB_HOST", "API_KEY", "PORT"]);
     }
 }
