@@ -87,7 +87,12 @@ vaultic decrypt --env dev
 | Fase 3 | Diff y Check — parser dotenv, comparación de variables | ✅ |
 | Fase 4 | Multi-entorno — herencia, resolución | ✅ |
 | Fase 5 | Auditoría y Pulido — logging, estado, hooks | ✅ |
-| Endurecimiento v1.0 | Corrección de bugs, paridad GPG, validación de entrada, gestión de claves | En progreso |
+
+| Milestone | Alcance | Estado |
+|-----------|---------|--------|
+| Estabilidad | Corrección de bugs, flags CLI, gaps de funcionalidad, validación de entrada | ✅ |
+| Pulido | Limpieza de dependencias, mensajes de error, refinamientos UX | En progreso |
+| Release | Bump de versión, verificación CI, publicar v1.0.0 | Planificado |
 
 Consulta [Fases de desarrollo](phases.es.md) para más detalle.
 

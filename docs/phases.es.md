@@ -74,9 +74,9 @@ Completa el conjunto de funcionalidades con audit log, reporte de estado y pulid
 
 ---
 
-## Post-Fase 5 — Endurecimiento v1.0 🔲
+## Milestone: Estabilidad ✅
 
-Corrección de bugs, funcionalidades faltantes, validación de entrada y pulido hacia la release v1.0.
+Corrige crashes, conecta los flags CLI declarados, cierra gaps de funcionalidad y endurece la validación de entrada.
 
 - **Corrección de bugs**: panic de `truncate_key` en caracteres no-ASCII, flags `--all`/`--key` faltantes, acciones de auditoría de hooks, columna de autor en log
 - **Flags CLI conectados**: `--quiet`/`--verbose` en todos los comandos, `--config` para directorio vaultic personalizado
@@ -85,7 +85,27 @@ Corrección de bugs, funcionalidades faltantes, validación de entrada y pulido 
 - **Integridad del audit**: `state_hash` SHA-256 registrado para operaciones encrypt/decrypt
 - **Dashboard de estado**: sección "Your key" mostrando ubicación de clave privada, clave pública y estado en lista de recipients
 - **Validación de entrada**: nombres de entorno restringidos a `[a-zA-Z0-9_-]`, nombre de archivo de audit log validado contra separadores de ruta — previene path traversal desde CLI y archivos de configuración comprometidos
-- **Calidad de mensajes de error**: patrón causa + solución para todas las variantes de error (en progreso)
+
+---
+
+## Milestone: Pulido 🔲
+
+Limpia dependencias sin uso, mejora los diagnósticos de error y añade refinamientos de UX.
+
+- **Limpieza de dependencias**: eliminar crates sin uso, añadir spinners o eliminar `indicatif`
+- **Calidad de mensajes de error**: patrón causa + solución para todas las variantes de error
+- **Ayuda enriquecida**: ayuda detallada por comando con ejemplos vía clap `long_about` + `after_help`
+- **Compatibilidad dotenv**: soporte para sintaxis `export KEY=value` en el parser
+
+---
+
+## Milestone: Release 🔲
+
+Validación final y publicación de v1.0.0.
+
+- **Bump de versión**: actualizar `Cargo.toml`, CHANGELOG y referencias en README
+- **Verificación CI**: pasar en Linux, macOS, Windows — fmt, clippy, test
+- **Publicación**: tag `v1.0.0`, lanzar workflow de release, verificar binarios y crates.io
 
 ---
 

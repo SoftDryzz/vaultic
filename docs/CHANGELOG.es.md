@@ -9,7 +9,9 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 ## [Sin publicar]
 
-### Añadido
+### Milestone: Estabilidad
+
+#### Añadido
 
 - `vaultic encrypt --all`: re-cifra todos los entornos para los recipients actuales (rotación de claves, cambios de recipients)
 - `vaultic decrypt --key <ruta>`: especifica una ubicación de clave privada personalizada
@@ -23,7 +25,7 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 - Detección de keyring GPG durante `vaultic init`: cuando no existe clave age pero GPG está disponible, ofrece elegir entre age y GPG
 - Validación de entrada: nombres de entorno restringidos a `[a-zA-Z0-9_-]` para prevenir path traversal; nombre de archivo de audit log validado contra separadores de ruta
 
-### Corregido
+#### Corregido
 
 - `truncate_key` ya no produce panic con caracteres no-ASCII (ej. identidades GPG con nombres como "María")
 - `vaultic log` ahora muestra la columna de autor según la documentación

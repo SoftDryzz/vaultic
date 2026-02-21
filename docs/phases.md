@@ -74,9 +74,9 @@ Completes the feature set with audit logging, status reporting, and UX polish.
 
 ---
 
-## Post-Phase 5 — v1.0 Hardening 🔲
+## Milestone: Stability ✅
 
-Bug fixes, missing features, input validation, and polish toward the v1.0 release.
+Fixes crashes, connects declared CLI flags, closes feature gaps, and hardens input validation.
 
 - **Bug fixes**: `truncate_key` panic on non-ASCII, missing `--all`/`--key` flags, hook audit actions, log author column
 - **CLI flags wired**: `--quiet`/`--verbose` across all commands, `--config` for custom vaultic directory
@@ -85,7 +85,27 @@ Bug fixes, missing features, input validation, and polish toward the v1.0 releas
 - **Audit integrity**: SHA-256 `state_hash` recorded for encrypt/decrypt operations
 - **Status dashboard**: "Your key" section showing private key location, public key, and recipient list status
 - **Input validation**: environment names restricted to `[a-zA-Z0-9_-]`, audit log filename validated against path separators — prevents path traversal from CLI and compromised config files
-- **Error message quality**: cause + solution pattern for all error variants (in progress)
+
+---
+
+## Milestone: Polish 🔲
+
+Cleans up unused dependencies, improves error diagnostics, and adds UX refinements.
+
+- **Dependency cleanup**: remove unused crates, add spinners or remove `indicatif`
+- **Error message quality**: cause + solution pattern for all error variants
+- **Rich help**: detailed per-command help with examples via clap `long_about` + `after_help`
+- **Dotenv compatibility**: support `export KEY=value` syntax in the parser
+
+---
+
+## Milestone: Release 🔲
+
+Final validation and publishing of v1.0.0.
+
+- **Version bump**: update `Cargo.toml`, CHANGELOG, and README references
+- **CI verification**: pass on Linux, macOS, Windows — fmt, clippy, test
+- **Publish**: tag `v1.0.0`, trigger release workflow, verify binaries and crates.io
 
 ---
 

@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+### Milestone: Stability
+
+#### Added
 
 - `vaultic encrypt --all`: re-encrypt all environments for current recipients (key rotation, recipient changes)
 - `vaultic decrypt --key <path>`: specify a custom private key location instead of the default
@@ -23,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GPG keyring detection during `vaultic init`: when no age key exists but GPG is available, offers a choice between age and GPG
 - Input validation: environment names restricted to `[a-zA-Z0-9_-]` to prevent path traversal; audit log filename validated against path separators
 
-### Fixed
+#### Fixed
 
 - `truncate_key` no longer panics on non-ASCII characters (e.g. GPG identities with names like "María")
 - `vaultic log` now shows the author column as specified in the documentation
