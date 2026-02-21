@@ -2,6 +2,7 @@ use std::path::Path;
 
 use colored::Colorize;
 
+use crate::adapters::cipher::age_backend::AgeBackend;
 use crate::adapters::key_stores::file_key_store::FileKeyStore;
 use crate::cli::output;
 use crate::config::app_config::AppConfig;
@@ -28,6 +29,9 @@ pub fn execute() -> Result<()> {
     println!("  Default env: {}", config.vaultic.default_env.cyan());
     println!("  Config: .vaultic/config.toml");
 
+    // Your key
+    print_your_key(vaultic_dir);
+
     // Recipients
     print_recipients(vaultic_dir);
 
@@ -41,6 +45,54 @@ pub fn execute() -> Result<()> {
     print_audit_status(&config, vaultic_dir);
 
     Ok(())
+}
+
+/// Print the "Your key" section showing the user's key status.
+fn print_your_key(vaultic_dir: &Path) {
+    println!("\n{}", "  Your key".bold());
+
+    let identity_path = match AgeBackend::default_identity_path() {
+        Ok(p) => p,
+        Err(_) => {
+            output::warning("Could not determine key location");
+            return;
+        }
+    };
+
+    if !identity_path.exists() {
+        output::warning(&format!("No private key at {}", identity_path.display()));
+        println!("  Run 'vaultic keys setup' to configure your key.");
+        return;
+    }
+
+    output::success(&format!("Private key: {}", identity_path.display()));
+
+    match AgeBackend::read_public_key(&identity_path) {
+        Ok(public_key) => {
+            output::success(&format!("Public key: {}", truncate_key(&public_key, 50)));
+
+            // Check if user is in the recipients list
+            let store = FileKeyStore::new(vaultic_dir.join("recipients.txt"));
+            let service = KeyService { store };
+            match service.list_keys() {
+                Ok(keys) => {
+                    let in_list = keys.iter().any(|ki| ki.public_key == public_key);
+                    if in_list {
+                        output::success("You are in the recipients list");
+                    } else {
+                        output::warning("You are NOT in the recipients list");
+                        println!("  Ask an admin to run: vaultic keys add {public_key}");
+                    }
+                }
+                Err(_) => {
+                    output::warning("Could not check recipients list");
+                }
+            }
+        }
+        Err(_) => {
+            output::warning("Could not read public key from identity file");
+        }
+    }
 }
 
 /// Print the recipients section.
