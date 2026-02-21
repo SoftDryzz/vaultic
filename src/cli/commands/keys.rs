@@ -1,7 +1,8 @@
 use std::io::{self, BufRead, Write};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::adapters::cipher::age_backend::AgeBackend;
+use crate::adapters::cipher::gpg_backend::GpgBackend;
 use crate::adapters::key_stores::file_key_store::FileKeyStore;
 use crate::cli::KeysAction;
 use crate::cli::output;
@@ -38,9 +39,17 @@ fn execute_setup() -> Result<()> {
         return Ok(());
     }
 
+    // Detect GPG availability
+    let gpg = GpgBackend::new();
+    let gpg_available = gpg.is_available();
+
     println!("\n  What do you want to do?");
     println!("  1. Generate a new age key (recommended for new users)");
-    println!("  2. Skip — I'll configure my key manually\n");
+    println!("  2. Import an existing age key from file");
+    if gpg_available {
+        println!("  3. Use an existing GPG key from your keyring");
+    }
+    println!();
     print!("  Selection [1]: ");
     io::stdout().flush()?;
 
@@ -48,41 +57,140 @@ fn execute_setup() -> Result<()> {
     io::stdin().lock().read_line(&mut input)?;
     let choice = input.trim();
 
-    if choice.is_empty() || choice == "1" {
-        println!();
-        let public_key = AgeBackend::generate_identity(&identity_path)?;
-        output::success(&format!("Private key: {}", identity_path.display()));
-        output::success(&format!("Public key: {public_key}"));
-
-        println!();
-        println!("  Next step:");
-        println!("  Send your PUBLIC key to the project admin:");
-        println!("  {public_key}");
-        println!();
-        println!("  The admin will run:");
-        println!("  vaultic keys add {public_key}");
-        println!();
-        println!("  After that you can decrypt with: vaultic decrypt --env dev");
-
-        // Auto-add to recipients if .vaultic exists
-        let recipients_path = Path::new(".vaultic/recipients.txt");
-        if recipients_path.exists() {
-            let store = FileKeyStore::new(recipients_path.to_path_buf());
-            let service = KeyService { store };
-            let ki = KeyIdentity {
-                public_key: public_key.clone(),
-                label: None,
-                added_at: Some(chrono::Utc::now()),
-            };
-            if service.add_key(&ki).is_ok() {
-                output::success("Public key added to .vaultic/recipients.txt");
-            }
+    match choice {
+        "" | "1" => setup_generate_age(&identity_path)?,
+        "2" => setup_import_age(&identity_path)?,
+        "3" if gpg_available => setup_use_gpg()?,
+        _ => {
+            println!(
+                "\n  When you have your key ready, share the public key with the project admin."
+            );
         }
-    } else {
-        println!("\n  When you have your key ready, share the public key with the project admin.");
     }
 
     Ok(())
+}
+
+/// Option 1: Generate a new age key.
+fn setup_generate_age(identity_path: &Path) -> Result<()> {
+    println!();
+    let public_key = AgeBackend::generate_identity(identity_path)?;
+    output::success(&format!("Private key: {}", identity_path.display()));
+    output::success(&format!("Public key: {public_key}"));
+
+    print_next_step(&public_key);
+    try_auto_add_recipient(&public_key);
+    Ok(())
+}
+
+/// Option 2: Import an existing age key from a file.
+fn setup_import_age(identity_path: &Path) -> Result<()> {
+    print!("\n  Path to your age identity file: ");
+    io::stdout().flush()?;
+
+    let mut input = String::new();
+    io::stdin().lock().read_line(&mut input)?;
+    let source = PathBuf::from(input.trim());
+
+    if !source.exists() {
+        return Err(VaulticError::FileNotFound { path: source });
+    }
+
+    // Validate that the file contains a valid age identity
+    let public_key =
+        AgeBackend::read_public_key(&source).map_err(|_| VaulticError::InvalidConfig {
+            detail: format!(
+                "File does not contain a valid age identity: {}\n\n  \
+                 Expected a file with an AGE-SECRET-KEY-... line.",
+                source.display()
+            ),
+        })?;
+
+    // Copy the identity file to the default location
+    if let Some(parent) = identity_path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    std::fs::copy(&source, identity_path)?;
+
+    output::success(&format!("Key imported to {}", identity_path.display()));
+    output::success(&format!("Public key: {public_key}"));
+
+    print_next_step(&public_key);
+    try_auto_add_recipient(&public_key);
+    Ok(())
+}
+
+/// Option 3: Use an existing GPG key from the system keyring.
+fn setup_use_gpg() -> Result<()> {
+    // List available GPG secret keys
+    let list_output = std::process::Command::new("gpg")
+        .args(["--list-secret-keys", "--keyid-format", "long"])
+        .output()
+        .map_err(|e| VaulticError::EncryptionFailed {
+            reason: format!("Failed to list GPG keys: {e}"),
+        })?;
+
+    if !list_output.status.success() {
+        return Err(VaulticError::EncryptionFailed {
+            reason: "Failed to list GPG secret keys".into(),
+        });
+    }
+
+    let key_list = String::from_utf8_lossy(&list_output.stdout);
+    println!("\n  Available GPG keys:\n");
+    for line in key_list.lines() {
+        println!("  {line}");
+    }
+
+    print!("\n  Enter the GPG key ID or email to use: ");
+    io::stdout().flush()?;
+
+    let mut input = String::new();
+    io::stdin().lock().read_line(&mut input)?;
+    let gpg_id = input.trim().to_string();
+
+    if gpg_id.is_empty() {
+        output::warning("No key selected, setup skipped.");
+        return Ok(());
+    }
+
+    output::success(&format!("GPG key selected: {gpg_id}"));
+    println!("\n  Use --cipher gpg when encrypting/decrypting.");
+
+    print_next_step(&gpg_id);
+    try_auto_add_recipient(&gpg_id);
+    Ok(())
+}
+
+/// Print next step instructions after key setup.
+fn print_next_step(public_key: &str) {
+    println!();
+    println!("  Next step:");
+    println!("  Send your PUBLIC key to the project admin:");
+    println!("  {public_key}");
+    println!();
+    println!("  The admin will run:");
+    println!("  vaultic keys add {public_key}");
+    println!();
+    println!("  After that you can decrypt with: vaultic decrypt --env dev");
+}
+
+/// Try to auto-add the public key to recipients if .vaultic exists.
+fn try_auto_add_recipient(public_key: &str) {
+    let vaultic_dir = crate::cli::context::vaultic_dir();
+    let recipients_path = vaultic_dir.join("recipients.txt");
+    if recipients_path.exists() {
+        let store = FileKeyStore::new(recipients_path);
+        let service = KeyService { store };
+        let ki = KeyIdentity {
+            public_key: public_key.to_string(),
+            label: None,
+            added_at: Some(chrono::Utc::now()),
+        };
+        if service.add_key(&ki).is_ok() {
+            output::success("Public key added to .vaultic/recipients.txt");
+        }
+    }
 }
 
 /// Add a recipient public key.
