@@ -88,14 +88,14 @@ Fixes crashes, connects declared CLI flags, closes feature gaps, and hardens inp
 
 ---
 
-## Milestone: Polish 🔲
+## Milestone: Polish ✅
 
 Cleans up unused dependencies, improves error diagnostics, and adds UX refinements.
 
-- **Dependency cleanup**: remove unused crates, add spinners or remove `indicatif`
-- **Error message quality**: cause + solution pattern for all error variants
-- **Rich help**: detailed per-command help with examples via clap `long_about` + `after_help`
-- **Dotenv compatibility**: support `export KEY=value` syntax in the parser
+- **Dependency cleanup**: removed unused `similar` crate; `indicatif` now used for encrypt/decrypt spinners
+- **Error message quality**: all 5 targeted error variants now follow the cause + context + solution pattern; `EnvironmentNotFound` lists available environments
+- **Rich help**: detailed per-command help with descriptions and usage examples via clap `long_about` + `after_help`
+- **Dotenv compatibility**: `export KEY=value` syntax support in the parser for shell-style `.env` files
 
 ---
 

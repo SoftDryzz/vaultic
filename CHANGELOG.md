@@ -31,6 +31,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `vaultic log` now shows the author column as specified in the documentation
 - Hook commands now log proper `HookInstall`/`HookUninstall` audit actions instead of `Init`
 
+### Milestone: Polish
+
+#### Added
+
+- Spinners for encrypt/decrypt operations using `indicatif` for visual feedback
+- Rich help output: detailed `--help` with descriptions and usage examples for all commands
+- Dotenv parser: `export KEY=value` syntax support for shell-style `.env` files
+- Descriptive error messages: all error variants now follow the "cause + context + solution" pattern
+- `EnvironmentNotFound` errors now list available environments from config
+
+#### Changed
+
+- Removed unused `similar` crate (dependency cleanup)
+
 ## [0.5.0-alpha] - 2026-02-21
 
 ### Added

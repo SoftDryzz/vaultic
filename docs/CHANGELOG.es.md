@@ -31,6 +31,20 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 - `vaultic log` ahora muestra la columna de autor según la documentación
 - Los comandos hook ahora registran acciones de auditoría `HookInstall`/`HookUninstall` en lugar de `Init`
 
+### Milestone: Pulido
+
+#### Añadido
+
+- Spinners para operaciones encrypt/decrypt usando `indicatif` para feedback visual
+- Ayuda enriquecida: `--help` detallado con descripciones y ejemplos de uso para todos los comandos
+- Parser dotenv: soporte para sintaxis `export KEY=value` de archivos `.env` estilo shell
+- Mensajes de error descriptivos: todas las variantes de error siguen el patrón "causa + contexto + solución"
+- Los errores `EnvironmentNotFound` ahora listan los entornos disponibles desde la configuración
+
+#### Cambiado
+
+- Eliminado crate `similar` sin uso (limpieza de dependencias)
+
 ## [0.5.0-alpha] - 2026-02-21
 
 ### Añadido

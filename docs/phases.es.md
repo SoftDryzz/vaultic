@@ -88,14 +88,14 @@ Corrige crashes, conecta los flags CLI declarados, cierra gaps de funcionalidad 
 
 ---
 
-## Milestone: Pulido 🔲
+## Milestone: Pulido ✅
 
 Limpia dependencias sin uso, mejora los diagnósticos de error y añade refinamientos de UX.
 
-- **Limpieza de dependencias**: eliminar crates sin uso, añadir spinners o eliminar `indicatif`
-- **Calidad de mensajes de error**: patrón causa + solución para todas las variantes de error
-- **Ayuda enriquecida**: ayuda detallada por comando con ejemplos vía clap `long_about` + `after_help`
-- **Compatibilidad dotenv**: soporte para sintaxis `export KEY=value` en el parser
+- **Limpieza de dependencias**: eliminado crate `similar` sin uso; `indicatif` ahora usado para spinners en encrypt/decrypt
+- **Calidad de mensajes de error**: las 5 variantes de error objetivo ahora siguen el patrón causa + contexto + solución; `EnvironmentNotFound` lista los entornos disponibles
+- **Ayuda enriquecida**: ayuda detallada por comando con descripciones y ejemplos de uso vía clap `long_about` + `after_help`
+- **Compatibilidad dotenv**: soporte para sintaxis `export KEY=value` en el parser para archivos `.env` estilo shell
 
 ---
 

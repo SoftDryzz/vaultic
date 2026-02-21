@@ -91,8 +91,8 @@ vaultic decrypt --env dev
 | Milestone | Alcance | Estado |
 |-----------|---------|--------|
 | Estabilidad | Corrección de bugs, flags CLI, gaps de funcionalidad, validación de entrada | ✅ |
-| Pulido | Limpieza de dependencias, mensajes de error, refinamientos UX | En progreso |
-| Release | Bump de versión, verificación CI, publicar v1.0.0 | Planificado |
+| Pulido | Limpieza de dependencias, mensajes de error, refinamientos UX | ✅ |
+| Release | Bump de versión, verificación CI, publicar v1.0.0 | En progreso |
 
 Consulta [Fases de desarrollo](phases.es.md) para más detalle.
 
