@@ -70,8 +70,19 @@ impl EnvResolver {
             }
 
             let entry = config.environments.get(&current).ok_or_else(|| {
+                let mut available: Vec<_> = config.environments.keys().collect();
+                available.sort();
                 VaulticError::EnvironmentNotFound {
                     name: current.clone(),
+                    available: if available.is_empty() {
+                        "(none defined)".to_string()
+                    } else {
+                        available
+                            .iter()
+                            .map(|s| s.as_str())
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    },
                 }
             })?;
 
