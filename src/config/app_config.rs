@@ -36,10 +36,7 @@ impl AppConfig {
 
         // Validate audit log filename
         if let Some(audit) = &config.audit {
-            crate::cli::context::validate_simple_filename(
-                &audit.log_file,
-                "audit log file",
-            )?;
+            crate::cli::context::validate_simple_filename(&audit.log_file, "audit log file")?;
         }
 
         Ok(config)

@@ -62,11 +62,7 @@ pub fn validate_simple_filename(name: &str, context: &str) -> Result<()> {
         });
     }
 
-    if name.contains('/')
-        || name.contains('\\')
-        || name.contains("..")
-        || name.starts_with('.')
-    {
+    if name.contains('/') || name.contains('\\') || name.contains("..") || name.starts_with('.') {
         return Err(VaulticError::InvalidConfig {
             detail: format!(
                 "Unsafe {context}: '{name}'\n\n  \
