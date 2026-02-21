@@ -5,9 +5,13 @@ edition = "2024"
 authors = ["SoftDryzz"]
 description = "Secure your secrets. Sync your team. Trust your configs."
 license = "AGPL-3.0-or-later"
+readme = "README.md"
+homepage = "https://github.com/SoftDryzz/vaultic"
+documentation = "https://github.com/SoftDryzz/vaultic#commands"
 repository = "https://github.com/SoftDryzz/vaultic"
 keywords = ["env", "secrets", "encryption", "cli", "dotenv"]
 categories = ["command-line-utilities", "cryptography"]
+exclude = ["tests/", ".github/", "docs/"]
 
 [dependencies]
 # CLI
