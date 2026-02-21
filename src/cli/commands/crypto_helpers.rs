@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::path::Path;
 
 use crate::adapters::cipher::age_backend::AgeBackend;
+use crate::adapters::cipher::gpg_backend::GpgBackend;
 use crate::adapters::key_stores::file_key_store::FileKeyStore;
 use crate::adapters::parsers::dotenv_parser::DotenvParser;
 use crate::core::errors::{Result, VaulticError};
@@ -68,6 +69,19 @@ pub fn decrypt_in_memory(enc_path: &Path, vaultic_dir: &Path, cipher: &str) -> R
                 });
             }
             let backend = AgeBackend::new(identity_path);
+            let service = EncryptionService {
+                cipher: backend,
+                key_store,
+            };
+            service.decrypt_to_bytes(enc_path)
+        }
+        "gpg" => {
+            let backend = GpgBackend::new();
+            if !backend.is_available() {
+                return Err(VaulticError::EncryptionFailed {
+                    reason: "GPG is not installed or not found in PATH".into(),
+                });
+            }
             let service = EncryptionService {
                 cipher: backend,
                 key_store,
