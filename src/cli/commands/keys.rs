@@ -270,6 +270,7 @@ fn execute_list() -> Result<()> {
     }
 
     let store = FileKeyStore::new(vaultic_dir.join("recipients.txt"));
+    output::detail(&format!("Recipients file: {}", store.path().display()));
     let service = KeyService { store };
     let keys = service.list_keys()?;
 

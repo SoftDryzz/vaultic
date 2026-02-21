@@ -24,7 +24,7 @@ pub fn execute() -> Result<()> {
     let config = AppConfig::load(vaultic_dir)?;
 
     // Project info
-    output::header("Vaultic v0.1.0");
+    output::header(&format!("Vaultic v{}", config.vaultic.version));
     println!("  Cipher: {}", config.vaultic.default_cipher.cyan());
     println!("  Default env: {}", config.vaultic.default_env.cyan());
     println!("  Config: .vaultic/config.toml");

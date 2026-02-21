@@ -53,7 +53,6 @@ impl AppConfig {
 
 /// The `[vaultic]` section.
 #[derive(Debug, Clone, Deserialize)]
-#[allow(dead_code)]
 pub struct VaulticSection {
     pub version: String,
     pub default_cipher: String,

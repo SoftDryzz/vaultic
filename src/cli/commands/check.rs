@@ -74,7 +74,10 @@ pub fn execute() -> Result<()> {
         ));
     } else {
         println!();
-        output::success(&format!("{present}/{total_template} variables present"));
+        output::success(&format!(
+            "{present}/{total_template} variables present, {} issue(s) found",
+            result.issue_count()
+        ));
     }
 
     // Audit
