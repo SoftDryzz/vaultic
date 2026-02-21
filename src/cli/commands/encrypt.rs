@@ -65,15 +65,11 @@ fn encrypt_all(vaultic_dir: &Path, cipher: &str) -> Result<()> {
             continue;
         }
 
-        // Decrypt in memory, then re-encrypt with current recipients
+        // Decrypt in memory and re-encrypt directly — no plaintext on disk
         let ciphertext = std::fs::read(&enc_path)?;
         let plaintext = decrypt_bytes(&ciphertext, cipher)?;
-        let temp_path = vaultic_dir.join(format!(".{file_name}.tmp"));
-        std::fs::write(&temp_path, &plaintext)?;
 
-        let result = encrypt_single(&temp_path, &enc_path, env_name, cipher, &key_store);
-        let _ = std::fs::remove_file(&temp_path);
-        result?;
+        encrypt_bytes_to(&plaintext, &enc_path, env_name, cipher, &key_store)?;
 
         success_count += 1;
     }
@@ -132,7 +128,7 @@ fn encrypt_single(
     }
 }
 
-/// Encrypt with a given backend.
+/// Encrypt with a given backend (reads plaintext from file).
 fn encrypt_with<C: CipherBackend>(
     cipher: C,
     key_store: &FileKeyStore,
@@ -169,17 +165,81 @@ fn encrypt_with<C: CipherBackend>(
     output::success(&format!("Saved to {}", dest.display()));
     println!("\n  Commit {} to the repo.", dest.display());
 
-    // Audit
+    log_encrypt_audit(env_name, &cipher_name, recipients.len(), dest);
+
+    Ok(())
+}
+
+/// Encrypt from in-memory bytes (no plaintext written to disk).
+///
+/// Used by `encrypt --all` to re-encrypt already-decrypted content
+/// without ever writing plaintext to a temp file.
+fn encrypt_bytes_to(
+    plaintext: &[u8],
+    dest: &Path,
+    env_name: &str,
+    cipher: &str,
+    key_store: &FileKeyStore,
+) -> Result<()> {
+    match cipher {
+        "age" => {
+            let identity_path = AgeBackend::default_identity_path()?;
+            let backend = AgeBackend::new(identity_path);
+            encrypt_bytes_with(backend, key_store, plaintext, dest, env_name)
+        }
+        "gpg" => {
+            let backend = GpgBackend::new();
+            encrypt_bytes_with(backend, key_store, plaintext, dest, env_name)
+        }
+        other => Err(VaulticError::InvalidConfig {
+            detail: format!("Unknown cipher backend: '{other}'. Use 'age' or 'gpg'."),
+        }),
+    }
+}
+
+/// Encrypt bytes with a given backend (no file I/O for plaintext).
+fn encrypt_bytes_with<C: CipherBackend>(
+    cipher: C,
+    key_store: &FileKeyStore,
+    plaintext: &[u8],
+    dest: &Path,
+    env_name: &str,
+) -> Result<()> {
+    let recipients = key_store.list()?;
+    let cipher_name = cipher.name().to_string();
+
+    let service = EncryptionService {
+        cipher,
+        key_store: key_store.clone(),
+    };
+
+    let sp = output::spinner(&format!(
+        "Re-encrypting {env_name} with {cipher_name} for {} recipient(s)...",
+        recipients.len()
+    ));
+    service.encrypt_bytes(plaintext, dest)?;
+    output::finish_spinner(
+        sp,
+        &format!(
+            "Re-encrypted {env_name} with {cipher_name} for {} recipient(s)",
+            recipients.len()
+        ),
+    );
+
+    log_encrypt_audit(env_name, &cipher_name, recipients.len(), dest);
+
+    Ok(())
+}
+
+/// Log an encrypt audit entry.
+fn log_encrypt_audit(env_name: &str, cipher_name: &str, recipient_count: usize, dest: &Path) {
     let state_hash = super::audit_helpers::compute_file_hash(dest);
     super::audit_helpers::log_audit_with_hash(
         crate::core::models::audit_entry::AuditAction::Encrypt,
         vec![format!("{env_name}.env.enc")],
         Some(format!(
-            "encrypted with {cipher_name} for {} recipient(s)",
-            recipients.len()
+            "encrypted with {cipher_name} for {recipient_count} recipient(s)",
         )),
         state_hash,
     );
-
-    Ok(())
 }

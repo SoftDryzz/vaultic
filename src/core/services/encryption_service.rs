@@ -53,6 +53,28 @@ impl<C: CipherBackend, K: KeyStore> EncryptionService<C, K> {
         Ok(())
     }
 
+    /// Encrypt raw bytes for all authorized recipients and write to `dest`.
+    ///
+    /// Avoids writing plaintext to disk — used by `encrypt --all` to
+    /// re-encrypt already-decrypted content directly from memory.
+    pub fn encrypt_bytes(&self, plaintext: &[u8], dest: &Path) -> Result<()> {
+        let recipients = self.key_store.list()?;
+        if recipients.is_empty() {
+            return Err(VaulticError::EncryptionFailed {
+                reason: "No recipients configured. Run 'vaultic keys add' first.".into(),
+            });
+        }
+
+        let ciphertext = self.cipher.encrypt(plaintext, &recipients)?;
+
+        if let Some(parent) = dest.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        std::fs::write(dest, ciphertext)?;
+
+        Ok(())
+    }
+
     /// Decrypt a file in memory and return the plaintext bytes.
     ///
     /// Useful for operations that need decrypted content without
