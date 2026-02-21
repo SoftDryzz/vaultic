@@ -119,10 +119,12 @@ fn decrypt_with<C: CipherBackend>(
     println!("\n  Run 'vaultic check' to verify no variables are missing.");
 
     // Audit
-    super::audit_helpers::log_audit(
+    let state_hash = super::audit_helpers::compute_file_hash(dest);
+    super::audit_helpers::log_audit_with_hash(
         crate::core::models::audit_entry::AuditAction::Decrypt,
         vec![format!("{env_name}.env.enc")],
         Some(format!("{var_count} variables decrypted")),
+        state_hash,
     );
 
     Ok(())

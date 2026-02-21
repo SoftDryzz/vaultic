@@ -1,6 +1,8 @@
+use std::path::Path;
 use std::process::Command;
 
 use chrono::Utc;
+use sha2::{Digest, Sha256};
 
 use crate::adapters::audit::json_audit_logger::JsonAuditLogger;
 use crate::cli::output;
@@ -40,9 +42,27 @@ pub fn git_author() -> (String, Option<String>) {
     (name, email)
 }
 
+/// Compute the SHA-256 hash of a file, returning the hex string.
+/// Returns `None` if the file cannot be read.
+pub fn compute_file_hash(path: &Path) -> Option<String> {
+    let data = std::fs::read(path).ok()?;
+    let hash = Sha256::digest(&data);
+    Some(format!("{hash:x}"))
+}
+
 /// Record an audit event. Warns on failure instead of propagating
 /// the error, since audit should not block the main operation.
 pub fn log_audit(action: AuditAction, files: Vec<String>, detail: Option<String>) {
+    log_audit_with_hash(action, files, detail, None);
+}
+
+/// Record an audit event with an optional state hash.
+pub fn log_audit_with_hash(
+    action: AuditAction,
+    files: Vec<String>,
+    detail: Option<String>,
+    state_hash: Option<String>,
+) {
     let vaultic_dir = crate::cli::context::vaultic_dir();
 
     let config = AppConfig::load(vaultic_dir).ok();
@@ -63,7 +83,7 @@ pub fn log_audit(action: AuditAction, files: Vec<String>, detail: Option<String>
         action,
         files,
         detail,
-        state_hash: None,
+        state_hash,
     };
 
     if let Err(e) = logger.log_event(&entry) {
@@ -90,5 +110,30 @@ pub fn log_audit_init() {
 
     if let Err(e) = logger.log_event(&entry) {
         output::warning(&format!("Could not write audit log: {e}"));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn compute_file_hash_returns_hex_string() {
+        let dir = tempfile::tempdir().unwrap();
+        let file = dir.path().join("test.txt");
+        std::fs::write(&file, "hello world").unwrap();
+
+        let hash = compute_file_hash(&file).unwrap();
+        // SHA-256 of "hello world" is well-known
+        assert_eq!(
+            hash,
+            "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
+        );
+    }
+
+    #[test]
+    fn compute_file_hash_nonexistent_returns_none() {
+        let result = compute_file_hash(Path::new("/nonexistent/file.txt"));
+        assert!(result.is_none());
     }
 }

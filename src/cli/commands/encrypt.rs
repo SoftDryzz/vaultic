@@ -164,13 +164,15 @@ fn encrypt_with<C: CipherBackend>(
     println!("\n  Commit {} to the repo.", dest.display());
 
     // Audit
-    super::audit_helpers::log_audit(
+    let state_hash = super::audit_helpers::compute_file_hash(dest);
+    super::audit_helpers::log_audit_with_hash(
         crate::core::models::audit_entry::AuditAction::Encrypt,
         vec![format!("{env_name}.env.enc")],
         Some(format!(
             "encrypted with {cipher_name} for {} recipient(s)",
             recipients.len()
         )),
+        state_hash,
     );
 
     Ok(())
