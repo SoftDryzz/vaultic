@@ -8,6 +8,12 @@ fn vaultic() -> Command {
     cargo_bin_cmd!("vaultic")
 }
 
+/// Generate a real age public key for testing.
+fn generate_test_age_pubkey() -> String {
+    let identity = age::x25519::Identity::generate();
+    identity.to_public().to_string()
+}
+
 #[test]
 fn init_creates_vaultic_directory() {
     let dir = assert_fs::TempDir::new().unwrap();
@@ -135,6 +141,7 @@ fn keys_list_empty() {
 #[test]
 fn keys_add_and_list() {
     let dir = assert_fs::TempDir::new().unwrap();
+    let pubkey = generate_test_age_pubkey();
 
     vaultic()
         .current_dir(dir.path())
@@ -143,10 +150,10 @@ fn keys_add_and_list() {
         .assert()
         .success();
 
-    // Add a fake key
+    // Add a real age key
     vaultic()
         .current_dir(dir.path())
-        .args(["keys", "add", "age1testfakekey123"])
+        .args(["keys", "add", &pubkey])
         .assert()
         .success()
         .stdout(predicate::str::contains("Added recipient"));
@@ -157,12 +164,13 @@ fn keys_add_and_list() {
         .args(["keys", "list"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("age1testfakekey123"));
+        .stdout(predicate::str::contains(&pubkey));
 }
 
 #[test]
 fn keys_add_duplicate_fails() {
     let dir = assert_fs::TempDir::new().unwrap();
+    let pubkey = generate_test_age_pubkey();
 
     vaultic()
         .current_dir(dir.path())
@@ -173,13 +181,13 @@ fn keys_add_duplicate_fails() {
 
     vaultic()
         .current_dir(dir.path())
-        .args(["keys", "add", "age1dup"])
+        .args(["keys", "add", &pubkey])
         .assert()
         .success();
 
     vaultic()
         .current_dir(dir.path())
-        .args(["keys", "add", "age1dup"])
+        .args(["keys", "add", &pubkey])
         .assert()
         .failure()
         .stderr(predicate::str::contains("already exists"));
@@ -188,6 +196,7 @@ fn keys_add_duplicate_fails() {
 #[test]
 fn keys_remove() {
     let dir = assert_fs::TempDir::new().unwrap();
+    let pubkey = generate_test_age_pubkey();
 
     vaultic()
         .current_dir(dir.path())
@@ -198,13 +207,13 @@ fn keys_remove() {
 
     vaultic()
         .current_dir(dir.path())
-        .args(["keys", "add", "age1toremove"])
+        .args(["keys", "add", &pubkey])
         .assert()
         .success();
 
     vaultic()
         .current_dir(dir.path())
-        .args(["keys", "remove", "age1toremove"])
+        .args(["keys", "remove", &pubkey])
         .assert()
         .success()
         .stdout(predicate::str::contains("Removed recipient"));

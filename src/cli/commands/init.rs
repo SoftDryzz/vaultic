@@ -2,6 +2,7 @@ use std::io::{self, BufRead, Write};
 use std::path::Path;
 
 use crate::adapters::cipher::age_backend::AgeBackend;
+use crate::adapters::cipher::gpg_backend::GpgBackend;
 use crate::cli::output;
 use crate::core::errors::{Result, VaulticError};
 
@@ -62,34 +63,54 @@ log_file = "audit.log"
     let identity_path = AgeBackend::default_identity_path()?;
 
     if identity_path.exists() {
+        // Scenario A: Existing age key found
         let public_key = AgeBackend::read_public_key(&identity_path)?;
         output::success(&format!("Age key found at {}", identity_path.display()));
         output::success(&format!("Public key: {public_key}"));
 
         add_self_to_recipients(vaultic_dir, &public_key)?;
     } else {
-        output::warning("No age or GPG key found\n");
-        print!("  Generate a new age key now? [Y/n]: ");
-        io::stdout().flush()?;
+        let gpg = GpgBackend::new();
+        let gpg_available = gpg.is_available();
 
-        let mut input = String::new();
-        io::stdin().lock().read_line(&mut input)?;
-        let answer = input.trim().to_lowercase();
+        if gpg_available {
+            // Scenario C: Has GPG but not age
+            output::warning("No age key found");
+            output::success("GPG keyring detected\n");
 
-        if answer.is_empty() || answer == "y" || answer == "yes" {
-            println!();
-            let public_key = AgeBackend::generate_identity(&identity_path)?;
-            output::success(&format!(
-                "Private key saved to: {}",
-                identity_path.display()
-            ));
-            output::success(&format!("Public key: {public_key}"));
+            println!("  What do you prefer?");
+            println!("  1. Generate a new age key (recommended, simpler)");
+            println!("  2. Use your existing GPG key\n");
+            print!("  Selection [1]: ");
+            io::stdout().flush()?;
 
-            print_key_warning(&identity_path);
-            add_self_to_recipients(vaultic_dir, &public_key)?;
+            let mut input = String::new();
+            io::stdin().lock().read_line(&mut input)?;
+            let choice = input.trim();
+
+            if choice == "2" {
+                output::success("Using GPG for encryption");
+                println!("  Use --cipher gpg when encrypting/decrypting.");
+                println!("  Run 'vaultic keys setup' to configure your GPG identity.\n");
+            } else {
+                generate_age_key(&identity_path, vaultic_dir)?;
+            }
         } else {
-            output::warning("Skipped key generation");
-            println!("  Run 'vaultic keys setup' later to configure your key.\n");
+            // Scenario B: No keys at all
+            output::warning("No age or GPG key found\n");
+            print!("  Generate a new age key now? [Y/n]: ");
+            io::stdout().flush()?;
+
+            let mut input = String::new();
+            io::stdin().lock().read_line(&mut input)?;
+            let answer = input.trim().to_lowercase();
+
+            if answer.is_empty() || answer == "y" || answer == "yes" {
+                generate_age_key(&identity_path, vaultic_dir)?;
+            } else {
+                output::warning("Skipped key generation");
+                println!("  Run 'vaultic keys setup' later to configure your key.\n");
+            }
         }
     }
 
@@ -99,6 +120,21 @@ log_file = "audit.log"
     // Audit: record the init operation
     super::audit_helpers::log_audit_init();
 
+    Ok(())
+}
+
+/// Generate a new age key, print the warning, and add to recipients.
+fn generate_age_key(identity_path: &Path, vaultic_dir: &Path) -> Result<()> {
+    println!();
+    let public_key = AgeBackend::generate_identity(identity_path)?;
+    output::success(&format!(
+        "Private key saved to: {}",
+        identity_path.display()
+    ));
+    output::success(&format!("Public key: {public_key}"));
+
+    print_key_warning(identity_path);
+    add_self_to_recipients(vaultic_dir, &public_key)?;
     Ok(())
 }
 
