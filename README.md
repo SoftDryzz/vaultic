@@ -49,6 +49,28 @@ git commit -m "feat: add encrypted secrets"
 vaultic decrypt --env dev
 ```
 
+## How It Works
+
+Each team member has their own key pair (public + private). When you encrypt, the file is sealed for **all** authorized public keys at once — so everyone can decrypt independently with their own private key. No one shares private keys.
+
+```
+Admin setup                          Team member joins
+─────────────                        ──────────────────
+vaultic init                         vaultic keys setup
+  → generates admin key pair           → generates their key pair
+  → creates .vaultic/                  → sends PUBLIC key to admin
+
+Admin adds member                    Member decrypts
+────────────────                     ────────────────
+vaultic keys add <public_key>        git pull
+vaultic encrypt --all                vaultic decrypt --env dev
+  → re-encrypts for all keys           → decrypts with their private key
+```
+
+**Updating secrets:** Anyone encrypts → pushes → others pull + decrypt. Changes flow through Git like any other file.
+
+**Revoking access:** Admin removes the key → re-encrypts → the removed member can no longer decrypt new versions.
+
 ## Commands
 
 > For detailed explanations, examples, and common workflows, see the [Command Reference](docs/commands.md).
