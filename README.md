@@ -51,6 +51,8 @@ vaultic decrypt --env dev
 
 ## Commands
 
+> For detailed explanations, examples, and common workflows, see the [Command Reference](docs/commands.md).
+
 | Command | Description | Status |
 |---------|-------------|--------|
 | `vaultic init` | Initialize Vaultic in the current project | ✅ |
