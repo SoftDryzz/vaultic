@@ -87,12 +87,16 @@ pub enum Commands {
     #[command(
         long_about = "Decrypt secret files using your private key.\n\n\
                       Reads the encrypted file from .vaultic/<env>.env.enc and writes \
-                      the plaintext to .env in the working directory.\n\n\
+                      the plaintext to .env in the working directory (by default).\n\n\
+                      Use --output to write the decrypted file to a custom path. \
+                      This is useful when running Vaultic from a parent directory \
+                      but the application expects .env in a subdirectory.\n\n\
                       By default, uses the age key at ~/.config/age/keys.txt. \
                       Use --key to specify a different private key location.",
         after_help = "Examples:\n  \
-                      vaultic decrypt                       # Decrypt dev environment\n  \
-                      vaultic decrypt --env prod            # Decrypt prod environment\n  \
+                      vaultic decrypt                       # Decrypt dev → ./.env\n  \
+                      vaultic decrypt --env prod            # Decrypt prod → ./.env\n  \
+                      vaultic decrypt -o backend/.env       # Decrypt dev → backend/.env\n  \
                       vaultic decrypt --key /path/to/key    # Use custom private key\n  \
                       vaultic decrypt --cipher gpg          # Decrypt with GPG backend"
     )]
@@ -102,6 +106,9 @@ pub enum Commands {
         /// Path to private key file
         #[arg(long)]
         key: Option<String>,
+        /// Output path for the decrypted file (default: .env)
+        #[arg(short, long)]
+        output: Option<String>,
     },
 
     /// Verify missing variables against template
@@ -138,13 +145,20 @@ pub enum Commands {
         long_about = "Generate a resolved .env file by applying environment inheritance.\n\n\
                       Reads the inheritance chain from .vaultic/config.toml, decrypts \
                       each layer in memory, and merges them from base to leaf. \
-                      The overlay always wins when keys conflict.",
+                      The overlay always wins when keys conflict.\n\n\
+                      Use --output to write the resolved file to a custom path instead \
+                      of the default .env in the working directory.",
         after_help = "Examples:\n  \
-                      vaultic resolve --env dev             # Resolve dev (base → dev)\n  \
+                      vaultic resolve --env dev             # Resolve dev → ./.env\n  \
                       vaultic resolve --env staging         # Resolve staging chain\n  \
+                      vaultic resolve --env prod -o prod.env  # Resolve prod → prod.env\n  \
                       vaultic resolve --env prod --cipher gpg"
     )]
-    Resolve,
+    Resolve {
+        /// Output path for the resolved file (default: .env)
+        #[arg(short, long)]
+        output: Option<String>,
+    },
 
     /// Manage keys and recipients
     #[command(

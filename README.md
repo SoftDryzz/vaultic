@@ -55,7 +55,7 @@ vaultic decrypt --env dev
 |---------|-------------|--------|
 | `vaultic init` | Initialize Vaultic in the current project | ✅ |
 | `vaultic encrypt [file]` | Encrypt secret files (`--all` to re-encrypt all envs) | ✅ |
-| `vaultic decrypt [file]` | Decrypt secret files (`--key <path>` for custom key) | ✅ |
+| `vaultic decrypt [file]` | Decrypt secret files (`--key <path>`, `-o <path>`) | ✅ |
 | `vaultic check` | Verify missing variables against template | ✅ |
 | `vaultic diff <file1> <file2>` | Compare two secret files side by side | ✅ |
 | `vaultic diff --env dev --env prod` | Compare two resolved environments | ✅ |
@@ -63,7 +63,7 @@ vaultic decrypt --env dev
 | `vaultic keys add <key>` | Add a recipient | ✅ |
 | `vaultic keys list` | List authorized recipients | ✅ |
 | `vaultic keys remove <key>` | Remove a recipient | ✅ |
-| `vaultic resolve --env <env>` | Generate resolved file with inheritance | ✅ |
+| `vaultic resolve --env <env>` | Generate resolved file with inheritance (`-o <path>`) | ✅ |
 | `vaultic log` | Show operation history | ✅ |
 | `vaultic status` | Show full project status | ✅ |
 | `vaultic hook install` | Install git pre-commit hook | ✅ |

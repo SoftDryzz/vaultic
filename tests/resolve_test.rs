@@ -139,6 +139,71 @@ fn resolve_base_only_works() {
 }
 
 #[test]
+fn resolve_with_output_flag_writes_to_custom_path() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    setup_multi_env(
+        &dir,
+        "DB_HOST=localhost\nDB_PORT=5432",
+        "dev",
+        "DB_HOST=dev-db\nDEBUG=true",
+    );
+
+    // Create target subdirectory
+    std::fs::create_dir_all(dir.path().join("backend")).unwrap();
+
+    // Resolve with --output pointing to subdirectory
+    vaultic()
+        .current_dir(dir.path())
+        .args(["resolve", "--env", "dev", "--output", "backend/.env"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Written to backend/.env"));
+
+    // File should exist at custom path with merged content
+    let content = std::fs::read_to_string(dir.path().join("backend/.env")).unwrap();
+    assert!(content.contains("DB_HOST=dev-db"), "overlay should win");
+    assert!(content.contains("DB_PORT=5432"), "base value preserved");
+
+    // File should NOT exist at default .env path
+    assert!(!dir.path().join(".env").exists());
+}
+
+#[test]
+fn resolve_with_short_output_flag() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    // Init with key
+    vaultic()
+        .current_dir(dir.path())
+        .arg("init")
+        .write_stdin("y\n")
+        .assert()
+        .success();
+
+    // Encrypt base
+    dir.child(".env").write_str("APP_NAME=vaultic").unwrap();
+    vaultic()
+        .current_dir(dir.path())
+        .args(["encrypt", "--env", "base"])
+        .assert()
+        .success();
+
+    std::fs::remove_file(dir.path().join(".env")).unwrap();
+
+    // Resolve with -o short flag
+    vaultic()
+        .current_dir(dir.path())
+        .args(["resolve", "--env", "base", "-o", "resolved.env"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Written to resolved.env"));
+
+    let content = std::fs::read_to_string(dir.path().join("resolved.env")).unwrap();
+    assert!(content.contains("APP_NAME=vaultic"));
+}
+
+#[test]
 fn diff_env_shows_differences() {
     let dir = assert_fs::TempDir::new().unwrap();
 

@@ -52,6 +52,42 @@ fn encrypt_creates_audit_entry() {
 }
 
 #[test]
+fn decrypt_audit_includes_destination_path() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    vaultic()
+        .current_dir(dir.path())
+        .arg("init")
+        .write_stdin("y\n")
+        .assert()
+        .success();
+
+    dir.child(".env").write_str("SECRET=audit_test\n").unwrap();
+
+    vaultic()
+        .current_dir(dir.path())
+        .args(["encrypt", "--env", "dev"])
+        .assert()
+        .success();
+
+    std::fs::remove_file(dir.path().join(".env")).unwrap();
+
+    // Decrypt with custom output
+    vaultic()
+        .current_dir(dir.path())
+        .args(["decrypt", "--env", "dev", "-o", "custom.env"])
+        .assert()
+        .success();
+
+    let log = std::fs::read_to_string(dir.path().join(".vaultic/audit.log")).unwrap();
+    // Audit detail should mention the destination path
+    assert!(
+        log.contains("custom.env"),
+        "audit log should include destination path"
+    );
+}
+
+#[test]
 fn log_shows_entries() {
     let dir = assert_fs::TempDir::new().unwrap();
 

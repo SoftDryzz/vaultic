@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > English | **[Español](docs/CHANGELOG.es.md)**
 
+## [1.1.0] - 2026-02-23
+
+### Added
+
+- `vaultic decrypt --output <path>` / `-o <path>`: specify a custom output path for the decrypted file instead of the default `.env` in the current directory. Useful when running Vaultic from a parent directory while the application expects `.env` in a subdirectory (e.g., `vaultic decrypt --env dev -o backend/.env`)
+- `vaultic resolve --output <path>` / `-o <path>`: same custom output path support for the resolve command (e.g., `vaultic resolve --env dev -o backend/.env`)
+
+### Fixed
+
+- Decrypt audit log now includes the destination file path in the detail field for better traceability
+
 ## [1.0.0] - 2026-02-21
 
 ### Added
@@ -117,6 +128,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AGPL-3.0 License
 - README with badges, installation, quick start, and command reference
 
+[1.1.0]: https://github.com/SoftDryzz/vaultic/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/SoftDryzz/vaultic/compare/v0.5.0-alpha...v1.0.0
 [0.5.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.4.0-alpha...v0.5.0-alpha
 [0.4.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.3.0-alpha...v0.4.0-alpha

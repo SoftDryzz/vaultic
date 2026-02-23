@@ -10,8 +10,8 @@ use crate::core::traits::parser::ConfigParser;
 ///
 /// Resolves the full inheritance chain for the given environment,
 /// decrypting each layer in memory, merging from base to leaf,
-/// and writing the result to `.env`.
-pub fn execute(env: Option<&str>, cipher: &str) -> Result<()> {
+/// and writing the result to `.env` (or to `output_path` if provided).
+pub fn execute(env: Option<&str>, cipher: &str, output_path: Option<&str>) -> Result<()> {
     let vaultic_dir = crate::cli::context::vaultic_dir();
     if !vaultic_dir.exists() {
         return Err(VaulticError::InvalidConfig {
@@ -42,13 +42,14 @@ pub fn execute(env: Option<&str>, cipher: &str) -> Result<()> {
     let content = parser.serialize(&environment.resolved)?;
     let var_count = environment.resolved.keys().len();
 
-    std::fs::write(".env", &content)?;
+    let dest = output_path.unwrap_or(".env");
+    std::fs::write(dest, &content)?;
 
     output::success(&format!(
         "Resolved {var_count} variables from {} layer(s)",
         environment.layers.len()
     ));
-    output::success("Written to .env");
+    output::success(&format!("Written to {dest}"));
     println!("\n  Run 'vaultic check' to verify against the template.");
 
     // Audit

@@ -11,7 +11,7 @@ use crate::core::traits::cipher::CipherBackend;
 /// Execute the `vaultic decrypt` command.
 ///
 /// Decrypts an encrypted file from `.vaultic/` and writes
-/// the plaintext to the working directory.
+/// the plaintext to the working directory (or to `output_path` if provided).
 /// When `key_path` is provided, uses that file as the private key
 /// instead of the default location.
 pub fn execute(
@@ -19,6 +19,7 @@ pub fn execute(
     env: Option<&str>,
     cipher: &str,
     key_path: Option<&str>,
+    output_path: Option<&str>,
 ) -> Result<()> {
     let vaultic_dir = crate::cli::context::vaultic_dir();
     if !vaultic_dir.exists() {
@@ -39,7 +40,10 @@ pub fn execute(
         });
     }
 
-    let dest = PathBuf::from(".env");
+    let dest = match output_path {
+        Some(p) => PathBuf::from(p),
+        None => PathBuf::from(".env"),
+    };
     let key_store = FileKeyStore::new(vaultic_dir.join("recipients.txt"));
 
     match cipher {
@@ -115,7 +119,10 @@ fn decrypt_with<C: CipherBackend>(
         .count();
 
     output::finish_spinner(sp, &format!("Decrypted {}", source.display()));
-    output::success(&format!("Generated .env with {var_count} variables"));
+    output::success(&format!(
+        "Generated {} with {var_count} variables",
+        dest.display()
+    ));
     println!("\n  Run 'vaultic check' to verify no variables are missing.");
 
     // Audit
@@ -123,7 +130,10 @@ fn decrypt_with<C: CipherBackend>(
     super::audit_helpers::log_audit_with_hash(
         crate::core::models::audit_entry::AuditAction::Decrypt,
         vec![format!("{env_name}.env.enc")],
-        Some(format!("{var_count} variables decrypted")),
+        Some(format!(
+            "{var_count} variables decrypted to {}",
+            dest.display()
+        )),
         state_hash,
     );
 

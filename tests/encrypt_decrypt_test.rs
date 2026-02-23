@@ -315,6 +315,86 @@ fn unknown_cipher_fails() {
 }
 
 #[test]
+fn decrypt_with_output_flag_writes_to_custom_path() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    // Init with auto key generation
+    vaultic()
+        .current_dir(dir.path())
+        .arg("init")
+        .write_stdin("y\n")
+        .assert()
+        .success();
+
+    // Create and encrypt a .env
+    dir.child(".env")
+        .write_str("DB_HOST=localhost\nPORT=3000")
+        .unwrap();
+
+    vaultic()
+        .current_dir(dir.path())
+        .args(["encrypt", "--env", "dev"])
+        .assert()
+        .success();
+
+    // Remove .env so we can verify it's NOT recreated at default path
+    std::fs::remove_file(dir.path().join(".env")).unwrap();
+
+    // Create the target subdirectory
+    std::fs::create_dir_all(dir.path().join("backend")).unwrap();
+
+    // Decrypt with --output pointing to subdirectory
+    vaultic()
+        .current_dir(dir.path())
+        .args(["decrypt", "--env", "dev", "--output", "backend/.env"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("backend/.env"))
+        .stdout(predicate::str::contains("2 variables"));
+
+    // File should exist at custom path
+    let content = std::fs::read_to_string(dir.path().join("backend/.env")).unwrap();
+    assert!(content.contains("DB_HOST=localhost"));
+    assert!(content.contains("PORT=3000"));
+
+    // File should NOT exist at default .env path
+    assert!(!dir.path().join(".env").exists());
+}
+
+#[test]
+fn decrypt_with_short_output_flag() {
+    let dir = assert_fs::TempDir::new().unwrap();
+
+    vaultic()
+        .current_dir(dir.path())
+        .arg("init")
+        .write_stdin("y\n")
+        .assert()
+        .success();
+
+    dir.child(".env").write_str("SECRET=abc123").unwrap();
+
+    vaultic()
+        .current_dir(dir.path())
+        .args(["encrypt", "--env", "dev"])
+        .assert()
+        .success();
+
+    std::fs::remove_file(dir.path().join(".env")).unwrap();
+
+    // Use short -o flag
+    vaultic()
+        .current_dir(dir.path())
+        .args(["decrypt", "--env", "dev", "-o", "custom.env"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("custom.env"));
+
+    let content = std::fs::read_to_string(dir.path().join("custom.env")).unwrap();
+    assert!(content.contains("SECRET=abc123"));
+}
+
+#[test]
 fn keys_add_with_label_shows_in_list() {
     let dir = assert_fs::TempDir::new().unwrap();
 

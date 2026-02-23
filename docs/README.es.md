@@ -55,7 +55,7 @@ vaultic decrypt --env dev
 |---------|-------------|--------|
 | `vaultic init` | Inicializa Vaultic en el proyecto actual | ✅ |
 | `vaultic encrypt [archivo]` | Cifra archivos de secretos (`--all` para re-cifrar todos los entornos) | ✅ |
-| `vaultic decrypt [archivo]` | Descifra archivos de secretos (`--key <ruta>` para clave personalizada) | ✅ |
+| `vaultic decrypt [archivo]` | Descifra archivos de secretos (`--key <ruta>`, `-o <ruta>`) | ✅ |
 | `vaultic check` | Verifica variables faltantes contra el template | ✅ |
 | `vaultic diff <archivo1> <archivo2>` | Compara dos archivos de secretos lado a lado | ✅ |
 | `vaultic diff --env dev --env prod` | Compara dos entornos resueltos | ✅ |
@@ -63,7 +63,7 @@ vaultic decrypt --env dev
 | `vaultic keys add <clave>` | Añade un recipient | ✅ |
 | `vaultic keys list` | Lista recipients autorizados | ✅ |
 | `vaultic keys remove <clave>` | Elimina un recipient | ✅ |
-| `vaultic resolve --env <env>` | Genera archivo resuelto con herencia | ✅ |
+| `vaultic resolve --env <env>` | Genera archivo resuelto con herencia (`-o <ruta>`) | ✅ |
 | `vaultic log` | Muestra historial de operaciones | ✅ |
 | `vaultic status` | Muestra estado completo del proyecto | ✅ |
 | `vaultic hook install` | Instala git pre-commit hook | ✅ |

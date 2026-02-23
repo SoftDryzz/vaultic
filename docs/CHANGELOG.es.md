@@ -7,6 +7,17 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 > **[English](../CHANGELOG.md)** | Español
 
+## [1.1.0] - 2026-02-23
+
+### Añadido
+
+- `vaultic decrypt --output <ruta>` / `-o <ruta>`: especifica una ruta de salida personalizada para el archivo descifrado en lugar del `.env` por defecto en el directorio actual. Útil cuando se ejecuta Vaultic desde un directorio padre pero la aplicación espera `.env` en un subdirectorio (ej. `vaultic decrypt --env dev -o backend/.env`)
+- `vaultic resolve --output <ruta>` / `-o <ruta>`: mismo soporte de ruta de salida personalizada para el comando resolve (ej. `vaultic resolve --env dev -o backend/.env`)
+
+### Corregido
+
+- El audit log de decrypt ahora incluye la ruta del archivo destino en el campo de detalle para mejor trazabilidad
+
 ## [1.0.0] - 2026-02-21
 
 ### Añadido
@@ -117,6 +128,7 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 - Licencia AGPL-3.0
 - README con badges, instalación, inicio rápido y referencia de comandos
 
+[1.1.0]: https://github.com/SoftDryzz/vaultic/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/SoftDryzz/vaultic/compare/v0.5.0-alpha...v1.0.0
 [0.5.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.4.0-alpha...v0.5.0-alpha
 [0.4.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.3.0-alpha...v0.4.0-alpha
