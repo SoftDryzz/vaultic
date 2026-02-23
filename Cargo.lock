@@ -1797,6 +1797,7 @@ dependencies = [
  "dirs",
  "indicatif",
  "predicates",
+ "secrecy",
  "serde",
  "serde_json",
  "sha2",

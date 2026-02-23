@@ -2,6 +2,7 @@ use assert_cmd::Command;
 use assert_cmd::cargo::cargo_bin_cmd;
 use assert_fs::prelude::*;
 use predicates::prelude::*;
+use secrecy::ExposeSecret;
 
 /// Run vaultic with given args.
 fn vaultic() -> Command {
@@ -55,10 +56,29 @@ fn encrypt_creates_audit_entry() {
 fn decrypt_audit_includes_destination_path() {
     let dir = assert_fs::TempDir::new().unwrap();
 
+    // Generate a local key to avoid race conditions in CI where
+    // parallel tests overwrite the global ~/.config/age/keys.txt
+    let identity = age::x25519::Identity::generate();
+    let pubkey = identity.to_public().to_string();
+    let key_path = dir.path().join("test_key.txt");
+    let key_contents = format!(
+        "# public key: {pubkey}\n{}\n",
+        identity.to_string().expose_secret()
+    );
+    std::fs::write(&key_path, key_contents).unwrap();
+
+    // Init without global key generation
     vaultic()
         .current_dir(dir.path())
         .arg("init")
-        .write_stdin("y\n")
+        .write_stdin("n\n")
+        .assert()
+        .success();
+
+    // Add our local key as recipient
+    vaultic()
+        .current_dir(dir.path())
+        .args(["keys", "add", &pubkey])
         .assert()
         .success();
 
@@ -72,10 +92,18 @@ fn decrypt_audit_includes_destination_path() {
 
     std::fs::remove_file(dir.path().join(".env")).unwrap();
 
-    // Decrypt with custom output
+    // Decrypt with custom output and explicit local key
     vaultic()
         .current_dir(dir.path())
-        .args(["decrypt", "--env", "dev", "-o", "custom.env"])
+        .args([
+            "decrypt",
+            "--env",
+            "dev",
+            "-o",
+            "custom.env",
+            "--key",
+            key_path.to_str().unwrap(),
+        ])
         .assert()
         .success();
 

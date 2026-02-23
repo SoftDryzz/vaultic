@@ -26,7 +26,8 @@ Cada archivo se cifra para N destinatarios. Solo quienes posean la clave privada
 
 | Versión | Soportada |
 |---------|-----------|
-| 0.x.x (actual) | Sí |
+| 1.x.x (actual) | Sí |
+| 0.x.x | No |
 
 ## Reportar una Vulnerabilidad
 

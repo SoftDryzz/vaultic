@@ -26,7 +26,8 @@ Each file is encrypted for N recipients. Only holders of a matching private key 
 
 | Version | Supported |
 |---------|-----------|
-| 0.x.x (current) | Yes |
+| 1.x.x (current) | Yes |
+| 0.x.x | No |
 
 ## Reporting a Vulnerability
 
