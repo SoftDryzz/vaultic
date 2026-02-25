@@ -11,6 +11,45 @@ Vaultic uses asymmetric cryptography (public/private key pairs):
 
 Each file is encrypted for N recipients. Only holders of a matching private key can decrypt.
 
+### How Multi-Recipient Encryption Works
+
+When you run `vaultic encrypt`, the file is **not** encrypted once per recipient. Instead:
+
+1. A random **file key** is generated (one-time use, 256-bit)
+2. The file contents are encrypted **once** with this file key (ChaCha20-Poly1305 — fast symmetric cipher)
+3. The file key itself is then encrypted **separately for each recipient** using their public key (X25519 — asymmetric)
+
+The resulting `.enc` file looks like this:
+
+```
+┌─────────────────────────────────────┐
+│ Header                              │
+│  → file key encrypted for Alice     │  ← only Alice's private key opens this
+│  → file key encrypted for Bob       │  ← only Bob's private key opens this
+│  → file key encrypted for Carol     │  ← only Carol's private key opens this
+├─────────────────────────────────────┤
+│ Body                                │
+│  → file contents encrypted with     │
+│     the file key (ChaCha20-Poly1305)│
+└─────────────────────────────────────┘
+```
+
+**To decrypt**, a recipient:
+1. Finds the header block that matches their public key
+2. Decrypts the file key using their private key
+3. Uses the file key to decrypt the body
+
+This means:
+- **Adding recipients does not increase file size significantly** — only the header grows (~140 bytes per recipient)
+- **Each person decrypts independently** — no shared secrets, no key exchange between team members
+- **Removing a recipient requires re-encryption** (`encrypt --all`) — the file must be re-encrypted with a new file key that excludes the removed recipient
+
+### Why public keys in the repo are safe
+
+A public key can **only encrypt** — it cannot decrypt anything. Even if an attacker has all the public keys and all the `.enc` files, they cannot recover any secrets. They would need a private key, which never leaves the owner's machine.
+
+Think of a public key as a mailbox slot: anyone can drop a letter in (encrypt), but only the owner with their key can open it and read the contents (decrypt).
+
 ## What Is Safe to Publish
 
 | File | Safe in public repo? | Reason |
