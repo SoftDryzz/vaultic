@@ -11,6 +11,46 @@ Vaultic utiliza criptografía asimétrica (pares de clave pública/privada):
 
 Cada archivo se cifra para N destinatarios. Solo quienes posean la clave privada correspondiente pueden descifrar.
 
+### Cómo Funciona el Cifrado Multi-Destinatario
+
+Cuando ejecutas `vaultic encrypt`, el archivo **no** se cifra una vez por destinatario. En su lugar:
+
+1. Se genera una **clave de archivo** aleatoria (un solo uso, 256-bit)
+2. El contenido del archivo se cifra **una sola vez** con esta clave de archivo (ChaCha20-Poly1305 — cifrado simétrico rápido)
+3. La clave de archivo se cifra **por separado para cada destinatario** usando su clave pública (X25519 — asimétrico)
+
+El archivo `.enc` resultante tiene esta estructura:
+
+```
+┌─────────────────────────────────────┐
+│ Header                              │
+│  → clave de archivo cifrada p/Alice │  ← solo la clave privada de Alice abre esto
+│  → clave de archivo cifrada p/Bob   │  ← solo la clave privada de Bob abre esto
+│  → clave de archivo cifrada p/Carol │  ← solo la clave privada de Carol abre esto
+├─────────────────────────────────────┤
+│ Body                                │
+│  → contenido cifrado con            │
+│     la clave de archivo             │
+│     (ChaCha20-Poly1305)             │
+└─────────────────────────────────────┘
+```
+
+**Para descifrar**, un destinatario:
+1. Encuentra el bloque del header que corresponde a su clave pública
+2. Descifra la clave de archivo usando su clave privada
+3. Usa la clave de archivo para descifrar el body
+
+Esto significa:
+- **Añadir destinatarios no aumenta significativamente el tamaño del archivo** — solo crece el header (~140 bytes por destinatario)
+- **Cada persona descifra de forma independiente** — sin secretos compartidos, sin intercambio de claves entre miembros del equipo
+- **Eliminar un destinatario requiere re-cifrar** (`encrypt --all`) — el archivo debe re-cifrarse con una nueva clave de archivo que excluya al destinatario eliminado
+
+### Por qué las claves públicas en el repo son seguras
+
+Una clave pública **solo puede cifrar** — no puede descifrar nada. Incluso si un atacante tiene todas las claves públicas y todos los archivos `.enc`, no puede recuperar ningún secreto. Necesitaría una clave privada, que nunca sale de la máquina de su propietario.
+
+Piensa en una clave pública como la ranura de un buzón: cualquiera puede echar una carta (cifrar), pero solo el propietario con su llave puede abrirlo y leer el contenido (descifrar).
+
 ## Qué Es Seguro Publicar
 
 | Archivo | ¿Seguro en repo público? | Motivo |
