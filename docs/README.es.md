@@ -102,6 +102,10 @@ vaultic encrypt --all                vaultic decrypt --env dev
 | `-v, --verbose` | Salida detallada (archivos fuente, recipients, etc.) |
 | `-q, --quiet` | Solo errores |
 
+## Roadmap
+
+Consulta el [roadmap completo](roadmap.es.md) para las features planeadas: notificaciones de actualización, validación de secretos, integración Docker/CI, parsers multi-formato, control de acceso, sincronización con servidor, y más.
+
 ## Estado del desarrollo
 
 | Fase | Descripción | Estado |
