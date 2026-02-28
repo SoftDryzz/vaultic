@@ -4,12 +4,10 @@ use crate::core::errors::{Result, VaulticError};
 
 /// Embedded minisign public key for verifying release signatures.
 ///
-/// This key is generated once and the corresponding secret key is
-/// stored in GitHub Secrets for CI signing.
-///
-/// Replace this placeholder with the real public key after running:
-/// `minisign -G -p vaultic.pub -s vaultic.key`
-pub const MINISIGN_PUBLIC_KEY: &str = "untrusted comment: minisign public key for vaultic\nRWTOPLACEHOLDER_REPLACE_WITH_REAL_KEY_AFTER_GENERATION";
+/// This key was generated with `minisign -G` and the corresponding
+/// secret key is stored in GitHub Secrets (`MINISIGN_SECRET_KEY`)
+/// for CI signing during releases.
+pub const MINISIGN_PUBLIC_KEY: &str = "untrusted comment: minisign public key 82FB1E10F5B893DB\nRWTbk7j1EB77gpJnA/TbnvvxFq7UB2y7R5iABjnhXRXj/b0DLuhmTUw5";
 
 /// Compute the SHA256 hex digest of the given bytes.
 pub fn sha256_hex(data: &[u8]) -> String {
