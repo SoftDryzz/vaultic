@@ -14,6 +14,15 @@ fn main() {
     cli::output::init(args.verbose, args.quiet);
     cli::context::init(args.config.as_deref());
 
+    // Passive version check (suppressed in quiet mode and during update)
+    if !args.quiet && !matches!(args.command, Commands::Update) {
+        if let Some(latest) = adapters::updater::github_updater::check_latest_version() {
+            cli::output::warning(&format!(
+                "New version available: v{latest}. Run 'vaultic update' to upgrade."
+            ));
+        }
+    }
+
     // Validate all --env values before dispatching any command
     for env_name in &args.env {
         if let Err(e) = cli::context::validate_env_name(env_name) {
@@ -55,6 +64,7 @@ fn main() {
         } => cli::commands::log::execute(author.as_deref(), since.as_deref(), *last),
         Commands::Status => cli::commands::status::execute(),
         Commands::Hook { action } => cli::commands::hook::execute(action),
+        Commands::Update => cli::commands::update::execute(),
     };
 
     if let Err(e) = result {
