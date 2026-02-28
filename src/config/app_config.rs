@@ -29,6 +29,14 @@ impl AppConfig {
             detail: format!("Failed to parse config.toml: {e}"),
         })?;
 
+        // Check format version compatibility
+        if config.vaultic.format_version > CURRENT_FORMAT_VERSION {
+            return Err(VaulticError::FormatVersionTooNew {
+                project_version: config.vaultic.format_version,
+                supported_version: CURRENT_FORMAT_VERSION,
+            });
+        }
+
         // Validate environment names from config
         for env_name in config.environments.keys() {
             crate::cli::context::validate_env_name(env_name)?;
@@ -51,12 +59,24 @@ impl AppConfig {
     }
 }
 
+/// Current format version supported by this build of Vaultic.
+pub const CURRENT_FORMAT_VERSION: u32 = 1;
+
 /// The `[vaultic]` section.
 #[derive(Debug, Clone, Deserialize)]
 pub struct VaulticSection {
     pub version: String,
+    /// Format version for backward compatibility. Defaults to 1 if missing.
+    #[serde(default = "default_format_version")]
+    pub format_version: u32,
     pub default_cipher: String,
     pub default_env: String,
+    /// Global template file path (optional).
+    pub template: Option<String>,
+}
+
+fn default_format_version() -> u32 {
+    1
 }
 
 /// An environment entry in `[environments]`.
@@ -64,6 +84,10 @@ pub struct VaulticSection {
 pub struct EnvEntry {
     pub file: Option<String>,
     pub inherits: Option<String>,
+    /// Per-environment template file (optional).
+    /// Used by `TemplateResolver::resolve_for_env` for per-env template checks.
+    #[allow(dead_code)]
+    pub template: Option<String>,
 }
 
 /// The `[audit]` section.

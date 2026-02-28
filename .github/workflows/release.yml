@@ -71,6 +71,26 @@ jobs:
           path: artifacts
           merge-multiple: true
 
+      - name: Generate SHA256SUMS.txt
+        run: |
+          cd artifacts
+          sha256sum vaultic-* > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Install minisign
+        run: |
+          curl -sSL https://github.com/jedisct1/minisign/releases/download/0.12/minisign-0.12-linux.tar.gz | tar xz
+          sudo mv minisign-linux/x86_64/minisign /usr/local/bin/
+
+      - name: Sign SHA256SUMS.txt with minisign
+        run: |
+          KEY_FILE=$(mktemp)
+          chmod 600 "$KEY_FILE"
+          echo "${{ secrets.MINISIGN_SECRET_KEY }}" > "$KEY_FILE"
+          cd artifacts
+          minisign -Sm SHA256SUMS.txt -s "$KEY_FILE" -t "vaultic ${{ github.ref_name }}"
+          rm -f "$KEY_FILE"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:

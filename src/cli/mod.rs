@@ -220,6 +220,19 @@ pub enum Commands {
         #[command(subcommand)]
         action: HookAction,
     },
+
+    /// Update Vaultic to the latest version
+    #[command(
+        long_about = "Check for and install the latest Vaultic release.\n\n\
+                      Downloads the binary for your platform from GitHub Releases, \
+                      verifies its SHA256 checksum and minisign cryptographic signature, \
+                      then replaces the running binary.\n\n\
+                      The update is safe: your encrypted files and configuration are \
+                      never modified. Only the vaultic binary itself is replaced.",
+        after_help = "Examples:\n  \
+                      vaultic update                        # Check and install latest version"
+    )]
+    Update,
 }
 
 #[derive(Subcommand, Debug)]
