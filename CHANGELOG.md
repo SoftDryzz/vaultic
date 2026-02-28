@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > English | **[Español](docs/CHANGELOG.es.md)**
 
+## [1.2.0] - 2026-02-28
+
+### Added
+
+- `vaultic update`: check for and install the latest version from GitHub Releases with SHA256 checksum + minisign cryptographic signature verification
+- Passive version check: on every command, Vaultic checks for newer versions (with 24h cache) and shows a banner if an update is available (suppressed in `--quiet` mode)
+- Template auto-discovery: `vaultic check` now searches for `.env.template`, `.env.example`, `.env.sample`, and `env.template` in priority order, instead of requiring a hardcoded `.env.template`
+- Per-environment template support: configure per-env templates via `template` field in `[environments]` entries in config.toml
+- Global template override: set `template` in `[vaultic]` section to specify a custom template path
+- `format_version` field in config.toml for backward compatibility tracking across Vaultic versions
+- SHA256SUMS.txt and minisign signature files included in GitHub Releases for binary verification
+- New error types: `UpdateCheckFailed`, `UpdateVerificationFailed`, `UpdateFailed`, `UnsupportedPlatform`, `TemplateNotFound`, `FormatVersionTooNew` — all with descriptive messages
+
+### Changed
+
+- `vaultic check` now uses the template resolver with fallback chain instead of hardcoded `.env.template`
+- Release workflow generates SHA256 checksums and minisign signatures for all platform binaries
+
 ## [1.1.0] - 2026-02-23
 
 ### Added
