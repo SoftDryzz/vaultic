@@ -179,14 +179,17 @@ mod tests {
                 EnvEntry {
                     file: file.map(|f| f.to_string()),
                     inherits: inherits.map(|i| i.to_string()),
+                    template: None,
                 },
             );
         }
         AppConfig {
             vaultic: VaulticSection {
                 version: "0.1.0".to_string(),
+                format_version: 1,
                 default_cipher: "age".to_string(),
                 default_env: "dev".to_string(),
+                template: None,
             },
             environments,
             audit: Some(AuditSection {

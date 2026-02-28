@@ -28,6 +28,7 @@ pub fn execute() -> Result<()> {
     // Generate config.toml
     let config_content = r#"[vaultic]
 version = "0.1.0"
+format_version = 1
 default_cipher = "age"
 default_env = "dev"
 
