@@ -38,12 +38,12 @@ reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-feature
 semver = "1"
 minisign-verify = "0.2"
 self-replace = "1"
+tempfile = "3"
 tokio = { version = "1", features = ["rt"] }
 
 [dev-dependencies]
 assert_cmd = "2"
 predicates = "3"
-tempfile = "3"
 assert_fs = "1"
 age = { version = "0.11", features = ["armor"] }
 secrecy = "0.10"

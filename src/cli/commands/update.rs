@@ -53,20 +53,24 @@ pub fn execute() -> Result<()> {
     verifier::verify_sha256(&binary_data, &info.asset_name, &checksums_str)?;
     output::finish_spinner(sp, "Checksum verified");
 
-    // 5. Write to temp file and replace the running binary
+    // 5. Write to unique temp file and replace the running binary
     let sp = output::spinner("Installing update...");
-    let tmp_path = std::env::temp_dir().join(&info.asset_name);
-    std::fs::write(&tmp_path, &binary_data).map_err(|e| {
+    let tmp_file = tempfile::Builder::new()
+        .prefix("vaultic-update-")
+        .tempfile()
+        .map_err(|e| crate::core::errors::VaulticError::UpdateFailed {
+            reason: format!("Failed to create temp file: {e}"),
+        })?;
+    std::fs::write(tmp_file.path(), &binary_data).map_err(|e| {
         crate::core::errors::VaulticError::UpdateFailed {
             reason: format!("Failed to write temp file: {e}"),
         }
     })?;
-    self_replace::self_replace(&tmp_path).map_err(|e| {
+    self_replace::self_replace(tmp_file.path()).map_err(|e| {
         crate::core::errors::VaulticError::UpdateFailed {
             reason: format!("Failed to replace binary: {e}"),
         }
     })?;
-    let _ = std::fs::remove_file(&tmp_path);
     output::finish_spinner(sp, &format!("Updated to v{}", info.version));
 
     output::success(&format!("Release notes: {}", info.release_url));

@@ -84,10 +84,12 @@ jobs:
 
       - name: Sign SHA256SUMS.txt with minisign
         run: |
-          echo "${{ secrets.MINISIGN_SECRET_KEY }}" > /tmp/minisign.key
+          KEY_FILE=$(mktemp)
+          chmod 600 "$KEY_FILE"
+          echo "${{ secrets.MINISIGN_SECRET_KEY }}" > "$KEY_FILE"
           cd artifacts
-          minisign -Sm SHA256SUMS.txt -s /tmp/minisign.key -t "vaultic ${{ github.ref_name }}"
-          rm -f /tmp/minisign.key
+          minisign -Sm SHA256SUMS.txt -s "$KEY_FILE" -t "vaultic ${{ github.ref_name }}"
+          rm -f "$KEY_FILE"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
