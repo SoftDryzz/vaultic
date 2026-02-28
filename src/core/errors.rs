@@ -64,6 +64,66 @@ pub enum VaulticError {
     #[error("Git hook error: {detail}")]
     HookError { detail: String },
 
+    #[error(
+        "Update check failed: {reason}\n\n  \
+         This is not critical — your current version continues to work.\n  \
+         Try again later or check https://github.com/SoftDryzz/vaultic/releases"
+    )]
+    UpdateCheckFailed { reason: String },
+
+    #[error(
+        "Update verification failed: {reason}\n\n  \
+         The downloaded binary could not be verified and was NOT installed.\n  \
+         Your current installation is unchanged.\n\n  \
+         Solutions:\n    \
+         → Try again: vaultic update\n    \
+         → Manual download: https://github.com/SoftDryzz/vaultic/releases/latest\n    \
+         → Report issue: https://github.com/SoftDryzz/vaultic/issues"
+    )]
+    UpdateVerificationFailed { reason: String },
+
+    #[error(
+        "Update failed: {reason}\n\n  \
+         The binary replacement failed. Your current installation may be intact.\n\n  \
+         Solutions:\n    \
+         → Try again: vaultic update\n    \
+         → Manual install: cargo install vaultic --force"
+    )]
+    UpdateFailed { reason: String },
+
+    #[error(
+        "Unsupported platform for auto-update: {platform}\n\n  \
+         Pre-built binaries are not available for your platform.\n\n  \
+         Solutions:\n    \
+         → Install from source: cargo install vaultic\n    \
+         → Build manually: cargo build --release"
+    )]
+    UnsupportedPlatform { platform: String },
+
+    #[error(
+        "No template file found\n\n  \
+         Vaultic searched for:\n    \
+         {searched}\n\n  \
+         Solutions:\n    \
+         → Create a template: cp .env .env.template (then remove secret values)\n    \
+         → Specify in .vaultic/config.toml:\n      \
+           [vaultic]\n      \
+           template = \"path/to/your/template\""
+    )]
+    TemplateNotFound { searched: String },
+
+    #[error(
+        "This project uses format version {project_version}, but your Vaultic \
+         only supports up to version {supported_version}.\n\n  \
+         Solutions:\n    \
+         → Update Vaultic: vaultic update\n    \
+         → Or install latest: cargo install vaultic --force"
+    )]
+    FormatVersionTooNew {
+        project_version: u32,
+        supported_version: u32,
+    },
+
     #[error(transparent)]
     Io(#[from] std::io::Error),
 }
