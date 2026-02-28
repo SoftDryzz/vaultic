@@ -27,10 +27,7 @@ pub fn execute() -> Result<()> {
             info
         }
         None => {
-            output::finish_spinner(
-                sp,
-                &format!("Already up to date (v{})", current_version()),
-            );
+            output::finish_spinner(sp, &format!("Already up to date (v{})", current_version()));
             return Ok(());
         }
     };

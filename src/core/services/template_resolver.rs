@@ -25,12 +25,12 @@ impl TemplateResolver {
     /// 2. Auto-discovery in project root
     pub fn resolve_global(config: Option<&AppConfig>, project_root: &Path) -> Result<PathBuf> {
         // 1. Check config global template
-        if let Some(cfg) = config {
-            if let Some(ref tpl) = cfg.vaultic.template {
-                let path = project_root.join(tpl);
-                if path.exists() {
-                    return Ok(path);
-                }
+        if let Some(cfg) = config
+            && let Some(ref tpl) = cfg.vaultic.template
+        {
+            let path = project_root.join(tpl);
+            if path.exists() {
+                return Ok(path);
             }
         }
 
@@ -45,6 +45,7 @@ impl TemplateResolver {
     /// 2. `{env}.env.template` convention in `.vaultic/`
     /// 3. Global `template` field in config
     /// 4. Auto-discovery in project root
+    #[allow(dead_code)]
     pub fn resolve_for_env(
         env_name: &str,
         config: &AppConfig,
@@ -52,12 +53,12 @@ impl TemplateResolver {
         project_root: &Path,
     ) -> Result<PathBuf> {
         // 1. Per-environment template from config
-        if let Some(env_entry) = config.environments.get(env_name) {
-            if let Some(ref tpl) = env_entry.template {
-                let path = vaultic_dir.join(tpl);
-                if path.exists() {
-                    return Ok(path);
-                }
+        if let Some(env_entry) = config.environments.get(env_name)
+            && let Some(ref tpl) = env_entry.template
+        {
+            let path = vaultic_dir.join(tpl);
+            if path.exists() {
+                return Ok(path);
             }
         }
 
@@ -78,13 +79,13 @@ impl TemplateResolver {
         // 4. Auto-discovery fallback
         Self::auto_discover(project_root).map_err(|_| {
             let mut searched = Vec::new();
-            if let Some(env_entry) = config.environments.get(env_name) {
-                if let Some(ref tpl) = env_entry.template {
-                    searched.push(format!(
-                        "✗ {} (from config)",
-                        vaultic_dir.join(tpl).display()
-                    ));
-                }
+            if let Some(env_entry) = config.environments.get(env_name)
+                && let Some(ref tpl) = env_entry.template
+            {
+                searched.push(format!(
+                    "✗ {} (from config)",
+                    vaultic_dir.join(tpl).display()
+                ));
             }
             searched.push(format!("✗ {} (convention)", convention_path.display()));
             if let Some(ref tpl) = config.vaultic.template {

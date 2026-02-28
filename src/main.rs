@@ -15,12 +15,13 @@ fn main() {
     cli::context::init(args.config.as_deref());
 
     // Passive version check (suppressed in quiet mode and during update)
-    if !args.quiet && !matches!(args.command, Commands::Update) {
-        if let Some(latest) = adapters::updater::github_updater::check_latest_version() {
-            cli::output::warning(&format!(
-                "New version available: v{latest}. Run 'vaultic update' to upgrade."
-            ));
-        }
+    if !args.quiet
+        && !matches!(args.command, Commands::Update)
+        && let Some(latest) = adapters::updater::github_updater::check_latest_version()
+    {
+        cli::output::warning(&format!(
+            "New version available: v{latest}. Run 'vaultic update' to upgrade."
+        ));
     }
 
     // Validate all --env values before dispatching any command

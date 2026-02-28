@@ -85,6 +85,8 @@ pub struct EnvEntry {
     pub file: Option<String>,
     pub inherits: Option<String>,
     /// Per-environment template file (optional).
+    /// Used by `TemplateResolver::resolve_for_env` for per-env template checks.
+    #[allow(dead_code)]
     pub template: Option<String>,
 }
 

@@ -9,8 +9,7 @@ use crate::core::errors::{Result, VaulticError};
 ///
 /// Replace this placeholder with the real public key after running:
 /// `minisign -G -p vaultic.pub -s vaultic.key`
-pub const MINISIGN_PUBLIC_KEY: &str =
-    "untrusted comment: minisign public key for vaultic\nRWTOPLACEHOLDER_REPLACE_WITH_REAL_KEY_AFTER_GENERATION";
+pub const MINISIGN_PUBLIC_KEY: &str = "untrusted comment: minisign public key for vaultic\nRWTOPLACEHOLDER_REPLACE_WITH_REAL_KEY_AFTER_GENERATION";
 
 /// Compute the SHA256 hex digest of the given bytes.
 pub fn sha256_hex(data: &[u8]) -> String {
@@ -23,11 +22,7 @@ pub fn sha256_hex(data: &[u8]) -> String {
 /// for `asset_name` found in `checksums_content` (SHA256SUMS.txt format).
 ///
 /// SHA256SUMS.txt format: `<hex_hash>  <filename>` (two spaces between).
-pub fn verify_sha256(
-    binary_data: &[u8],
-    asset_name: &str,
-    checksums_content: &str,
-) -> Result<()> {
+pub fn verify_sha256(binary_data: &[u8], asset_name: &str, checksums_content: &str) -> Result<()> {
     let computed = sha256_hex(binary_data);
 
     let expected = checksums_content
@@ -70,12 +65,11 @@ pub fn verify_signature(checksums_content: &[u8], signature_content: &[u8]) -> R
         .nth(1)
         .unwrap_or(MINISIGN_PUBLIC_KEY);
 
-    let pk =
-        minisign_verify::PublicKey::from_base64(pk_line).map_err(|e| {
-            VaulticError::UpdateVerificationFailed {
-                reason: format!("Invalid embedded public key: {e}"),
-            }
-        })?;
+    let pk = minisign_verify::PublicKey::from_base64(pk_line).map_err(|e| {
+        VaulticError::UpdateVerificationFailed {
+            reason: format!("Invalid embedded public key: {e}"),
+        }
+    })?;
 
     let sig_str = String::from_utf8_lossy(signature_content);
     let sig = minisign_verify::Signature::decode(&sig_str).map_err(|e| {
@@ -122,7 +116,8 @@ mod tests {
     #[test]
     fn verify_sha256_fails_with_wrong_hash() {
         let data = b"binary content here";
-        let checksums = "0000000000000000000000000000000000000000000000000000000000000000  vaultic-linux-amd64";
+        let checksums =
+            "0000000000000000000000000000000000000000000000000000000000000000  vaultic-linux-amd64";
         let result = verify_sha256(data, "vaultic-linux-amd64", checksums);
         assert!(result.is_err());
     }

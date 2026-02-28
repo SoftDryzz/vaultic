@@ -3,11 +3,10 @@ use std::time::Duration;
 
 use crate::core::errors::{Result, VaulticError};
 use crate::core::models::update_info::{
-    current_platform_asset, current_version, GitHubRelease, UpdateCheckCache, UpdateInfo,
+    GitHubRelease, UpdateCheckCache, UpdateInfo, current_platform_asset, current_version,
 };
 
-const GITHUB_API_URL: &str =
-    "https://api.github.com/repos/SoftDryzz/vaultic/releases/latest";
+const GITHUB_API_URL: &str = "https://api.github.com/repos/SoftDryzz/vaultic/releases/latest";
 
 /// Timeout for the passive version check (startup banner).
 const CHECK_TIMEOUT: Duration = Duration::from_secs(3);
@@ -117,10 +116,9 @@ pub fn check_latest_version() -> Option<String> {
 
 /// Fetch full release info for performing an update (longer timeout).
 pub fn fetch_update_info() -> Result<Option<UpdateInfo>> {
-    let asset_name =
-        current_platform_asset().ok_or_else(|| VaulticError::UnsupportedPlatform {
-            platform: format!("{}-{}", std::env::consts::OS, std::env::consts::ARCH),
-        })?;
+    let asset_name = current_platform_asset().ok_or_else(|| VaulticError::UnsupportedPlatform {
+        platform: format!("{}-{}", std::env::consts::OS, std::env::consts::ARCH),
+    })?;
 
     let rt = tokio::runtime::Builder::new_current_thread()
         .enable_all()
@@ -191,8 +189,7 @@ pub fn fetch_update_info() -> Result<Option<UpdateInfo>> {
             .iter()
             .find(|a| a.name == "SHA256SUMS.txt.minisig")
             .ok_or_else(|| VaulticError::UpdateCheckFailed {
-                reason: "Release is missing SHA256SUMS.txt.minisig — cannot verify download"
-                    .into(),
+                reason: "Release is missing SHA256SUMS.txt.minisig — cannot verify download".into(),
             })?;
 
         Ok(Some(UpdateInfo {
@@ -217,11 +214,13 @@ pub fn download_bytes(url: &str) -> Result<Vec<u8>> {
 
     rt.block_on(async {
         let client = build_client(DOWNLOAD_TIMEOUT)?;
-        let resp = client.get(url).send().await.map_err(|e| {
-            VaulticError::UpdateFailed {
+        let resp = client
+            .get(url)
+            .send()
+            .await
+            .map_err(|e| VaulticError::UpdateFailed {
                 reason: format!("Download failed: {e}"),
-            }
-        })?;
+            })?;
 
         if !resp.status().is_success() {
             return Err(VaulticError::UpdateFailed {
@@ -229,10 +228,11 @@ pub fn download_bytes(url: &str) -> Result<Vec<u8>> {
             });
         }
 
-        resp.bytes().await.map(|b| b.to_vec()).map_err(|e| {
-            VaulticError::UpdateFailed {
+        resp.bytes()
+            .await
+            .map(|b| b.to_vec())
+            .map_err(|e| VaulticError::UpdateFailed {
                 reason: format!("Failed to read download: {e}"),
-            }
-        })
+            })
     })
 }

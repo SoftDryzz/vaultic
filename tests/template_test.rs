@@ -52,9 +52,7 @@ fn check_discovers_env_example_as_fallback() {
 fn check_discovers_env_sample_as_fallback() {
     let dir = assert_fs::TempDir::new().unwrap();
 
-    dir.child(".env")
-        .write_str("DB_HOST=localhost")
-        .unwrap();
+    dir.child(".env").write_str("DB_HOST=localhost").unwrap();
     // No .env.template or .env.example — only .env.sample
     dir.child(".env.sample")
         .write_str("DB_HOST=\nAPI_KEY=")
@@ -72,13 +70,9 @@ fn check_discovers_env_sample_as_fallback() {
 fn check_prefers_env_template_over_env_example() {
     let dir = assert_fs::TempDir::new().unwrap();
 
-    dir.child(".env")
-        .write_str("DB_HOST=localhost")
-        .unwrap();
+    dir.child(".env").write_str("DB_HOST=localhost").unwrap();
     // .env.template has 1 key, .env.example has 2 keys
-    dir.child(".env.template")
-        .write_str("DB_HOST=")
-        .unwrap();
+    dir.child(".env.template").write_str("DB_HOST=").unwrap();
     dir.child(".env.example")
         .write_str("DB_HOST=\nAPI_KEY=")
         .unwrap();
@@ -96,9 +90,7 @@ fn check_prefers_env_template_over_env_example() {
 fn check_no_template_found_fails() {
     let dir = assert_fs::TempDir::new().unwrap();
 
-    dir.child(".env")
-        .write_str("DB_HOST=localhost")
-        .unwrap();
+    dir.child(".env").write_str("DB_HOST=localhost").unwrap();
     // No template file at all
 
     vaultic()
