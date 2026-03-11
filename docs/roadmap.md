@@ -4,23 +4,18 @@
 
 Future plans for Vaultic, organized by version. Each version has a clear scope and can be released independently.
 
-Current version: **v1.1.0**
+Current version: **v1.2.0**
 
 ---
 
-## v1.2.0 — Update Notifications
+## ~~v1.2.0 — Update Notifications~~ ✅ Released
 
-Know when a new version is available without checking manually.
-
-- **Background version check**: on the first execution of the day, a non-blocking background thread queries the latest version from crates.io. The result is cached for 24 hours. On the next execution, if a newer version exists, a single line is shown at the end of the output:
-  ```
-  Update available: v1.1.0 → v1.2.0 — run 'vaultic self-update'
-  ```
-- **`vaultic self-update`**: downloads and installs the latest version. Detects the install method:
-  - If installed via `cargo install` → runs `cargo install vaultic`
-  - If installed via precompiled binary → downloads from GitHub Releases and replaces the binary
-- **Cache location**: `~/.vaultic/update_cache.json` (global, not per-project)
-- **Zero impact on performance**: the check never blocks command execution
+- `vaultic update`: check for and install the latest version with SHA256 + minisign verification
+- Passive version check on every command (24h cache, suppressed in `--quiet` mode)
+- Template auto-discovery: `vaultic check` searches `.env.template`, `.env.example`, `.env.sample`, `env.template`
+- Per-environment and global template override via `config.toml`
+- `format_version` field for backward compatibility tracking
+- SHA256SUMS + minisign signatures in GitHub Releases
 
 ---
 
@@ -28,6 +23,7 @@ Know when a new version is available without checking manually.
 
 Catch configuration errors before they reach production.
 
+- **`vaultic template sync`**: auto-generate `.env.template` from the keys in your encrypted environments, without exposing values. Keeps the template always in sync.
 - **`vaultic validate`**: check secrets against format rules defined in `config.toml`:
   ```toml
   [validation]
@@ -35,6 +31,7 @@ Catch configuration errors before they reach production.
   PORT = { type = "integer", min = 1024, max = 65535 }
   API_KEY = { type = "string", min_length = 32 }
   DEBUG = { type = "boolean" }
+  STRIPE_KEY = { pattern = "^sk_live_.*" }
   ```
   Output:
   ```
@@ -42,12 +39,12 @@ Catch configuration errors before they reach production.
   ✗ PORT — expected integer, got "abc"
   ✗ API_KEY — too short (12 chars, minimum 32)
   ✓ DEBUG — valid boolean
+  ✗ STRIPE_KEY — does not match pattern "^sk_live_.*"
   ```
 - **Secret age tracking**: record when each secret was last modified. Warn if a secret hasn't been rotated in a configurable number of days:
   ```
   ⚠ DB_PASSWORD last rotated 120 days ago (policy: 90 days)
   ```
-- **`vaultic template sync`**: auto-generate `.env.template` from the keys in your encrypted environments, without exposing values. Keeps the template always in sync.
 
 ---
 

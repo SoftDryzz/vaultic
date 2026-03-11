@@ -4,23 +4,18 @@
 
 Planes futuros para Vaultic, organizados por versión. Cada versión tiene un alcance claro y puede publicarse de forma independiente.
 
-Versión actual: **v1.1.0**
+Versión actual: **v1.2.0**
 
 ---
 
-## v1.2.0 — Notificaciones de Actualización
+## ~~v1.2.0 — Notificaciones de Actualización~~ ✅ Publicada
 
-Saber cuándo hay una nueva versión disponible sin tener que comprobarlo manualmente.
-
-- **Check de versión en background**: en la primera ejecución del día, un hilo en background (no bloqueante) consulta la última versión en crates.io. El resultado se cachea durante 24 horas. En la siguiente ejecución, si hay una versión más nueva, se muestra una línea al final del output:
-  ```
-  Update available: v1.1.0 → v1.2.0 — run 'vaultic self-update'
-  ```
-- **`vaultic self-update`**: descarga e instala la última versión. Detecta el método de instalación:
-  - Si se instaló con `cargo install` → ejecuta `cargo install vaultic`
-  - Si se instaló con binario precompilado → descarga de GitHub Releases y reemplaza el binario
-- **Ubicación del cache**: `~/.vaultic/update_cache.json` (global, no por proyecto)
-- **Zero impacto en rendimiento**: el check nunca bloquea la ejecución del comando
+- `vaultic update`: comprueba e instala la última versión con verificación SHA256 + minisign
+- Check pasivo de versión en cada comando (caché 24h, suprimido en modo `--quiet`)
+- Auto-descubrimiento de template: `vaultic check` busca `.env.template`, `.env.example`, `.env.sample`, `env.template`
+- Override de template por entorno y global en `config.toml`
+- Campo `format_version` para compatibilidad hacia atrás entre versiones
+- SHA256SUMS + firmas minisign en GitHub Releases
 
 ---
 
@@ -28,6 +23,7 @@ Saber cuándo hay una nueva versión disponible sin tener que comprobarlo manual
 
 Detectar errores de configuración antes de que lleguen a producción.
 
+- **`vaultic template sync`**: auto-generar `.env.template` desde las claves de tus entornos cifrados, sin exponer valores. Mantiene el template siempre sincronizado.
 - **`vaultic validate`**: verifica secretos contra reglas de formato definidas en `config.toml`:
   ```toml
   [validation]
@@ -35,6 +31,7 @@ Detectar errores de configuración antes de que lleguen a producción.
   PORT = { type = "integer", min = 1024, max = 65535 }
   API_KEY = { type = "string", min_length = 32 }
   DEBUG = { type = "boolean" }
+  STRIPE_KEY = { pattern = "^sk_live_.*" }
   ```
   Output:
   ```
@@ -42,12 +39,12 @@ Detectar errores de configuración antes de que lleguen a producción.
   ✗ PORT — se esperaba integer, recibido "abc"
   ✗ API_KEY — demasiado corto (12 chars, mínimo 32)
   ✓ DEBUG — boolean válido
+  ✗ STRIPE_KEY — no coincide con el patrón "^sk_live_.*"
   ```
 - **Seguimiento de antigüedad**: registrar cuándo se modificó cada secreto por última vez. Avisar si un secreto no se ha rotado en un número configurable de días:
   ```
   ⚠ DB_PASSWORD última rotación hace 120 días (política: 90 días)
   ```
-- **`vaultic template sync`**: auto-generar `.env.template` desde las claves de tus entornos cifrados, sin exponer valores. Mantiene el template siempre sincronizado.
 
 ---
 
