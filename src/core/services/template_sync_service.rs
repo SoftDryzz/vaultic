@@ -8,12 +8,10 @@ use crate::core::models::secret_file::{Line, SecretEntry, SecretFile};
 /// with all values set to the empty string `""`. Insertion order is preserved:
 /// keys from the first file appear first; subsequent files only contribute
 /// keys that have not been seen yet.
-#[allow(dead_code)]
 pub struct TemplateSyncService;
 
 impl TemplateSyncService {
     /// Merge `files` into a single template `SecretFile`.
-    #[allow(dead_code)]
     ///
     /// - Keys are deduplicated; the first occurrence determines position.
     /// - All values in the result are set to `""`.

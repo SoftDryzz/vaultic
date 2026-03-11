@@ -14,6 +14,7 @@ pub enum AuditAction {
     Resolve,
     HookInstall,
     HookUninstall,
+    TemplateSync,
 }
 
 /// A single entry in the audit log (JSON lines format).
