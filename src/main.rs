@@ -65,6 +65,7 @@ fn main() {
         } => cli::commands::log::execute(author.as_deref(), since.as_deref(), *last),
         Commands::Status => cli::commands::status::execute(),
         Commands::Hook { action } => cli::commands::hook::execute(action),
+        Commands::Template { action } => cli::commands::template_sync::execute(action),
         Commands::Update => cli::commands::update::execute(),
     };
 

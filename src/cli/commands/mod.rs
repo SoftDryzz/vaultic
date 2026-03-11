@@ -10,4 +10,5 @@ pub mod keys;
 pub mod log;
 pub mod resolve;
 pub mod status;
+pub mod template_sync;
 pub mod update;

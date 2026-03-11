@@ -221,6 +221,20 @@ pub enum Commands {
         action: HookAction,
     },
 
+    /// Template management commands
+    #[command(
+        long_about = "Manage .env.template files.\n\n\
+                      Use 'vaultic template sync' to auto-generate .env.template \
+                      from all encrypted environments.",
+        after_help = "Examples:\n  \
+                      vaultic template sync              # Sync .env.template from all envs\n  \
+                      vaultic template sync -o custom.template  # Write to custom path"
+    )]
+    Template {
+        #[command(subcommand)]
+        action: TemplateAction,
+    },
+
     /// Update Vaultic to the latest version
     #[command(
         long_about = "Check for and install the latest Vaultic release.\n\n\
@@ -268,4 +282,25 @@ pub enum HookAction {
     Install,
     /// Uninstall git pre-commit hook
     Uninstall,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum TemplateAction {
+    /// Sync .env.template from encrypted environments
+    #[command(
+        long_about = "Auto-generate .env.template from all encrypted environments.\n\n\
+                      Decrypts each environment in memory, collects all keys (union of all envs), \
+                      strips all values, and writes the result to .env.template.\n\n\
+                      This keeps your template always in sync with the actual secrets \
+                      without ever exposing values.\n\n\
+                      Requires your private key to decrypt the environments.",
+        after_help = "Examples:\n  \
+                      vaultic template sync              # Sync .env.template\n  \
+                      vaultic template sync -o my.template  # Write to custom path"
+    )]
+    Sync {
+        /// Output path (default: .env.template)
+        #[arg(short, long)]
+        output: Option<String>,
+    },
 }
