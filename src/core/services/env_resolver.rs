@@ -196,6 +196,7 @@ mod tests {
                 enabled: false,
                 log_file: "audit.log".to_string(),
             }),
+            validation: None,
         }
     }
 

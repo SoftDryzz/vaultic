@@ -32,6 +32,7 @@ thiserror = "2"
 chrono = { version = "0.4", features = ["serde"] }
 sha2 = "0.10"
 dirs = "6"
+regex = "1"
 
 # Auto-update
 reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }

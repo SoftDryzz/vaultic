@@ -2484,6 +2484,7 @@ dependencies = [
  "indicatif",
  "minisign-verify",
  "predicates",
+ "regex",
  "reqwest",
  "secrecy",
  "self-replace",

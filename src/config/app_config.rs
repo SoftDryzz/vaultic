@@ -10,6 +10,8 @@ pub struct AppConfig {
     pub vaultic: VaulticSection,
     pub environments: HashMap<String, EnvEntry>,
     pub audit: Option<AuditSection>,
+    #[allow(dead_code)]
+    pub validation: Option<ValidationConfig>,
 }
 
 impl AppConfig {
@@ -96,3 +98,29 @@ pub struct AuditSection {
     pub enabled: bool,
     pub log_file: String,
 }
+
+/// Validation rules for a single secret key.
+/// All fields are optional — only specified constraints are checked.
+#[derive(Debug, Clone, Deserialize, Default)]
+#[allow(dead_code)]
+pub struct ValidationRule {
+    /// Expected type: "url", "integer", "boolean", "string"
+    #[serde(rename = "type")]
+    pub value_type: Option<String>,
+    /// Minimum numeric value (for type = "integer")
+    pub min: Option<i64>,
+    /// Maximum numeric value (for type = "integer")
+    pub max: Option<i64>,
+    /// Minimum string length
+    pub min_length: Option<usize>,
+    /// Maximum string length
+    pub max_length: Option<usize>,
+    /// Whether the key must be present and non-empty
+    #[serde(default)]
+    pub required: bool,
+    /// Regex pattern the value must match (combinable with type/length checks)
+    pub pattern: Option<String>,
+}
+
+/// The `[validation]` section: a map of KEY → ValidationRule.
+pub type ValidationConfig = std::collections::HashMap<String, ValidationRule>;
