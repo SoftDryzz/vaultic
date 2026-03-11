@@ -3,8 +3,8 @@ use std::path::PathBuf;
 use crate::adapters::cipher::age_backend::AgeBackend;
 use crate::adapters::key_stores::file_key_store::FileKeyStore;
 use crate::adapters::parsers::dotenv_parser::DotenvParser;
-use crate::cli::output;
 use crate::cli::TemplateAction;
+use crate::cli::output;
 use crate::config::app_config::AppConfig;
 use crate::core::errors::{Result, VaulticError};
 use crate::core::models::audit_entry::AuditAction;
@@ -15,7 +15,9 @@ use crate::core::traits::parser::ConfigParser;
 /// Execute `vaultic template` subcommands.
 pub fn execute(action: &TemplateAction) -> Result<()> {
     match action {
-        TemplateAction::Sync { output: output_path } => sync(output_path.as_deref()),
+        TemplateAction::Sync {
+            output: output_path,
+        } => sync(output_path.as_deref()),
     }
 }
 
@@ -69,9 +71,7 @@ fn sync(output_path: Option<&str>) -> Result<()> {
         let enc_path = vaultic_dir.join(format!("{file_name}.enc"));
 
         if !enc_path.exists() {
-            output::detail(&format!(
-                "Skipping {env_name}: {file_name}.enc not found"
-            ));
+            output::detail(&format!("Skipping {env_name}: {file_name}.enc not found"));
             skipped.push(env_name.clone());
             continue;
         }

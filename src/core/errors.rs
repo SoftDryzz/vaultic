@@ -124,15 +124,9 @@ pub enum VaulticError {
         supported_version: u32,
     },
 
-    #[allow(dead_code)]
-    #[error(
-        "Validation failed: {count} rule(s) violated\n\n  \
-         Fix the values in your .env and run 'vaultic validate' again.\n  \
-         Run 'vaultic check' to verify no variables are missing."
-    )]
+    #[error("Validation failed: {count} rule(s) violated")]
     ValidationFailed { count: usize },
 
-    #[allow(dead_code)]
     #[error(
         "Invalid regex pattern '{pattern}' for key '{key}': {reason}\n\n  \
          Fix the pattern in .vaultic/config.toml under [validation]."

@@ -73,10 +73,7 @@ fn template_sync_help_shows_output() {
         .args(["template", "sync", "--help"])
         .assert()
         .success()
-        .stdout(
-            predicate::str::contains("template")
-                .and(predicate::str::contains("sync"))
-        );
+        .stdout(predicate::str::contains("template").and(predicate::str::contains("sync")));
 }
 
 // ─── template sync: happy path ───────────────────────────────────────────────
@@ -123,14 +120,8 @@ fn template_sync_full_flow() {
         content.contains("DATABASE_URL"),
         ".env.template missing DATABASE_URL"
     );
-    assert!(
-        content.contains("API_KEY"),
-        ".env.template missing API_KEY"
-    );
-    assert!(
-        content.contains("DEBUG"),
-        ".env.template missing DEBUG"
-    );
+    assert!(content.contains("API_KEY"), ".env.template missing API_KEY");
+    assert!(content.contains("DEBUG"), ".env.template missing DEBUG");
     // All values should be empty (stripped)
     assert!(
         !content.contains("postgres://localhost"),
@@ -176,7 +167,10 @@ fn template_sync_output_flag_writes_to_custom_path() {
 
     // Custom file should exist with correct keys
     let content = std::fs::read_to_string(dir.path().join(custom_output)).unwrap();
-    assert!(content.contains("SECRET_KEY"), "custom output missing SECRET_KEY");
+    assert!(
+        content.contains("SECRET_KEY"),
+        "custom output missing SECRET_KEY"
+    );
     assert!(content.contains("DB_HOST"), "custom output missing DB_HOST");
     // Default .env.template should NOT have been created (or if it pre-existed from init, it may be empty)
     // The important assertion is that the custom file got the data

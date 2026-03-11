@@ -86,40 +86,29 @@ impl ValidationService {
                 match type_str.as_str() {
                     "url" => {
                         if !val.contains("://") {
-                            failures.push(
-                                "expected a valid URL (must contain '://')".to_string(),
-                            );
+                            failures.push("expected a valid URL (must contain '://')".to_string());
                         }
                     }
-                    "integer" => {
-                        match val.parse::<i64>() {
-                            Ok(n) => {
-                                if let Some(min) = rule.min
-                                    && n < min
-                                {
-                                    failures.push(format!(
-                                        "value {n} is below minimum {min}"
-                                    ));
-                                }
-                                if let Some(max) = rule.max
-                                    && n > max
-                                {
-                                    failures.push(format!(
-                                        "value {n} is above maximum {max}"
-                                    ));
-                                }
+                    "integer" => match val.parse::<i64>() {
+                        Ok(n) => {
+                            if let Some(min) = rule.min
+                                && n < min
+                            {
+                                failures.push(format!("value {n} is below minimum {min}"));
                             }
-                            Err(_) => {
-                                failures.push(format!("expected integer, got '{val}'"));
+                            if let Some(max) = rule.max
+                                && n > max
+                            {
+                                failures.push(format!("value {n} is above maximum {max}"));
                             }
                         }
-                    }
+                        Err(_) => {
+                            failures.push(format!("expected integer, got '{val}'"));
+                        }
+                    },
                     "boolean" => {
                         let lower = val.to_lowercase();
-                        if !matches!(
-                            lower.as_str(),
-                            "true" | "false" | "1" | "0" | "yes" | "no"
-                        ) {
+                        if !matches!(lower.as_str(), "true" | "false" | "1" | "0" | "yes" | "no") {
                             failures.push(format!(
                                 "expected boolean (true/false/1/0/yes/no), got '{val}'"
                             ));
@@ -136,16 +125,12 @@ impl ValidationService {
             if let Some(min_length) = rule.min_length
                 && len < min_length
             {
-                failures.push(format!(
-                    "too short ({len} chars, minimum {min_length})"
-                ));
+                failures.push(format!("too short ({len} chars, minimum {min_length})"));
             }
             if let Some(max_length) = rule.max_length
                 && len > max_length
             {
-                failures.push(format!(
-                    "too long ({len} chars, maximum {max_length})"
-                ));
+                failures.push(format!("too long ({len} chars, maximum {max_length})"));
             }
 
             // --- Pattern check ---
@@ -185,10 +170,7 @@ mod tests {
     }
 
     fn make_rules(pairs: Vec<(&str, ValidationRule)>) -> ValidationConfig {
-        pairs
-            .into_iter()
-            .map(|(k, v)| (k.to_string(), v))
-            .collect()
+        pairs.into_iter().map(|(k, v)| (k.to_string(), v)).collect()
     }
 
     fn url_rule() -> ValidationRule {

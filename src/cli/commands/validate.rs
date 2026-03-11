@@ -37,8 +37,8 @@ pub fn execute(file: Option<&str>) -> Result<()> {
 
     let config = AppConfig::load(vaultic_dir)?;
 
-    let rules = match &config.validation {
-        Some(r) if !r.is_empty() => r.clone(),
+    let rules = match config.validation.as_ref() {
+        Some(r) if !r.is_empty() => r,
         _ => {
             output::header("🔍 vaultic validate");
             output::warning("No [validation] rules found in .vaultic/config.toml");
@@ -68,7 +68,7 @@ pub fn execute(file: Option<&str>) -> Result<()> {
         .map(|e| (e.key.clone(), e.value.clone()))
         .collect();
 
-    let report = ValidationService::validate(&values, &rules)?;
+    let report = ValidationService::validate(&values, rules)?;
 
     output::header("🔍 vaultic validate");
     println!("  File: {file_path_str}");
@@ -94,7 +94,8 @@ pub fn execute(file: Option<&str>) -> Result<()> {
 
     let passed_count = passes.len();
     let failed_count = failures.len();
-    println!("  {passed_count} passed, {failed_count} failed");
+    let total = passed_count + failed_count;
+    println!("  {passed_count}/{total} rules passed");
 
     // Audit
     let detail = format!("{passed_count} passed, {failed_count} failed");
@@ -107,7 +108,9 @@ pub fn execute(file: Option<&str>) -> Result<()> {
     if failed_count > 0 {
         println!();
         println!("  Fix the values in your .env and run 'vaultic validate' again.");
-        return Err(VaulticError::ValidationFailed { count: failed_count });
+        return Err(VaulticError::ValidationFailed {
+            count: failed_count,
+        });
     }
 
     Ok(())
