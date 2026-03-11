@@ -87,6 +87,8 @@ vaultic encrypt --all                vaultic decrypt --env dev
 | `vaultic keys add <clave>` | Añade un recipient | ✅ |
 | `vaultic keys list` | Lista recipients autorizados | ✅ |
 | `vaultic keys remove <clave>` | Elimina un recipient | ✅ |
+| `vaultic template sync` | Genera `.env.template` automáticamente desde entornos cifrados | ✅ |
+| `vaultic validate` | Valida secretos contra reglas de formato en config.toml (`-f <archivo>`) | ✅ |
 | `vaultic resolve --env <env>` | Genera archivo resuelto con herencia (`-o <ruta>`) | ✅ |
 | `vaultic log` | Muestra historial de operaciones | ✅ |
 | `vaultic status` | Muestra estado completo del proyecto | ✅ |

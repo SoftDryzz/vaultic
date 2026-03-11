@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > English | **[Español](docs/CHANGELOG.es.md)**
 
+## [1.3.0] - 2026-03-11
+
+### Added
+
+- `vaultic template sync`: auto-generate `.env.template` from all encrypted environments
+  (union of all keys, values stripped). Use `-o <path>` to write to a custom location.
+- `vaultic validate`: validate local `.env` against format rules defined in `.vaultic/config.toml`.
+  Supports `type` (url/integer/boolean/string), `min`/`max` (integers), `min_length`/`max_length`
+  (strings), `required`, and `pattern` (regex). Rules are combinable. Exits non-zero on failure
+  (CI-friendly). Use `-f <file>` to validate a specific file.
+- `[validation]` section in `config.toml`: define per-key validation rules
+- `rotation_days` in `[vaultic]` config section: warn in `vaultic status` when environments
+  haven't been re-encrypted within the configured number of days
+- Secret age tracking: `vaultic status` now shows when each environment was last encrypted
+  and flags environments that exceed the rotation policy
+- New audit actions: `template_sync`, `validate`
+- New error variants: `ValidationFailed`, `InvalidPattern`
+
 ## [1.2.0] - 2026-02-28
 
 ### Added

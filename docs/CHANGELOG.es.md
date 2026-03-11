@@ -7,6 +7,26 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 > **[English](../CHANGELOG.md)** | Español
 
+## [1.3.0] - 2026-03-11
+
+### Añadido
+
+- `vaultic template sync`: genera automáticamente `.env.template` desde todos los entornos
+  cifrados (unión de todas las claves, valores eliminados). Usa `-o <ruta>` para escribir
+  en una ubicación personalizada.
+- `vaultic validate`: valida el `.env` local contra reglas de formato definidas en
+  `.vaultic/config.toml`. Soporta `type` (url/integer/boolean/string), `min`/`max` (enteros),
+  `min_length`/`max_length` (cadenas), `required` y `pattern` (regex). Las reglas son
+  combinables. Sale con código distinto de cero en caso de fallo (compatible con CI).
+  Usa `-f <archivo>` para validar un archivo específico.
+- Sección `[validation]` en `config.toml`: define reglas de validación por clave
+- `rotation_days` en la sección `[vaultic]` de config: avisa en `vaultic status` cuando
+  los entornos no se han re-cifrado dentro del número de días configurado
+- Seguimiento de antigüedad de secretos: `vaultic status` ahora muestra cuándo se cifró
+  cada entorno por última vez y señala los que exceden la política de rotación
+- Nuevas acciones de auditoría: `template_sync`, `validate`
+- Nuevos tipos de error: `ValidationFailed`, `InvalidPattern`
+
 ## [1.2.0] - 2026-02-28
 
 ### Añadido
