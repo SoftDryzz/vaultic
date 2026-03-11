@@ -75,8 +75,7 @@ fn template_sync_help_shows_output() {
         .success()
         .stdout(
             predicate::str::contains("template")
-                .or(predicate::str::contains("sync"))
-                .or(predicate::str::contains("output")),
+                .and(predicate::str::contains("sync"))
         );
 }
 
