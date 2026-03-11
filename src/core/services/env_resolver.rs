@@ -190,6 +190,7 @@ mod tests {
                 default_cipher: "age".to_string(),
                 default_env: "dev".to_string(),
                 template: None,
+                rotation_days: None,
             },
             environments,
             audit: Some(AuditSection {

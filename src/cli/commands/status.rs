@@ -2,12 +2,15 @@ use std::path::Path;
 
 use colored::Colorize;
 
+use crate::adapters::audit::json_audit_logger::JsonAuditLogger;
 use crate::adapters::cipher::age_backend::AgeBackend;
 use crate::adapters::key_stores::file_key_store::FileKeyStore;
 use crate::cli::output;
 use crate::config::app_config::AppConfig;
 use crate::core::errors::{Result, VaulticError};
 use crate::core::services::key_service::KeyService;
+use crate::core::services::secret_age_service::SecretAgeService;
+use crate::core::traits::audit::AuditLogger;
 
 /// Execute the `vaultic status` command.
 ///
@@ -43,6 +46,9 @@ pub fn execute() -> Result<()> {
 
     // Audit status
     print_audit_status(&config, vaultic_dir);
+
+    // Rotation policy
+    print_rotation_policy(&config, vaultic_dir);
 
     Ok(())
 }
@@ -216,6 +222,50 @@ fn print_audit_status(config: &AppConfig, vaultic_dir: &Path) {
         );
     } else {
         println!("\n  {} Audit: no entries yet ({})", "—".dimmed(), log_file);
+    }
+}
+
+/// Print rotation policy warnings if `rotation_days` is configured.
+fn print_rotation_policy(config: &AppConfig, vaultic_dir: &Path) {
+    let Some(policy_days) = config.vaultic.rotation_days else {
+        return;
+    };
+
+    let log_file = config
+        .audit
+        .as_ref()
+        .map(|a| a.log_file.as_str())
+        .unwrap_or("audit.log");
+    let logger = JsonAuditLogger::new(vaultic_dir, log_file);
+
+    let entries = match logger.query(None, None) {
+        Ok(e) => e,
+        Err(_) => return,
+    };
+
+    let results = SecretAgeService::check_rotation(&entries, policy_days, chrono::Utc::now());
+    if results.is_empty() {
+        return;
+    }
+
+    println!("\n{}", "  Rotation policy".bold());
+    for r in &results {
+        let days = r.days_since_rotation.unwrap_or(0);
+        let date_str = r
+            .last_rotated
+            .map(|ts| ts.format("%Y-%m-%d").to_string())
+            .unwrap_or_else(|| "unknown".to_string());
+        if r.exceeds_policy {
+            output::warning(&format!(
+                "{} — last encrypted {} days ago ({}) (policy: {} days)",
+                r.key, days, date_str, policy_days
+            ));
+        } else {
+            output::success(&format!(
+                "{} — last encrypted {} days ago ({}) — ok",
+                r.key, days, date_str
+            ));
+        }
     }
 }
 

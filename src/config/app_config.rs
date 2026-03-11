@@ -75,6 +75,9 @@ pub struct VaulticSection {
     pub default_env: String,
     /// Global template file path (optional).
     pub template: Option<String>,
+    /// Rotation policy: warn if an environment hasn't been encrypted
+    /// in this many days. Default: no warning (None).
+    pub rotation_days: Option<u32>,
 }
 
 fn default_format_version() -> u32 {
