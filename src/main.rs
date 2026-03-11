@@ -66,6 +66,7 @@ fn main() {
         Commands::Status => cli::commands::status::execute(),
         Commands::Hook { action } => cli::commands::hook::execute(action),
         Commands::Template { action } => cli::commands::template::execute(action),
+        Commands::Validate { file } => cli::commands::validate::execute(file.as_deref()),
         Commands::Update => cli::commands::update::execute(),
     };
 

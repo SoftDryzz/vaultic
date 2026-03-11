@@ -12,3 +12,4 @@ pub mod resolve;
 pub mod status;
 pub mod template;
 pub mod update;
+pub mod validate;

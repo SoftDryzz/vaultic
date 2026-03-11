@@ -235,6 +235,31 @@ pub enum Commands {
         action: TemplateAction,
     },
 
+    /// Validate secrets against format rules in config.toml
+    #[command(
+        long_about = "Validate your local .env against format rules in .vaultic/config.toml.\n\n\
+                      Checks each key against its rule: type (url/integer/boolean/string), \
+                      length constraints (min_length/max_length), regex pattern, and required.\n\n\
+                      Rules are optional — keys without rules are not checked.\n\
+                      Validation reads the local .env on disk; no private key needed.\n\
+                      Exits with code 1 if any rules fail (CI-friendly).",
+        after_help = "Example config.toml rules:\n  \
+                      [validation]\n  \
+                      DATABASE_URL = { type = \"url\", required = true }\n  \
+                      PORT = { type = \"integer\", min = 1024, max = 65535 }\n  \
+                      API_KEY = { type = \"string\", min_length = 32 }\n  \
+                      DEBUG = { type = \"boolean\" }\n  \
+                      STRIPE_KEY = { pattern = \"^sk_live_.*\" }\n\n\
+                      Examples:\n  \
+                      vaultic validate             # Validate .env\n  \
+                      vaultic validate -f prod.env # Validate a specific file"
+    )]
+    Validate {
+        /// File to validate (default: .env)
+        #[arg(short, long)]
+        file: Option<String>,
+    },
+
     /// Update Vaultic to the latest version
     #[command(
         long_about = "Check for and install the latest Vaultic release.\n\n\
