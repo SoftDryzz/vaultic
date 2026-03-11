@@ -4,7 +4,7 @@
 
 Planes futuros para Vaultic, organizados por versión. Cada versión tiene un alcance claro y puede publicarse de forma independiente.
 
-Versión actual: **v1.2.0**
+Versión actual: **v1.3.0**
 
 ---
 
@@ -19,32 +19,12 @@ Versión actual: **v1.2.0**
 
 ---
 
-## v1.3.0 — Validación y Salud de Secretos
+## ~~v1.3.0 — Validación y Salud de Secretos~~ ✅ Publicada
 
-Detectar errores de configuración antes de que lleguen a producción.
-
-- **`vaultic template sync`**: auto-generar `.env.template` desde las claves de tus entornos cifrados, sin exponer valores. Mantiene el template siempre sincronizado.
-- **`vaultic validate`**: verifica secretos contra reglas de formato definidas en `config.toml`:
-  ```toml
-  [validation]
-  DATABASE_URL = { type = "url", required = true }
-  PORT = { type = "integer", min = 1024, max = 65535 }
-  API_KEY = { type = "string", min_length = 32 }
-  DEBUG = { type = "boolean" }
-  STRIPE_KEY = { pattern = "^sk_live_.*" }
-  ```
-  Output:
-  ```
-  ✓ DATABASE_URL — URL válida
-  ✗ PORT — se esperaba integer, recibido "abc"
-  ✗ API_KEY — demasiado corto (12 chars, mínimo 32)
-  ✓ DEBUG — boolean válido
-  ✗ STRIPE_KEY — no coincide con el patrón "^sk_live_.*"
-  ```
-- **Seguimiento de antigüedad**: registrar cuándo se modificó cada secreto por última vez. Avisar si un secreto no se ha rotado en un número configurable de días:
-  ```
-  ⚠ DB_PASSWORD última rotación hace 120 días (política: 90 días)
-  ```
+- `vaultic template sync`: genera automáticamente `.env.template` desde todos los entornos cifrados (unión de claves, valores eliminados). Usa `-o <ruta>` para ubicación personalizada.
+- `vaultic validate`: valida secretos contra reglas de formato en `config.toml` — soporta `type` (url/integer/boolean/string), `min`/`max`, `min_length`/`max_length`, `required` y `pattern` (regex). Las reglas son combinables. Sale con código distinto de cero en caso de fallo (compatible con CI). Usa `-f <archivo>` para un archivo específico.
+- Seguimiento de antigüedad en `vaultic status`: muestra cuándo se cifró cada entorno por última vez y señala los que exceden la política de rotación (`rotation_days` en config)
+- Nueva sección `[validation]` y opción `rotation_days` en `config.toml`
 
 ---
 

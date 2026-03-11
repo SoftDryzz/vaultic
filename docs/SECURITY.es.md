@@ -111,3 +111,5 @@ Confirmaremos la recepción en un plazo de 48 horas y proporcionaremos una evalu
 - **Verificación de integridad**: las operaciones de cifrado y descifrado registran un hash SHA-256 del archivo resultante en el audit log, permitiendo detección de manipulación
 - **Validación de claves de recipients**: las claves públicas se validan al añadirlas (formato Bech32 para age, formato fingerprint para GPG) para prevenir errores tipográficos
 - **Sanitización de entrada**: los nombres de entorno y las rutas de archivos de configuración se validan contra patrones de path traversal para prevenir que un `config.toml` comprometido escriba fuera de `.vaultic/`
+- **Validación de formato de secretos**: `vaultic validate` comprueba los valores de los secretos contra reglas de tipo, longitud, patrón y requerimiento antes de que lleguen a producción — detectando errores de configuración en la máquina del desarrollador, no en el pipeline
+- **Política de rotación**: el parámetro configurable `rotation_days` avisa cuando los entornos no se han re-cifrado recientemente, ayudando a los equipos a cumplir con las políticas de rotación de secretos

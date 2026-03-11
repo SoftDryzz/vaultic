@@ -11,6 +11,8 @@ Referencia completa de todos los comandos de Vaultic CLI con ejemplos y explicac
 - [encrypt](#vaultic-encrypt)
 - [decrypt](#vaultic-decrypt)
 - [check](#vaultic-check)
+- [template sync](#vaultic-template-sync)
+- [validate](#vaultic-validate)
 - [diff](#vaultic-diff)
 - [resolve](#vaultic-resolve)
 - [keys setup](#vaultic-keys-setup)
@@ -249,6 +251,94 @@ $ vaultic check
 
   ✓ 23/23 variables present — all good
 ```
+
+---
+
+## `vaultic template sync`
+
+Genera automáticamente `.env.template` desde todos los entornos cifrados. Descifra cada entorno en memoria, recoge la unión de todas las claves, elimina todos los valores, y escribe el resultado.
+
+```bash
+# Sincroniza .env.template desde todos los entornos cifrados
+vaultic template sync
+
+# Escribe en una ruta personalizada
+vaultic template sync -o custom.template
+```
+
+**Qué hace:**
+1. Descifra cada archivo `.env.enc` en memoria (requiere tu clave privada)
+2. Recoge cada clave de cada entorno (unión)
+3. Elimina todos los valores (cadenas vacías)
+4. Escribe el resultado en `.env.template` (o ruta personalizada)
+
+Esto mantiene tu template siempre sincronizado con los secretos reales — sin mantenimiento manual. El archivo de salida es seguro para commitear.
+
+**Opciones:**
+
+| Flag | Descripción |
+|------|-------------|
+| `-o, --output <ruta>` | Escribe en una ruta personalizada en lugar de `.env.template` |
+
+---
+
+## `vaultic validate`
+
+Valida tu `.env` local contra reglas de formato definidas en `.vaultic/config.toml`.
+
+```bash
+# Valida .env
+vaultic validate
+
+# Valida un archivo específico
+vaultic validate -f prod.env
+```
+
+**Ejemplo de salida:**
+```
+🔍 vaultic validate
+  File: .env
+  Rules: 5 defined
+
+  ✗ STRIPE_KEY — does not match pattern "^sk_live_.*"
+  ✓ API_KEY — ok
+  ✓ DATABASE_URL — ok
+  ✓ DEBUG — ok
+  ✓ PORT — ok
+
+  4/5 rules passed
+```
+
+**Configurar reglas** en `.vaultic/config.toml`:
+
+```toml
+[validation]
+DATABASE_URL = { type = "url", required = true }
+PORT = { type = "integer", min = 1024, max = 65535 }
+API_KEY = { type = "string", min_length = 32 }
+DEBUG = { type = "boolean" }
+STRIPE_KEY = { pattern = "^sk_live_.*" }
+```
+
+**Campos de reglas soportados:**
+
+| Campo | Descripción | Ejemplo |
+|-------|-------------|---------|
+| `type` | Tipo de valor: `url`, `integer`, `boolean`, `string` | `type = "url"` |
+| `required` | La clave debe estar presente y no vacía | `required = true` |
+| `min` / `max` | Límites numéricos (tipo integer) | `min = 1024, max = 65535` |
+| `min_length` / `max_length` | Límites de longitud de cadena | `min_length = 32` |
+| `pattern` | Patrón regex que el valor debe cumplir | `pattern = "^sk_live_.*"` |
+
+Todos los campos son opcionales y combinables. Si una clave no es requerida y está ausente, se omite silenciosamente.
+
+**Compatible con CI:** sale con código 1 en caso de fallo, ideal para pipelines CI.
+
+**Opciones:**
+
+| Flag | Descripción |
+|------|-------------|
+| `-f, --file <ruta>` | Archivo a validar (default: `.env`) |
 
 ---
 

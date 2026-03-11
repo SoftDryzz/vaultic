@@ -11,6 +11,8 @@ Complete reference for all Vaultic CLI commands with examples and explanations.
 - [encrypt](#vaultic-encrypt)
 - [decrypt](#vaultic-decrypt)
 - [check](#vaultic-check)
+- [template sync](#vaultic-template-sync)
+- [validate](#vaultic-validate)
 - [diff](#vaultic-diff)
 - [resolve](#vaultic-resolve)
 - [keys setup](#vaultic-keys-setup)
@@ -249,6 +251,94 @@ $ vaultic check
 
   ✓ 23/23 variables present — all good
 ```
+
+---
+
+## `vaultic template sync`
+
+Auto-generate `.env.template` from all encrypted environments. Decrypts each environment in memory, collects the union of all keys, strips all values, and writes the result.
+
+```bash
+# Sync .env.template from all encrypted environments
+vaultic template sync
+
+# Write to a custom path
+vaultic template sync -o custom.template
+```
+
+**What it does:**
+1. Decrypts each `.env.enc` file in memory (requires your private key)
+2. Collects every key from every environment (union)
+3. Strips all values (empty strings)
+4. Writes the result to `.env.template` (or custom path)
+
+This keeps your template always in sync with the actual secrets — no manual maintenance needed. The output file is safe to commit.
+
+**Options:**
+
+| Flag | Description |
+|------|-------------|
+| `-o, --output <path>` | Write to a custom path instead of `.env.template` |
+
+---
+
+## `vaultic validate`
+
+Validate your local `.env` against format rules defined in `.vaultic/config.toml`.
+
+```bash
+# Validate .env
+vaultic validate
+
+# Validate a specific file
+vaultic validate -f prod.env
+```
+
+**Example output:**
+```
+🔍 vaultic validate
+  File: .env
+  Rules: 5 defined
+
+  ✗ STRIPE_KEY — does not match pattern "^sk_live_.*"
+  ✓ API_KEY — ok
+  ✓ DATABASE_URL — ok
+  ✓ DEBUG — ok
+  ✓ PORT — ok
+
+  4/5 rules passed
+```
+
+**Configuring rules** in `.vaultic/config.toml`:
+
+```toml
+[validation]
+DATABASE_URL = { type = "url", required = true }
+PORT = { type = "integer", min = 1024, max = 65535 }
+API_KEY = { type = "string", min_length = 32 }
+DEBUG = { type = "boolean" }
+STRIPE_KEY = { pattern = "^sk_live_.*" }
+```
+
+**Supported rule fields:**
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| `type` | Value type: `url`, `integer`, `boolean`, `string` | `type = "url"` |
+| `required` | Key must be present and non-empty | `required = true` |
+| `min` / `max` | Numeric bounds (integer type) | `min = 1024, max = 65535` |
+| `min_length` / `max_length` | String length bounds | `min_length = 32` |
+| `pattern` | Regex pattern the value must match | `pattern = "^sk_live_.*"` |
+
+All fields are optional and combinable. If a key is not required and is absent, it is silently skipped.
+
+**CI-friendly:** exits with code 1 on failure, making it suitable for CI pipelines.
+
+**Options:**
+
+| Flag | Description |
+|------|-------------|
+| `-f, --file <path>` | File to validate (default: `.env`) |
 
 ---
 

@@ -104,6 +104,43 @@ vaultic encrypt --all                vaultic decrypt --env dev
 | `-v, --verbose` | Salida detallada (archivos fuente, recipients, etc.) |
 | `-q, --quiet` | Solo errores |
 
+## Configuración
+
+Vaultic almacena su configuración en `.vaultic/config.toml`. Estas son las secciones clave:
+
+### Reglas de Validación
+
+Define reglas de formato para tus secretos. Vaultic las verifica con `vaultic validate`:
+
+```toml
+[validation]
+DATABASE_URL = { type = "url", required = true }
+PORT = { type = "integer", min = 1024, max = 65535 }
+API_KEY = { type = "string", min_length = 32 }
+DEBUG = { type = "boolean" }
+STRIPE_KEY = { pattern = "^sk_live_.*" }
+```
+
+Todos los campos de reglas son opcionales y combinables. Sale con código distinto de cero en caso de fallo — perfecto para pipelines CI.
+
+### Política de Rotación
+
+Avisa en `vaultic status` cuando los entornos no se han re-cifrado recientemente:
+
+```toml
+[vaultic]
+rotation_days = 90  # Avisa si un entorno no se ha cifrado en 90+ días
+```
+
+### Sincronización de Template
+
+Mantén `.env.template` sincronizado automáticamente:
+
+```bash
+vaultic template sync              # Genera desde todos los entornos cifrados
+vaultic template sync -o custom.template  # Escribe en ruta personalizada
+```
+
 ## Roadmap
 
 Consulta el [roadmap completo](roadmap.es.md) para las features planeadas: notificaciones de actualización, validación de secretos, integración Docker/CI, parsers multi-formato, control de acceso, sincronización con servidor, y más.

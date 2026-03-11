@@ -110,3 +110,5 @@ We will acknowledge receipt within 48 hours and aim to provide an initial assess
 - **Integrity verification**: encrypt and decrypt operations record a SHA-256 hash of the resulting file in the audit log, enabling tamper detection
 - **Recipient key validation**: public keys are validated at add time (age Bech32 format, GPG fingerprint format) to prevent typos from causing silent failures
 - **Input sanitization**: environment names and config file paths are validated against path traversal patterns to prevent a compromised `config.toml` from writing outside `.vaultic/`
+- **Secret format validation**: `vaultic validate` checks secret values against type, length, pattern, and required rules before they reach production — catching misconfigurations at the developer's machine, not in the pipeline
+- **Rotation policy enforcement**: configurable `rotation_days` warns when environments haven't been re-encrypted recently, helping teams comply with secret rotation policies

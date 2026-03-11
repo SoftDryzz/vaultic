@@ -4,7 +4,7 @@
 
 Future plans for Vaultic, organized by version. Each version has a clear scope and can be released independently.
 
-Current version: **v1.2.0**
+Current version: **v1.3.0**
 
 ---
 
@@ -19,32 +19,12 @@ Current version: **v1.2.0**
 
 ---
 
-## v1.3.0 — Secret Validation & Health
+## ~~v1.3.0 — Secret Validation & Health~~ ✅ Released
 
-Catch configuration errors before they reach production.
-
-- **`vaultic template sync`**: auto-generate `.env.template` from the keys in your encrypted environments, without exposing values. Keeps the template always in sync.
-- **`vaultic validate`**: check secrets against format rules defined in `config.toml`:
-  ```toml
-  [validation]
-  DATABASE_URL = { type = "url", required = true }
-  PORT = { type = "integer", min = 1024, max = 65535 }
-  API_KEY = { type = "string", min_length = 32 }
-  DEBUG = { type = "boolean" }
-  STRIPE_KEY = { pattern = "^sk_live_.*" }
-  ```
-  Output:
-  ```
-  ✓ DATABASE_URL — valid URL
-  ✗ PORT — expected integer, got "abc"
-  ✗ API_KEY — too short (12 chars, minimum 32)
-  ✓ DEBUG — valid boolean
-  ✗ STRIPE_KEY — does not match pattern "^sk_live_.*"
-  ```
-- **Secret age tracking**: record when each secret was last modified. Warn if a secret hasn't been rotated in a configurable number of days:
-  ```
-  ⚠ DB_PASSWORD last rotated 120 days ago (policy: 90 days)
-  ```
+- `vaultic template sync`: auto-generate `.env.template` from all encrypted environments (union of keys, values stripped). Use `-o <path>` for custom output location.
+- `vaultic validate`: check secrets against format rules in `config.toml` — supports `type` (url/integer/boolean/string), `min`/`max`, `min_length`/`max_length`, `required`, and `pattern` (regex). Rules are combinable. Exits non-zero on failure (CI-friendly). Use `-f <file>` for a specific file.
+- Secret age tracking in `vaultic status`: shows when each environment was last encrypted and flags those exceeding the rotation policy (`rotation_days` in config)
+- New `[validation]` section and `rotation_days` config option in `config.toml`
 
 ---
 
