@@ -78,6 +78,10 @@ fn main() {
 
     if let Err(e) = result {
         cli::output::error(&format!("Error: {e}"));
-        std::process::exit(1);
+        let code = match e {
+            core::errors::VaulticError::ValidationFailed { .. } => 2,
+            _ => 1,
+        };
+        std::process::exit(code);
     }
 }
