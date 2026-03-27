@@ -37,7 +37,7 @@ pub fn execute(env: Option<&str>, cipher: &str, output_path: Option<&str>, to_st
     }
 
     // Decrypt and parse each layer
-    let files = crypto_helpers::load_env_files(&chain, vaultic_dir, cipher, &parser, true)?;
+    let files = crypto_helpers::load_env_files(&chain, vaultic_dir, cipher, &parser, !to_stdout)?;
 
     // Resolve the full inheritance
     let environment = resolver.resolve(env_name, &config, &files)?;
