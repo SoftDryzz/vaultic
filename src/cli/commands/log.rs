@@ -124,5 +124,6 @@ fn format_action(action: &AuditAction) -> String {
         AuditAction::HookUninstall => "hook -".red().to_string(),
         AuditAction::TemplateSync => "tmpl sync".cyan().to_string(),
         AuditAction::Validate => "validate".yellow().to_string(),
+        AuditAction::CiExport => "ci export".blue().to_string(),
     }
 }

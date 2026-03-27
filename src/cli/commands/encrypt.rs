@@ -85,8 +85,18 @@ fn encrypt_all(vaultic_dir: &Path, cipher: &str) -> Result<()> {
 fn decrypt_bytes(ciphertext: &[u8], cipher: &str) -> Result<Vec<u8>> {
     match cipher {
         "age" => {
-            let identity_path = AgeBackend::default_identity_path()?;
-            let backend = AgeBackend::new(identity_path);
+            let backend = if let Ok(key_data) = std::env::var("VAULTIC_AGE_KEY") {
+                let key_data = key_data.trim();
+                if key_data.is_empty() {
+                    return Err(VaulticError::EncryptionFailed {
+                        reason: "VAULTIC_AGE_KEY is set but empty. Provide the full age identity content.".into(),
+                    });
+                }
+                AgeBackend::from_key_data(key_data.to_string())
+            } else {
+                let identity_path = AgeBackend::default_identity_path()?;
+                AgeBackend::new(identity_path)
+            };
             backend.decrypt(ciphertext)
         }
         "gpg" => {

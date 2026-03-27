@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > English | **[Español](docs/CHANGELOG.es.md)**
 
+## [1.4.0] - 2026-03-27
+
+### Added
+
+- `VAULTIC_AGE_KEY` environment variable: when set, Vaultic uses its value as the private key
+  instead of reading from `~/.config/age/keys.txt`. Essential for CI/CD pipelines where key files
+  are not available. Supported in `decrypt`, `resolve`, `ci export`, `encrypt --all`, and all
+  commands that decrypt in memory. Empty values are rejected with a clear error.
+- `--stdout` flag on `decrypt` and `resolve`: writes decrypted/resolved content to stdout instead
+  of a file. No UI messages are printed — only raw env content. Enables piping:
+  `vaultic decrypt --env dev --stdout | docker run --env-file -`. Mutually exclusive with `--output`.
+- `vaultic ci export`: new command for exporting secrets in CI-specific formats:
+  - `--format github`: `echo "KEY=value" >> "$GITHUB_ENV"`
+  - `--format gitlab`: `export KEY="value"`
+  - `--format generic`: `KEY=value` (default)
+  - `--mask`: emit `::add-mask::` commands for GitHub Actions (requires `--format github`)
+- `.dockerignore` safety check: `vaultic status` now warns when a `Dockerfile` or
+  `docker-compose.yml` is present but `.env` is not listed in `.dockerignore`
+- New audit action: `ci_export`
+- New error variant: `CiExportFailed` with supported-format guidance
+
+### Changed
+
+- `vaultic validate` now exits with code 2 (not 1) for validation rule violations, allowing CI
+  scripts to differentiate validation failures from other errors
+
 ## [1.3.0] - 2026-03-11
 
 ### Added
@@ -164,6 +190,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AGPL-3.0 License
 - README with badges, installation, quick start, and command reference
 
+[1.4.0]: https://github.com/SoftDryzz/vaultic/compare/v1.3.0...v1.4.0
+[1.3.0]: https://github.com/SoftDryzz/vaultic/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/SoftDryzz/vaultic/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/SoftDryzz/vaultic/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/SoftDryzz/vaultic/compare/v0.5.0-alpha...v1.0.0
 [0.5.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.4.0-alpha...v0.5.0-alpha

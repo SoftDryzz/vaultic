@@ -137,6 +137,16 @@ pub enum VaulticError {
         reason: String,
     },
 
+    #[error(
+        "Invalid CI format: '{format}'\n\n  \
+         Supported formats: github, gitlab, generic\n\n  \
+         Examples:\n    \
+         → vaultic ci export --env dev --format github\n    \
+         → vaultic ci export --env dev --format gitlab\n    \
+         → vaultic ci export --env dev --format generic"
+    )]
+    CiExportFailed { format: String },
+
     #[error(transparent)]
     Io(#[from] std::io::Error),
 }

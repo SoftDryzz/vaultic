@@ -16,6 +16,7 @@ pub enum AuditAction {
     HookUninstall,
     TemplateSync,
     Validate,
+    CiExport,
 }
 
 /// A single entry in the audit log (JSON lines format).

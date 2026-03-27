@@ -7,19 +7,36 @@ use crate::core::errors::{Result, VaulticError};
 use crate::core::models::key_identity::KeyIdentity;
 use crate::core::traits::cipher::CipherBackend;
 
+/// Source for the age identity (private key).
+enum IdentitySource {
+    /// Path to an identity file on disk.
+    File(PathBuf),
+    /// Raw identity data (e.g. from VAULTIC_AGE_KEY env var).
+    Data(String),
+}
+
 /// Age encryption backend using X25519 + ChaCha20-Poly1305.
 ///
 /// Uses ASCII-armored output so encrypted files are text-friendly
 /// and work well with Git.
 pub struct AgeBackend {
-    /// Path to the age identity (private key) file.
-    identity_path: PathBuf,
+    /// Source for loading the age identity (private key).
+    identity_source: IdentitySource,
 }
 
 impl AgeBackend {
     /// Create a new backend pointing to a specific identity file.
     pub fn new(identity_path: PathBuf) -> Self {
-        Self { identity_path }
+        Self {
+            identity_source: IdentitySource::File(identity_path),
+        }
+    }
+
+    /// Create a new backend from inline key data (e.g. from an env var).
+    pub fn from_key_data(data: String) -> Self {
+        Self {
+            identity_source: IdentitySource::Data(data),
+        }
     }
 
     /// Default identity file location for the current platform.
@@ -94,20 +111,32 @@ impl AgeBackend {
             .collect()
     }
 
-    /// Load identities from the private key file.
+    /// Load identities from the configured source (file or inline data).
     fn load_identities(&self) -> Result<Vec<Box<dyn age::Identity>>> {
-        let path_str = self.identity_path.to_string_lossy().to_string();
-        let identity_file =
-            age::IdentityFile::from_file(path_str).map_err(|e| VaulticError::EncryptionFailed {
-                reason: format!(
-                    "Failed to read identity file '{}': {e}",
-                    self.identity_path.display()
-                ),
-            })?;
-
-        identity_file
-            .into_identities()
-            .map_err(|_| VaulticError::DecryptionNoKey)
+        match &self.identity_source {
+            IdentitySource::File(path) => {
+                let path_str = path.to_string_lossy().to_string();
+                let identity_file = age::IdentityFile::from_file(path_str).map_err(|e| {
+                    VaulticError::EncryptionFailed {
+                        reason: format!("Failed to read identity file '{}': {e}", path.display()),
+                    }
+                })?;
+                identity_file
+                    .into_identities()
+                    .map_err(|_| VaulticError::DecryptionNoKey)
+            }
+            IdentitySource::Data(data) => {
+                let identity_file =
+                    age::IdentityFile::from_buffer(data.as_bytes()).map_err(|e| {
+                        VaulticError::EncryptionFailed {
+                            reason: format!("Failed to parse inline identity data: {e}"),
+                        }
+                    })?;
+                identity_file
+                    .into_identities()
+                    .map_err(|_| VaulticError::DecryptionNoKey)
+            }
+        }
     }
 }
 
@@ -310,6 +339,29 @@ mod tests {
         let key_path = dir.path().join("keys.txt");
         let backend = AgeBackend::new(key_path);
         assert_eq!(backend.name(), "age");
+    }
+
+    #[test]
+    fn from_key_data_encrypts_and_decrypts() {
+        let dir = tempfile::tempdir().unwrap();
+        let key_path = dir.path().join("keys.txt");
+
+        let public_key = AgeBackend::generate_identity(&key_path).unwrap();
+        let key_data = std::fs::read_to_string(&key_path).unwrap();
+
+        // Create backend from inline key data (no file path)
+        let backend = AgeBackend::from_key_data(key_data);
+
+        let recipient = KeyIdentity {
+            public_key: public_key.clone(),
+            label: None,
+            added_at: None,
+        };
+
+        let plaintext = b"CI_SECRET=from_env_var";
+        let ciphertext = backend.encrypt(plaintext, &[recipient]).unwrap();
+        let decrypted = backend.decrypt(&ciphertext).unwrap();
+        assert_eq!(decrypted, plaintext);
     }
 
     #[test]

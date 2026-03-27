@@ -107,8 +107,11 @@ pub enum Commands {
         #[arg(long)]
         key: Option<String>,
         /// Output path for the decrypted file (default: .env)
-        #[arg(short, long)]
+        #[arg(short, long, conflicts_with = "stdout")]
         output: Option<String>,
+        /// Write decrypted content to stdout instead of a file
+        #[arg(long)]
+        stdout: bool,
     },
 
     /// Verify missing variables against template
@@ -156,8 +159,11 @@ pub enum Commands {
     )]
     Resolve {
         /// Output path for the resolved file (default: .env)
-        #[arg(short, long)]
+        #[arg(short, long, conflicts_with = "stdout")]
         output: Option<String>,
+        /// Write resolved content to stdout instead of a file
+        #[arg(long)]
+        stdout: bool,
     },
 
     /// Manage keys and recipients
@@ -260,6 +266,21 @@ pub enum Commands {
         file: Option<String>,
     },
 
+    /// CI/CD integration commands
+    #[command(
+        long_about = "CI/CD integration commands for exporting secrets to pipelines.\n\n\
+                      Use 'vaultic ci export' to output secrets in formats compatible \
+                      with GitHub Actions, GitLab CI, or generic KEY=value.",
+        after_help = "Examples:\n  \
+                      vaultic ci export --env dev --format github\n  \
+                      vaultic ci export --env prod --format gitlab\n  \
+                      vaultic ci export --env dev --format github --mask"
+    )]
+    Ci {
+        #[command(subcommand)]
+        action: CiAction,
+    },
+
     /// Update Vaultic to the latest version
     #[command(
         long_about = "Check for and install the latest Vaultic release.\n\n\
@@ -327,5 +348,32 @@ pub enum TemplateAction {
         /// Output path (default: .env.template)
         #[arg(short, long)]
         output: Option<String>,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+pub enum CiAction {
+    /// Export secrets for CI/CD pipelines
+    #[command(
+        long_about = "Export resolved secrets to stdout in CI-specific formats.\n\n\
+                      Resolves the environment inheritance chain, decrypts in memory, \
+                      and prints the result in the requested format.\n\n\
+                      No files are written to disk — output goes to stdout only.\n\n\
+                      Formats:\n  \
+                      • github — echo \"KEY=value\" >> \"$GITHUB_ENV\"\n  \
+                      • gitlab — export KEY=\"value\"\n  \
+                      • generic — KEY=value (default)",
+        after_help = "Examples:\n  \
+                      vaultic ci export --env dev --format github\n  \
+                      vaultic ci export --env dev --format github --mask\n  \
+                      vaultic ci export --env prod --format gitlab"
+    )]
+    Export {
+        /// CI format: github, gitlab, generic (default: generic)
+        #[arg(short, long, default_value = "generic")]
+        format: String,
+        /// Emit ::add-mask:: commands for GitHub Actions (requires --format github)
+        #[arg(long)]
+        mask: bool,
     },
 }

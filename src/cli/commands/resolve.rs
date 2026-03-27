@@ -11,7 +11,12 @@ use crate::core::traits::parser::ConfigParser;
 /// Resolves the full inheritance chain for the given environment,
 /// decrypting each layer in memory, merging from base to leaf,
 /// and writing the result to `.env` (or to `output_path` if provided).
-pub fn execute(env: Option<&str>, cipher: &str, output_path: Option<&str>) -> Result<()> {
+pub fn execute(
+    env: Option<&str>,
+    cipher: &str,
+    output_path: Option<&str>,
+    to_stdout: bool,
+) -> Result<()> {
     let vaultic_dir = crate::cli::context::vaultic_dir();
     if !vaultic_dir.exists() {
         return Err(VaulticError::InvalidConfig {
@@ -22,7 +27,9 @@ pub fn execute(env: Option<&str>, cipher: &str, output_path: Option<&str>) -> Re
     let config = AppConfig::load(vaultic_dir)?;
     let env_name = env.unwrap_or(&config.vaultic.default_env);
 
-    output::header(&format!("Resolving environment: {env_name}"));
+    if !to_stdout {
+        output::header(&format!("Resolving environment: {env_name}"));
+    }
 
     let resolver = EnvResolver;
     let parser = DotenvParser;
@@ -30,16 +37,24 @@ pub fn execute(env: Option<&str>, cipher: &str, output_path: Option<&str>) -> Re
     // Build the chain first so we know what to decrypt
     let chain = resolver.build_chain(env_name, &config)?;
 
-    output::success(&format!("Inheritance chain: {}", chain.join(" -> ")));
+    if !to_stdout {
+        output::success(&format!("Inheritance chain: {}", chain.join(" -> ")));
+    }
 
     // Decrypt and parse each layer
-    let files = crypto_helpers::load_env_files(&chain, vaultic_dir, cipher, &parser, true)?;
+    let files = crypto_helpers::load_env_files(&chain, vaultic_dir, cipher, &parser, !to_stdout)?;
 
     // Resolve the full inheritance
     let environment = resolver.resolve(env_name, &config, &files)?;
 
-    // Serialize and write to .env
+    // Serialize
     let content = parser.serialize(&environment.resolved)?;
+
+    if to_stdout {
+        print!("{content}");
+        return Ok(());
+    }
+
     let var_count = environment.resolved.keys().len();
 
     let dest = output_path.unwrap_or(".env");

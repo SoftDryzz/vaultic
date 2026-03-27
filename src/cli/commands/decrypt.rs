@@ -20,6 +20,7 @@ pub fn execute(
     cipher: &str,
     key_path: Option<&str>,
     output_path: Option<&str>,
+    to_stdout: bool,
 ) -> Result<()> {
     let vaultic_dir = crate::cli::context::vaultic_dir();
     if !vaultic_dir.exists() {
@@ -48,32 +49,42 @@ pub fn execute(
 
     match cipher {
         "age" => {
-            let identity_path = match key_path {
+            let backend = match key_path {
                 Some(p) => {
                     let path = PathBuf::from(p);
                     if !path.exists() {
                         return Err(VaulticError::FileNotFound { path });
                     }
-                    path
+                    AgeBackend::new(path)
                 }
                 None => {
-                    let path = AgeBackend::default_identity_path()?;
-                    if !path.exists() {
-                        return Err(VaulticError::EncryptionFailed {
-                            reason: format!(
-                                "No private key found at {}\n\n  Solutions:\n    \
-                                 → New here? Run 'vaultic keys setup' to generate a key\n    \
-                                 → Have a key? Use --key <path> to specify the location\n    \
-                                 → Lost your key? Ask an admin to re-add you as a recipient",
-                                path.display()
-                            ),
-                        });
+                    if let Ok(key_data) = std::env::var("VAULTIC_AGE_KEY") {
+                        let key_data = key_data.trim();
+                        if key_data.is_empty() {
+                            return Err(VaulticError::EncryptionFailed {
+                                reason: "VAULTIC_AGE_KEY is set but empty. Provide the full age identity content.".into(),
+                            });
+                        }
+                        AgeBackend::from_key_data(key_data.to_string())
+                    } else {
+                        let path = AgeBackend::default_identity_path()?;
+                        if !path.exists() {
+                            return Err(VaulticError::EncryptionFailed {
+                                reason: format!(
+                                    "No private key found at {}\n\n  Solutions:\n    \
+                                     → New here? Run 'vaultic keys setup' to generate a key\n    \
+                                     → Set VAULTIC_AGE_KEY environment variable with your private key\n    \
+                                     → Have a key? Use --key <path> to specify the location\n    \
+                                     → Lost your key? Ask an admin to re-add you as a recipient",
+                                    path.display()
+                                ),
+                            });
+                        }
+                        AgeBackend::new(path)
                     }
-                    path
                 }
             };
-            let backend = AgeBackend::new(identity_path);
-            decrypt_with(backend, key_store, &source, &dest, env_name)
+            decrypt_with(backend, key_store, &source, &dest, env_name, to_stdout)
         }
         "gpg" => {
             let backend = GpgBackend::new();
@@ -82,7 +93,7 @@ pub fn execute(
                     reason: "GPG is not installed or not found in PATH".into(),
                 });
             }
-            decrypt_with(backend, key_store, &source, &dest, env_name)
+            decrypt_with(backend, key_store, &source, &dest, env_name, to_stdout)
         }
         other => Err(VaulticError::InvalidConfig {
             detail: format!("Unknown cipher backend: '{other}'. Use 'age' or 'gpg'."),
@@ -97,10 +108,21 @@ fn decrypt_with<C: CipherBackend>(
     source: &Path,
     dest: &Path,
     env_name: &str,
+    to_stdout: bool,
 ) -> Result<()> {
     let cipher_name = cipher.name().to_string();
 
     let service = EncryptionService { cipher, key_store };
+
+    if to_stdout {
+        let plaintext = service.decrypt_to_bytes(source)?;
+        let content = String::from_utf8(plaintext).map_err(|_| VaulticError::ParseError {
+            file: source.to_path_buf(),
+            detail: "Decrypted content is not valid UTF-8".into(),
+        })?;
+        print!("{content}");
+        return Ok(());
+    }
 
     output::detail(&format!("Source: {}", source.display()));
     output::detail(&format!("Destination: {}", dest.display()));

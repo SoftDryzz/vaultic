@@ -59,16 +59,30 @@ pub fn decrypt_in_memory(enc_path: &Path, vaultic_dir: &Path, cipher: &str) -> R
 
     match cipher {
         "age" => {
-            let identity_path = AgeBackend::default_identity_path()?;
-            if !identity_path.exists() {
-                return Err(VaulticError::EncryptionFailed {
-                    reason: format!(
-                        "No private key found at {}\n\n  Run 'vaultic keys setup' to generate a key.",
-                        identity_path.display()
-                    ),
-                });
-            }
-            let backend = AgeBackend::new(identity_path);
+            let backend = if let Ok(key_data) = std::env::var("VAULTIC_AGE_KEY") {
+                let key_data = key_data.trim();
+                if key_data.is_empty() {
+                    return Err(VaulticError::EncryptionFailed {
+                        reason: "VAULTIC_AGE_KEY is set but empty. Provide the full age identity content.".into(),
+                    });
+                }
+                AgeBackend::from_key_data(key_data.to_string())
+            } else {
+                let identity_path = AgeBackend::default_identity_path()?;
+                if !identity_path.exists() {
+                    return Err(VaulticError::EncryptionFailed {
+                        reason: format!(
+                            "No private key found at {}\n\n  \
+                             Solutions:\n    \
+                             → Run 'vaultic keys setup' to generate a key\n    \
+                             → Set VAULTIC_AGE_KEY environment variable with your private key\n    \
+                             → Use --key <path> to specify the key file location",
+                            identity_path.display()
+                        ),
+                    });
+                }
+                AgeBackend::new(identity_path)
+            };
             let service = EncryptionService {
                 cipher: backend,
                 key_store,
