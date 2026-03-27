@@ -48,31 +48,35 @@ pub fn execute(
 
     match cipher {
         "age" => {
-            let identity_path = match key_path {
+            let backend = match key_path {
                 Some(p) => {
                     let path = PathBuf::from(p);
                     if !path.exists() {
                         return Err(VaulticError::FileNotFound { path });
                     }
-                    path
+                    AgeBackend::new(path)
                 }
                 None => {
-                    let path = AgeBackend::default_identity_path()?;
-                    if !path.exists() {
-                        return Err(VaulticError::EncryptionFailed {
-                            reason: format!(
-                                "No private key found at {}\n\n  Solutions:\n    \
-                                 → New here? Run 'vaultic keys setup' to generate a key\n    \
-                                 → Have a key? Use --key <path> to specify the location\n    \
-                                 → Lost your key? Ask an admin to re-add you as a recipient",
-                                path.display()
-                            ),
-                        });
+                    if let Ok(key_data) = std::env::var("VAULTIC_AGE_KEY") {
+                        AgeBackend::from_key_data(key_data)
+                    } else {
+                        let path = AgeBackend::default_identity_path()?;
+                        if !path.exists() {
+                            return Err(VaulticError::EncryptionFailed {
+                                reason: format!(
+                                    "No private key found at {}\n\n  Solutions:\n    \
+                                     → New here? Run 'vaultic keys setup' to generate a key\n    \
+                                     → Set VAULTIC_AGE_KEY environment variable with your private key\n    \
+                                     → Have a key? Use --key <path> to specify the location\n    \
+                                     → Lost your key? Ask an admin to re-add you as a recipient",
+                                    path.display()
+                                ),
+                            });
+                        }
+                        AgeBackend::new(path)
                     }
-                    path
                 }
             };
-            let backend = AgeBackend::new(identity_path);
             decrypt_with(backend, key_store, &source, &dest, env_name)
         }
         "gpg" => {
