@@ -1,5 +1,6 @@
 pub mod audit_helpers;
 pub mod check;
+pub mod ci;
 pub mod crypto_helpers;
 pub mod decrypt;
 pub mod diff;

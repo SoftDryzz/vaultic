@@ -73,6 +73,14 @@ fn main() {
         Commands::Hook { action } => cli::commands::hook::execute(action),
         Commands::Template { action } => cli::commands::template::execute(action),
         Commands::Validate { file } => cli::commands::validate::execute(file.as_deref()),
+        Commands::Ci { action } => {
+            use cli::CiAction;
+            match action {
+                CiAction::Export { format, mask } => {
+                    cli::commands::ci::execute_export(single_env, &args.cipher, format, *mask)
+                }
+            }
+        }
         Commands::Update => cli::commands::update::execute(),
     };
 
