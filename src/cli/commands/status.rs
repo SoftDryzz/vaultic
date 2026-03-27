@@ -196,6 +196,30 @@ fn print_local_state() {
     } else {
         output::warning("No .gitignore found");
     }
+
+    // .dockerignore (only relevant if Docker files exist)
+    let has_docker = Path::new("Dockerfile").exists()
+        || Path::new("docker-compose.yml").exists()
+        || Path::new("docker-compose.yaml").exists();
+
+    if has_docker {
+        let dockerignore = Path::new(".dockerignore");
+        if dockerignore.exists() {
+            let content = std::fs::read_to_string(dockerignore).unwrap_or_default();
+            if content.lines().any(|l| l.trim() == ".env") {
+                output::success(".env in .dockerignore");
+            } else {
+                output::warning(
+                    ".env NOT in .dockerignore — secrets may leak into Docker images!",
+                );
+            }
+        } else {
+            output::warning(
+                "No .dockerignore found — .env may leak into Docker images! \
+                 Add '.env' to .dockerignore.",
+            );
+        }
+    }
 }
 
 /// Print audit log status.
