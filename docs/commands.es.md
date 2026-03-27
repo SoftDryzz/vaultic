@@ -7,6 +7,7 @@ Referencia completa de todos los comandos de Vaultic CLI con ejemplos y explicac
 ## Tabla de Contenidos
 
 - [Flags Globales](#flags-globales)
+- [Variables de Entorno](#variables-de-entorno)
 - [init](#vaultic-init)
 - [encrypt](#vaultic-encrypt)
 - [decrypt](#vaultic-decrypt)
@@ -22,6 +23,7 @@ Referencia completa de todos los comandos de Vaultic CLI con ejemplos y explicac
 - [log](#vaultic-log)
 - [status](#vaultic-status)
 - [hook install / uninstall](#vaultic-hook)
+- [ci export](#vaultic-ci-export)
 - [Flujos Comunes](#flujos-comunes)
 
 ---
@@ -37,6 +39,29 @@ Estos flags funcionan con cualquier comando:
 | `--config <ruta>` | — | `.vaultic/` | Ruta a directorio vaultic personalizado |
 | `--verbose` | `-v` | off | Salida detallada |
 | `--quiet` | `-q` | off | Solo errores |
+
+---
+
+## Variables de Entorno
+
+| Variable | Descripción |
+|----------|-------------|
+| `VAULTIC_AGE_KEY` | Cuando está definida, Vaultic usa su valor como clave privada age en lugar de leer de `~/.config/age/keys.txt`. Esencial para pipelines CI/CD donde no hay archivos de claves disponibles. Los valores vacíos se rechazan con un error claro. |
+
+**Ejemplo de uso en CI:**
+
+```bash
+# GitHub Actions
+- run: vaultic decrypt --env prod --stdout > .env
+  env:
+    VAULTIC_AGE_KEY: ${{ secrets.VAULTIC_AGE_KEY }}
+
+# CI genérico
+export VAULTIC_AGE_KEY="AGE-SECRET-KEY-1QFWZ..."
+vaultic ci export --env prod --format generic
+```
+
+Soportado en: `decrypt`, `resolve`, `ci export`, `encrypt --all` y todos los comandos que descifran en memoria.
 
 ---
 
@@ -159,7 +184,7 @@ $ vaultic encrypt .env --env dev
 Descifra un archivo cifrado para restaurar tu `.env` local.
 
 ```
-vaultic decrypt [ARCHIVO] [--env <nombre>] [--key <ruta>] [-o <ruta>] [--cipher <age|gpg>]
+vaultic decrypt [ARCHIVO] [--env <nombre>] [--key <ruta>] [-o <ruta>] [--stdout] [--cipher <age|gpg>]
 ```
 
 | Opción | Corto | Default | Descripción |
@@ -168,6 +193,7 @@ vaultic decrypt [ARCHIVO] [--env <nombre>] [--key <ruta>] [-o <ruta>] [--cipher 
 | `--env <nombre>` | — | `dev` | Entorno a descifrar |
 | `--key <ruta>` | — | `~/.config/age/keys.txt` | Ruta a tu clave privada |
 | `--output <ruta>` | `-o` | `.env` | Dónde escribir el archivo descifrado |
+| `--stdout` | — | off | Escribe el contenido descifrado a stdout (mutuamente exclusivo con `-o`) |
 
 **Qué hace:**
 
@@ -188,6 +214,15 @@ vaultic decrypt --env dev --key /ruta/a/mi-clave.txt
 vaultic decrypt --env dev -o backend/.env     # Descifra a un subdirectorio
 vaultic decrypt --env prod -o deploy/.env     # Descifra prod a la carpeta deploy
 ```
+
+**El flag `--stdout`** escribe el contenido descifrado directamente a stdout sin mensajes de UI. Esto permite piping a otras herramientas:
+
+```bash
+vaultic decrypt --env dev --stdout | docker run --env-file - myapp
+vaultic decrypt --env prod --stdout > /tmp/prod.env
+```
+
+`--stdout` y `-o` son mutuamente exclusivos — usa uno u otro.
 
 **Ejemplo:**
 
@@ -391,13 +426,20 @@ Esto es útil para detectar desfases de configuración entre entornos — por ej
 Genera un archivo `.env` final fusionando capas de entorno (base + overlay).
 
 ```
-vaultic resolve --env <nombre> [-o <ruta>] [--cipher <age|gpg>]
+vaultic resolve --env <nombre> [-o <ruta>] [--stdout] [--cipher <age|gpg>]
 ```
 
 | Opción | Corto | Default | Descripción |
 |--------|-------|---------|-------------|
 | `--env <nombre>` | — | desde config | Entorno a resolver |
 | `--output <ruta>` | `-o` | `.env` | Dónde escribir el archivo resuelto |
+| `--stdout` | — | off | Escribe el contenido resuelto a stdout (mutuamente exclusivo con `-o`) |
+
+**El flag `--stdout`** funciona igual que en `decrypt` — contenido env crudo a stdout, sin mensajes de UI:
+
+```bash
+vaultic resolve --env prod --stdout | docker run --env-file - myapp
+```
 
 **Cómo funciona la herencia:**
 
@@ -663,6 +705,56 @@ Cuando ejecutas `git commit`, el hook escanea los archivos staged. Si encuentra 
 
 ---
 
+## `vaultic ci export`
+
+Exporta secretos en formatos específicos de CI. Diseñado para uso en pipelines CI/CD.
+
+```
+vaultic ci export --env <nombre> [--format <github|gitlab|generic>] [--mask] [--cipher <age|gpg>]
+```
+
+| Opción | Default | Descripción |
+|--------|---------|-------------|
+| `--env <nombre>` | `dev` | Entorno a exportar |
+| `--format <formato>` | `generic` | Formato de salida: `github`, `gitlab` o `generic` |
+| `--mask` | off | Emite comandos `::add-mask::` para GitHub Actions (requiere `--format github`) |
+
+**Formatos de salida:**
+
+| Formato | Salida por variable | Caso de uso |
+|---------|-------------------|-------------|
+| `generic` | `KEY=value` | Propósito general, piping |
+| `github` | `echo "KEY=value" >> "$GITHUB_ENV"` | Workflows de GitHub Actions |
+| `gitlab` | `export KEY="value"` | Scripts de GitLab CI |
+
+**El flag `--mask`** añade líneas `::add-mask::value` antes de cada variable cuando se usa `--format github`, evitando que los valores secretos aparezcan en los logs de GitHub Actions.
+
+**Ejemplos:**
+
+```bash
+# Workflow de GitHub Actions
+- run: |
+    eval "$(vaultic ci export --env prod --format github --mask)"
+  env:
+    VAULTIC_AGE_KEY: ${{ secrets.VAULTIC_AGE_KEY }}
+
+# GitLab CI
+script:
+  - eval "$(vaultic ci export --env prod --format gitlab)"
+
+# Genérico — piping a archivo
+vaultic ci export --env dev --format generic > .env
+```
+
+**Errores:**
+
+| Error | Causa | Solución |
+|-------|-------|----------|
+| "Unsupported format" | Valor `--format` inválido | Usa `github`, `gitlab` o `generic` |
+| "--mask requires --format github" | `--mask` usado sin formato GitHub | Añade `--format github` |
+
+---
+
 ## Flujos Comunes
 
 ### Configuración inicial (proyecto nuevo)
@@ -719,4 +811,20 @@ git commit -m "chore: revoke departed member access"
 ```bash
 vaultic diff --env staging --env prod  # Ver qué difiere
 vaultic resolve --env prod -o .env     # Obtener la config resuelta de prod
+```
+
+### Usar Vaultic en CI/CD
+
+```bash
+# Establece la clave privada como variable de entorno (sin archivo de clave)
+export VAULTIC_AGE_KEY="AGE-SECRET-KEY-1QFWZ..."
+
+# Exportar secretos para GitHub Actions
+vaultic ci export --env prod --format github --mask
+
+# O hacer pipe del descifrado directamente a Docker
+vaultic decrypt --env dev --stdout | docker run --env-file - myapp
+
+# O resolver y escribir a archivo para deployment
+vaultic resolve --env prod --stdout > deploy/.env
 ```

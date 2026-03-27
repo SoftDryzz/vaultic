@@ -4,7 +4,7 @@
 
 Planes futuros para Vaultic, organizados por versión. Cada versión tiene un alcance claro y puede publicarse de forma independiente.
 
-Versión actual: **v1.3.0**
+Versión actual: **v1.4.0**
 
 ---
 
@@ -28,28 +28,13 @@ Versión actual: **v1.3.0**
 
 ---
 
-## v1.4.0 — Integración Docker y CI/CD
+## ~~v1.4.0 — Integración Docker y CI/CD~~ ✅ Publicada
 
-Integración fluida con contenedores y pipelines de despliegue.
-
-- **`vaultic docker-env --env dev`**: genera un archivo `.env` listo para `docker-compose up`. Resuelve herencia y escribe en la ruta que espera docker-compose.
-  ```yaml
-  # docker-compose.yml
-  env_file:
-    - .env  # Generado por: vaultic docker-env --env dev
-  ```
-- **`vaultic ci export --env dev`**: exporta secretos en formatos compatibles con sistemas CI:
-  - GitHub Actions: `KEY=value >> $GITHUB_ENV`
-  - GitLab CI: `export KEY=value`
-  - Genérico: líneas `KEY=value`
-- **`vaultic ci mask`**: genera comandos `::add-mask::` para GitHub Actions para evitar que los secretos aparezcan en logs
-- **GitHub Action pre-construida** (`softdryzz/vaultic-action@v1`):
-  ```yaml
-  - uses: softdryzz/vaultic-action@v1
-    with:
-      env: dev
-      key: ${{ secrets.VAULTIC_AGE_KEY }}
-  ```
+- Variable de entorno `VAULTIC_AGE_KEY`: usa una clave privada desde env en lugar de archivo — esencial para CI/CD
+- Flag `--stdout` en `decrypt` y `resolve`: salida cruda a stdout para piping (sin mensajes de UI)
+- `vaultic ci export`: exporta secretos en formatos específicos de CI (`--format github|gitlab|generic`, `--mask` para GitHub Actions)
+- Comprobación de seguridad `.dockerignore` en `vaultic status`: avisa cuando hay archivos Docker presentes pero `.env` no está en `.dockerignore`
+- `vaultic validate` ahora sale con código 2 para fallos de validación (distinguible de otros errores en CI)
 
 ---
 
