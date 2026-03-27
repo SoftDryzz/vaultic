@@ -20,6 +20,7 @@ pub fn execute(
     cipher: &str,
     key_path: Option<&str>,
     output_path: Option<&str>,
+    to_stdout: bool,
 ) -> Result<()> {
     let vaultic_dir = crate::cli::context::vaultic_dir();
     if !vaultic_dir.exists() {
@@ -83,7 +84,7 @@ pub fn execute(
                     }
                 }
             };
-            decrypt_with(backend, key_store, &source, &dest, env_name)
+            decrypt_with(backend, key_store, &source, &dest, env_name, to_stdout)
         }
         "gpg" => {
             let backend = GpgBackend::new();
@@ -92,7 +93,7 @@ pub fn execute(
                     reason: "GPG is not installed or not found in PATH".into(),
                 });
             }
-            decrypt_with(backend, key_store, &source, &dest, env_name)
+            decrypt_with(backend, key_store, &source, &dest, env_name, to_stdout)
         }
         other => Err(VaulticError::InvalidConfig {
             detail: format!("Unknown cipher backend: '{other}'. Use 'age' or 'gpg'."),
@@ -107,10 +108,21 @@ fn decrypt_with<C: CipherBackend>(
     source: &Path,
     dest: &Path,
     env_name: &str,
+    to_stdout: bool,
 ) -> Result<()> {
     let cipher_name = cipher.name().to_string();
 
     let service = EncryptionService { cipher, key_store };
+
+    if to_stdout {
+        let plaintext = service.decrypt_to_bytes(source)?;
+        let content = String::from_utf8(plaintext).map_err(|_| VaulticError::ParseError {
+            file: source.to_path_buf(),
+            detail: "Decrypted content is not valid UTF-8".into(),
+        })?;
+        print!("{content}");
+        return Ok(());
+    }
 
     output::detail(&format!("Source: {}", source.display()));
     output::detail(&format!("Destination: {}", dest.display()));

@@ -107,8 +107,11 @@ pub enum Commands {
         #[arg(long)]
         key: Option<String>,
         /// Output path for the decrypted file (default: .env)
-        #[arg(short, long)]
+        #[arg(short, long, conflicts_with = "stdout")]
         output: Option<String>,
+        /// Write decrypted content to stdout instead of a file
+        #[arg(long)]
+        stdout: bool,
     },
 
     /// Verify missing variables against template
@@ -156,8 +159,11 @@ pub enum Commands {
     )]
     Resolve {
         /// Output path for the resolved file (default: .env)
-        #[arg(short, long)]
+        #[arg(short, long, conflicts_with = "stdout")]
         output: Option<String>,
+        /// Write resolved content to stdout instead of a file
+        #[arg(long)]
+        stdout: bool,
     },
 
     /// Manage keys and recipients

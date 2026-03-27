@@ -40,12 +40,18 @@ fn main() {
         Commands::Encrypt { file, all } => {
             cli::commands::encrypt::execute(file.as_deref(), single_env, &args.cipher, *all)
         }
-        Commands::Decrypt { file, key, output } => cli::commands::decrypt::execute(
+        Commands::Decrypt {
+            file,
+            key,
+            output,
+            stdout,
+        } => cli::commands::decrypt::execute(
             file.as_deref(),
             single_env,
             &args.cipher,
             key.as_deref(),
             output.as_deref(),
+            *stdout,
         ),
         Commands::Check => cli::commands::check::execute(),
         Commands::Diff { file1, file2 } => cli::commands::diff::execute(
@@ -54,8 +60,8 @@ fn main() {
             &args.env,
             &args.cipher,
         ),
-        Commands::Resolve { output } => {
-            cli::commands::resolve::execute(single_env, &args.cipher, output.as_deref())
+        Commands::Resolve { output, stdout } => {
+            cli::commands::resolve::execute(single_env, &args.cipher, output.as_deref(), *stdout)
         }
         Commands::Keys { action } => cli::commands::keys::execute(action),
         Commands::Log {
