@@ -1,5 +1,5 @@
-use assert_cmd::cargo::cargo_bin_cmd;
 use assert_cmd::Command;
+use assert_cmd::cargo::cargo_bin_cmd;
 use assert_fs::prelude::*;
 use predicates::prelude::*;
 
@@ -159,9 +159,7 @@ fn resolve_stdout_and_output_are_mutually_exclusive() {
 
     vaultic()
         .current_dir(dir.path())
-        .args([
-            "resolve", "--env", "dev", "--stdout", "--output", "out.env",
-        ])
+        .args(["resolve", "--env", "dev", "--stdout", "--output", "out.env"])
         .assert()
         .failure();
 }

@@ -118,10 +118,7 @@ impl AgeBackend {
                 let path_str = path.to_string_lossy().to_string();
                 let identity_file = age::IdentityFile::from_file(path_str).map_err(|e| {
                     VaulticError::EncryptionFailed {
-                        reason: format!(
-                            "Failed to read identity file '{}': {e}",
-                            path.display()
-                        ),
+                        reason: format!("Failed to read identity file '{}': {e}", path.display()),
                     }
                 })?;
                 identity_file

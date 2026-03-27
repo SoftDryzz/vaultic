@@ -209,9 +209,7 @@ fn print_local_state() {
             if content.lines().any(|l| l.trim() == ".env") {
                 output::success(".env in .dockerignore");
             } else {
-                output::warning(
-                    ".env NOT in .dockerignore — secrets may leak into Docker images!",
-                );
+                output::warning(".env NOT in .dockerignore — secrets may leak into Docker images!");
             }
         } else {
             output::warning(

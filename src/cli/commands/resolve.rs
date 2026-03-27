@@ -11,7 +11,12 @@ use crate::core::traits::parser::ConfigParser;
 /// Resolves the full inheritance chain for the given environment,
 /// decrypting each layer in memory, merging from base to leaf,
 /// and writing the result to `.env` (or to `output_path` if provided).
-pub fn execute(env: Option<&str>, cipher: &str, output_path: Option<&str>, to_stdout: bool) -> Result<()> {
+pub fn execute(
+    env: Option<&str>,
+    cipher: &str,
+    output_path: Option<&str>,
+    to_stdout: bool,
+) -> Result<()> {
     let vaultic_dir = crate::cli::context::vaultic_dir();
     if !vaultic_dir.exists() {
         return Err(VaulticError::InvalidConfig {

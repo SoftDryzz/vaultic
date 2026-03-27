@@ -1,5 +1,5 @@
-use assert_cmd::cargo::cargo_bin_cmd;
 use assert_cmd::Command;
+use assert_cmd::cargo::cargo_bin_cmd;
 use assert_fs::prelude::*;
 use predicates::prelude::*;
 
@@ -66,7 +66,9 @@ fn ci_export_github_with_mask() {
 
     let output = vaultic()
         .current_dir(dir.path())
-        .args(["ci", "export", "--env", "dev", "--format", "github", "--mask"])
+        .args([
+            "ci", "export", "--env", "dev", "--format", "github", "--mask",
+        ])
         .output()
         .unwrap();
 
@@ -140,8 +142,12 @@ fn ci_export_mask_without_github_fails() {
 
     vaultic()
         .current_dir(dir.path())
-        .args(["ci", "export", "--env", "dev", "--format", "gitlab", "--mask"])
+        .args([
+            "ci", "export", "--env", "dev", "--format", "gitlab", "--mask",
+        ])
         .assert()
         .failure()
-        .stderr(predicate::str::contains("--mask is only supported with --format github"));
+        .stderr(predicate::str::contains(
+            "--mask is only supported with --format github",
+        ));
 }

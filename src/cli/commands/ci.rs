@@ -5,7 +5,6 @@ use crate::core::errors::{Result, VaulticError};
 use crate::core::models::audit_entry::AuditAction;
 use crate::core::services::env_resolver::EnvResolver;
 
-
 /// Execute `vaultic ci export`.
 ///
 /// Resolves the environment, then prints secrets to stdout in the
@@ -72,10 +71,7 @@ pub fn execute_export(env: Option<&str>, cipher: &str, format: &str, mask: bool)
     super::audit_helpers::log_audit(
         AuditAction::CiExport,
         vec![env_name.to_string()],
-        Some(format!(
-            "{} variables exported as {format}",
-            entries.len()
-        )),
+        Some(format!("{} variables exported as {format}", entries.len())),
     );
 
     Ok(())
