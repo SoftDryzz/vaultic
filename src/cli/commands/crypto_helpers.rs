@@ -60,7 +60,13 @@ pub fn decrypt_in_memory(enc_path: &Path, vaultic_dir: &Path, cipher: &str) -> R
     match cipher {
         "age" => {
             let backend = if let Ok(key_data) = std::env::var("VAULTIC_AGE_KEY") {
-                AgeBackend::from_key_data(key_data)
+                let key_data = key_data.trim();
+                if key_data.is_empty() {
+                    return Err(VaulticError::EncryptionFailed {
+                        reason: "VAULTIC_AGE_KEY is set but empty. Provide the full age identity content.".into(),
+                    });
+                }
+                AgeBackend::from_key_data(key_data.to_string())
             } else {
                 let identity_path = AgeBackend::default_identity_path()?;
                 if !identity_path.exists() {

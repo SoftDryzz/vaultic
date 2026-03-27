@@ -58,7 +58,13 @@ pub fn execute(
                 }
                 None => {
                     if let Ok(key_data) = std::env::var("VAULTIC_AGE_KEY") {
-                        AgeBackend::from_key_data(key_data)
+                        let key_data = key_data.trim();
+                        if key_data.is_empty() {
+                            return Err(VaulticError::EncryptionFailed {
+                                reason: "VAULTIC_AGE_KEY is set but empty. Provide the full age identity content.".into(),
+                            });
+                        }
+                        AgeBackend::from_key_data(key_data.to_string())
                     } else {
                         let path = AgeBackend::default_identity_path()?;
                         if !path.exists() {
