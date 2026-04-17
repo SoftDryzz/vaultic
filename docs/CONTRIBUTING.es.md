@@ -30,7 +30,7 @@ Este acuerdo es necesario para mantener el modelo de licencia dual. Sin él, las
 ### Configuración
 
 ```bash
-git clone https://github.com/SoftDryzz/vaultic.git
+git clone https://github.com/AXIOM-ZER0/vaultic.git
 cd vaultic
 cargo build
 cargo test
@@ -116,4 +116,4 @@ Para funcionalidades o cambios arquitectónicos, **abre un issue primero** para 
 
 ## ¿Preguntas?
 
-Abre un [GitHub Discussion](https://github.com/SoftDryzz/vaultic/discussions) o escribe a legal@softdryzz.com para consultas sobre licencias.
+Abre un [GitHub Discussion](https://github.com/AXIOM-ZER0/vaultic/discussions) o escribe a legal@softdryzz.com para consultas sobre licencias.

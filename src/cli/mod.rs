@@ -19,7 +19,7 @@ use clap::{Parser, Subcommand};
                   New project:     vaultic init\n  \
                   Join a project:  vaultic keys setup → send your public key to admin\n  \
                   Check status:    vaultic status\n\n\
-                  More info: https://github.com/SoftDryzz/vaultic"
+                  More info: https://github.com/AXIOM-ZER0/vaultic"
 )]
 pub struct Cli {
     #[command(subcommand)]

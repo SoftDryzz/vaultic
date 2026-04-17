@@ -67,7 +67,7 @@ pub enum VaulticError {
     #[error(
         "Update check failed: {reason}\n\n  \
          This is not critical — your current version continues to work.\n  \
-         Try again later or check https://github.com/SoftDryzz/vaultic/releases"
+         Try again later or check https://github.com/AXIOM-ZER0/vaultic/releases"
     )]
     UpdateCheckFailed { reason: String },
 
@@ -77,8 +77,8 @@ pub enum VaulticError {
          Your current installation is unchanged.\n\n  \
          Solutions:\n    \
          → Try again: vaultic update\n    \
-         → Manual download: https://github.com/SoftDryzz/vaultic/releases/latest\n    \
-         → Report issue: https://github.com/SoftDryzz/vaultic/issues"
+         → Manual download: https://github.com/AXIOM-ZER0/vaultic/releases/latest\n    \
+         → Report issue: https://github.com/AXIOM-ZER0/vaultic/issues"
     )]
     UpdateVerificationFailed { reason: String },
 

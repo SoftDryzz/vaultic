@@ -64,7 +64,7 @@ Si tu equipo gestiona secretos por Slack, email o documentos compartidos, dale u
 
 cargo install vaultic
 
-GitHub: https://github.com/SoftDryzz/vaultic
+GitHub: https://github.com/AXIOM-ZER0/vaultic
 crates.io: https://crates.io/crates/vaultic
 lib.rs: https://lib.rs/crates/vaultic
 

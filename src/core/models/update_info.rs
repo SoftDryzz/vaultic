@@ -87,15 +87,15 @@ mod tests {
     fn github_release_deserializes() {
         let json = r#"{
             "tag_name": "v1.2.0",
-            "html_url": "https://github.com/SoftDryzz/vaultic/releases/tag/v1.2.0",
+            "html_url": "https://github.com/AXIOM-ZER0/vaultic/releases/tag/v1.2.0",
             "assets": [
                 {
                     "name": "vaultic-linux-amd64",
-                    "browser_download_url": "https://github.com/SoftDryzz/vaultic/releases/download/v1.2.0/vaultic-linux-amd64"
+                    "browser_download_url": "https://github.com/AXIOM-ZER0/vaultic/releases/download/v1.2.0/vaultic-linux-amd64"
                 },
                 {
                     "name": "SHA256SUMS.txt",
-                    "browser_download_url": "https://github.com/SoftDryzz/vaultic/releases/download/v1.2.0/SHA256SUMS.txt"
+                    "browser_download_url": "https://github.com/AXIOM-ZER0/vaultic/releases/download/v1.2.0/SHA256SUMS.txt"
                 }
             ]
         }"#;

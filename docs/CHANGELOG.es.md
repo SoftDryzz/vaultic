@@ -194,13 +194,13 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 - Licencia AGPL-3.0
 - README con badges, instalación, inicio rápido y referencia de comandos
 
-[1.4.0]: https://github.com/SoftDryzz/vaultic/compare/v1.3.0...v1.4.0
-[1.3.0]: https://github.com/SoftDryzz/vaultic/compare/v1.2.0...v1.3.0
-[1.2.0]: https://github.com/SoftDryzz/vaultic/compare/v1.1.0...v1.2.0
-[1.1.0]: https://github.com/SoftDryzz/vaultic/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/SoftDryzz/vaultic/compare/v0.5.0-alpha...v1.0.0
-[0.5.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.4.0-alpha...v0.5.0-alpha
-[0.4.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.3.0-alpha...v0.4.0-alpha
-[0.3.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.2.0-alpha...v0.3.0-alpha
-[0.2.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.1.0-alpha...v0.2.0-alpha
-[0.1.0-alpha]: https://github.com/SoftDryzz/vaultic/releases/tag/v0.1.0-alpha
+[1.4.0]: https://github.com/AXIOM-ZER0/vaultic/compare/v1.3.0...v1.4.0
+[1.3.0]: https://github.com/AXIOM-ZER0/vaultic/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/AXIOM-ZER0/vaultic/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/AXIOM-ZER0/vaultic/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/AXIOM-ZER0/vaultic/compare/v0.5.0-alpha...v1.0.0
+[0.5.0-alpha]: https://github.com/AXIOM-ZER0/vaultic/compare/v0.4.0-alpha...v0.5.0-alpha
+[0.4.0-alpha]: https://github.com/AXIOM-ZER0/vaultic/compare/v0.3.0-alpha...v0.4.0-alpha
+[0.3.0-alpha]: https://github.com/AXIOM-ZER0/vaultic/compare/v0.2.0-alpha...v0.3.0-alpha
+[0.2.0-alpha]: https://github.com/AXIOM-ZER0/vaultic/compare/v0.1.0-alpha...v0.2.0-alpha
+[0.1.0-alpha]: https://github.com/AXIOM-ZER0/vaultic/releases/tag/v0.1.0-alpha
