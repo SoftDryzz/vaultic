@@ -84,11 +84,10 @@ impl ValidationService {
             // --- Type checks ---
             if let Some(type_str) = &rule.value_type {
                 match type_str.as_str() {
-                    "url" => {
-                        if !val.contains("://") {
-                            failures.push("expected a valid URL (must contain '://')".to_string());
-                        }
+                    "url" if !val.contains("://") => {
+                        failures.push("expected a valid URL (must contain '://')".to_string());
                     }
+                    "url" => {}
                     "integer" => match val.parse::<i64>() {
                         Ok(n) => {
                             if let Some(min) = rule.min
