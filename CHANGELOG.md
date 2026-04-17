@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > English | **[Español](docs/CHANGELOG.es.md)**
 
+## [1.4.1] - 2026-04-17
+
+### Changed
+
+- Repository transferred from `SoftDryzz/vaultic` to `AXIOM-ZER0/vaultic` organization.
+  All URLs in source, documentation, and package metadata updated accordingly.
+
+### Fixed
+
+- Clippy `collapsible_match` lint in `validation_service.rs` (new lint in Rust 1.95).
+
 ## [1.4.0] - 2026-03-27
 
 ### Added

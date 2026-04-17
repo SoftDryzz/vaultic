@@ -7,6 +7,17 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 > **[English](../CHANGELOG.md)** | Español
 
+## [1.4.1] - 2026-04-17
+
+### Cambiado
+
+- Repositorio transferido de `SoftDryzz/vaultic` a la organización `AXIOM-ZER0/vaultic`.
+  Todas las URLs en código fuente, documentación y metadatos del paquete actualizadas.
+
+### Corregido
+
+- Lint `collapsible_match` de Clippy en `validation_service.rs` (nuevo lint en Rust 1.95).
+
 ## [1.4.0] - 2026-03-27
 
 ### Añadido
