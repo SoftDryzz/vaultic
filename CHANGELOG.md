@@ -7,16 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > English | **[Español](docs/CHANGELOG.es.md)**
 
-## [1.4.1] - 2026-04-17
-
-### Changed
-
-- Repository transferred from `SoftDryzz/vaultic` to `AXIOM-ZER0/vaultic` organization.
-  All URLs in source, documentation, and package metadata updated accordingly.
+## [1.4.2] - 2026-04-17
 
 ### Fixed
 
 - Clippy `collapsible_match` lint in `validation_service.rs` (new lint in Rust 1.95).
+
+## [1.4.1] - 2026-04-17
+
+### Changed
+
+- Internal metadata update (no functional changes).
 
 ## [1.4.0] - 2026-03-27
 
@@ -201,13 +202,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AGPL-3.0 License
 - README with badges, installation, quick start, and command reference
 
-[1.4.0]: https://github.com/AXIOM-ZER0/vaultic/compare/v1.3.0...v1.4.0
-[1.3.0]: https://github.com/AXIOM-ZER0/vaultic/compare/v1.2.0...v1.3.0
-[1.2.0]: https://github.com/AXIOM-ZER0/vaultic/compare/v1.1.0...v1.2.0
-[1.1.0]: https://github.com/AXIOM-ZER0/vaultic/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/AXIOM-ZER0/vaultic/compare/v0.5.0-alpha...v1.0.0
-[0.5.0-alpha]: https://github.com/AXIOM-ZER0/vaultic/compare/v0.4.0-alpha...v0.5.0-alpha
-[0.4.0-alpha]: https://github.com/AXIOM-ZER0/vaultic/compare/v0.3.0-alpha...v0.4.0-alpha
-[0.3.0-alpha]: https://github.com/AXIOM-ZER0/vaultic/compare/v0.2.0-alpha...v0.3.0-alpha
-[0.2.0-alpha]: https://github.com/AXIOM-ZER0/vaultic/compare/v0.1.0-alpha...v0.2.0-alpha
-[0.1.0-alpha]: https://github.com/AXIOM-ZER0/vaultic/releases/tag/v0.1.0-alpha
+[1.4.0]: https://github.com/SoftDryzz/vaultic/compare/v1.3.0...v1.4.0
+[1.3.0]: https://github.com/SoftDryzz/vaultic/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/SoftDryzz/vaultic/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/SoftDryzz/vaultic/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/SoftDryzz/vaultic/compare/v0.5.0-alpha...v1.0.0
+[0.5.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.4.0-alpha...v0.5.0-alpha
+[0.4.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.3.0-alpha...v0.4.0-alpha
+[0.3.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.2.0-alpha...v0.3.0-alpha
+[0.2.0-alpha]: https://github.com/SoftDryzz/vaultic/compare/v0.1.0-alpha...v0.2.0-alpha
+[0.1.0-alpha]: https://github.com/SoftDryzz/vaultic/releases/tag/v0.1.0-alpha

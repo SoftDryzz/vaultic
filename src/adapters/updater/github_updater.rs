@@ -6,7 +6,7 @@ use crate::core::models::update_info::{
     GitHubRelease, UpdateCheckCache, UpdateInfo, current_platform_asset, current_version,
 };
 
-const GITHUB_API_URL: &str = "https://api.github.com/repos/AXIOM-ZER0/vaultic/releases/latest";
+const GITHUB_API_URL: &str = "https://api.github.com/repos/SoftDryzz/vaultic/releases/latest";
 
 /// Timeout for the passive version check (startup banner).
 const CHECK_TIMEOUT: Duration = Duration::from_secs(3);

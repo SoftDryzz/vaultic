@@ -1,6 +1,6 @@
 # Vaultic
 
-[![CI](https://github.com/AXIOM-ZER0/vaultic/workflows/CI/badge.svg)](https://github.com/AXIOM-ZER0/vaultic/actions)
+[![CI](https://github.com/SoftDryzz/vaultic/workflows/CI/badge.svg)](https://github.com/SoftDryzz/vaultic/actions)
 [![crates.io](https://img.shields.io/crates/v/vaultic.svg)](https://crates.io/crates/vaultic)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
 
@@ -29,7 +29,7 @@ cargo install vaultic
 
 ### Precompiled binaries
 
-Download from [Releases](https://github.com/AXIOM-ZER0/vaultic/releases) for Windows, Linux, or macOS.
+Download from [Releases](https://github.com/SoftDryzz/vaultic/releases) for Windows, Linux, or macOS.
 
 ## Quick Start
 

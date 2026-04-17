@@ -30,7 +30,7 @@ This agreement is necessary to maintain the dual licensing model. Without it, ex
 ### Setup
 
 ```bash
-git clone https://github.com/AXIOM-ZER0/vaultic.git
+git clone https://github.com/SoftDryzz/vaultic.git
 cd vaultic
 cargo build
 cargo test
@@ -116,4 +116,4 @@ For features or architectural changes, **open an issue first** to discuss the ap
 
 ## Questions?
 
-Open a [GitHub Discussion](https://github.com/AXIOM-ZER0/vaultic/discussions) or reach out at legal@softdryzz.com for licensing questions.
+Open a [GitHub Discussion](https://github.com/SoftDryzz/vaultic/discussions) or reach out at legal@softdryzz.com for licensing questions.
