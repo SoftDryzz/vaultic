@@ -91,7 +91,8 @@ pub enum Commands {
                       Use --output to write the decrypted file to a custom path. \
                       This is useful when running Vaultic from a parent directory \
                       but the application expects .env in a subdirectory.\n\n\
-                      By default, uses the age key at ~/.config/age/keys.txt. \
+                      By default, uses the age key at ~/.config/age/keys.txt \
+                      (or VAULTIC_AGE_KEY_FILE if set). \
                       Use --key to specify a different private key location.",
         after_help = "Examples:\n  \
                       vaultic decrypt                       # Decrypt dev → ./.env\n  \

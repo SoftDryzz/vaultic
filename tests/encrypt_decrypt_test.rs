@@ -3,11 +3,15 @@ use assert_cmd::cargo::cargo_bin_cmd;
 use assert_fs::prelude::*;
 use predicates::prelude::*;
 
+mod common;
+
 /// Run vaultic with given args in a temp directory.
 fn vaultic() -> Command {
     let mut cmd = cargo_bin_cmd!("vaultic");
     // Never hit the network from tests.
     cmd.env("VAULTIC_NO_UPDATE_CHECK", "1");
+    // Never read or write the developer's real age key.
+    cmd.env("VAULTIC_AGE_KEY_FILE", common::test_key_file());
     cmd
 }
 
@@ -36,6 +40,23 @@ fn init_creates_vaultic_directory() {
     dir.child(".vaultic/recipients.txt")
         .assert(predicate::path::exists());
     dir.child(".env.template").assert(predicate::path::exists());
+}
+
+#[test]
+fn init_generates_key_at_vaultic_age_key_file() {
+    let dir = assert_fs::TempDir::new().unwrap();
+    let key_path = dir.path().join("keys").join("custom.txt");
+
+    vaultic()
+        .current_dir(dir.path())
+        .env("VAULTIC_AGE_KEY_FILE", &key_path)
+        .arg("init")
+        .write_stdin("y\n")
+        .assert()
+        .success();
+
+    let key = std::fs::read_to_string(&key_path).unwrap();
+    assert!(key.contains("AGE-SECRET-KEY-"));
 }
 
 #[test]

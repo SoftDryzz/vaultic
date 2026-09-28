@@ -7,7 +7,7 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 > **[English](../CHANGELOG.md)** | Español
 
-## [1.4.3] - 2026-09-28
+## [1.4.3] - 2026-09-29
 
 Versión de seguridad. Se recomienda actualizar a quien use `ci export` o comparta
 máquina con otros usuarios.
@@ -22,6 +22,10 @@ máquina con otros usuarios.
   multilínea usan la sintaxis `KEY<<DELIMITADOR` de GitHub, `--mask` enmascara cada línea
   y con `github` y `gitlab` se rechazan los nombres que no son identificadores de shell
   válidos. `--format generic` sigue imprimiendo `KEY=value` tal cual.
+- `ci export --mask` escapa `%` en los valores enmascarados. El runner de GitHub decodifica
+  `%0A`, `%0D` y `%25` en `::add-mask::`, así que un secreto que contuviera una de esas
+  secuencias se registraba con otro valor y aparecía sin ocultar. Las líneas separadas por
+  un `\r` suelto también se enmascaran por separado.
 - Las claves privadas creadas con `keys setup` / `init` y las importadas se escriben con
   permisos `0600`, dentro de un directorio `0700`. Antes dependían del umask (normalmente
   `0644`, legibles por otros usuarios locales).
@@ -29,7 +33,8 @@ máquina con otros usuarios.
 - El `state_hash` del log de auditoría para `decrypt` ahora es el hash del archivo cifrado
   y no del texto plano, para que el log commiteado no sirva para confirmar suposiciones
   sobre los valores.
-- `vaultic status` avisa si tu clave privada es legible por otros usuarios.
+- `vaultic status` avisa si los permisos de tu clave privada son demasiado abiertos
+  (cualquier acceso para el grupo u otros, la misma comprobación que hace ssh).
 - Actualizados `rustls` (0.23.45) y `rustls-webpki` (0.103.15), que usan la comprobación de
   actualizaciones y `vaultic update`, para corregir los avisos de RustSec RUSTSEC-2026-0285,
   RUSTSEC-2026-0049, RUSTSEC-2026-0098, RUSTSEC-2026-0099 y RUSTSEC-2026-0104. Las releases
@@ -58,6 +63,10 @@ máquina con otros usuarios.
   y `--format gitlab` imprime `export KEY='value'`. Ambos siguen funcionando con `eval`.
 - Nueva variable de entorno `VAULTIC_NO_UPDATE_CHECK` para desactivar la comprobación
   pasiva de actualizaciones.
+- Nueva variable de entorno `VAULTIC_AGE_KEY_FILE` con la ruta del archivo de clave age
+  (por defecto: `~/.config/age/keys.txt` en Linux, `~/Library/Application Support/age/keys.txt`
+  en macOS, `%APPDATA%\age\keys.txt` en Windows). Los tests la usan, así que `cargo test`
+  nunca lee ni crea tu clave real.
 
 ## [1.4.2] - 2026-04-17
 

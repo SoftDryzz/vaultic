@@ -4,11 +4,15 @@ use assert_fs::prelude::*;
 use predicates::prelude::*;
 use secrecy::ExposeSecret;
 
+mod common;
+
 /// Run vaultic with given args.
 fn vaultic() -> Command {
     let mut cmd = cargo_bin_cmd!("vaultic");
     // Never hit the network from tests.
     cmd.env("VAULTIC_NO_UPDATE_CHECK", "1");
+    // Never read or write the developer's real age key.
+    cmd.env("VAULTIC_AGE_KEY_FILE", common::test_key_file());
     cmd
 }
 
@@ -257,6 +261,33 @@ fn status_shows_project_info() {
         .stdout(predicate::str::contains("Vaultic"))
         .stdout(predicate::str::contains("Cipher"))
         .stdout(predicate::str::contains("Recipients"));
+}
+
+#[cfg(unix)]
+#[test]
+fn status_warns_when_private_key_permissions_are_too_open() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let dir = assert_fs::TempDir::new().unwrap();
+    vaultic()
+        .current_dir(dir.path())
+        .arg("init")
+        .write_stdin("y\n")
+        .assert()
+        .success();
+
+    // Group write only: nobody else can read it, but it is still too open
+    let key = common::test_key_file();
+    std::fs::set_permissions(&key, std::fs::Permissions::from_mode(0o620)).unwrap();
+
+    vaultic()
+        .current_dir(dir.path())
+        .arg("status")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "Private key permissions are too open",
+        ));
 }
 
 #[test]

@@ -111,6 +111,7 @@ vaultic encrypt --all                vaultic decrypt --env dev
 | Variable | Descripción |
 |----------|-------------|
 | `VAULTIC_AGE_KEY` | Clave privada age como valor en lugar de archivo (para CI/CD) |
+| `VAULTIC_AGE_KEY_FILE` | Ruta del archivo de clave age en lugar de la ubicación por defecto (`~/.config/age/keys.txt`, `%APPDATA%\age\keys.txt` en Windows) |
 | `VAULTIC_NO_UPDATE_CHECK` | Desactiva la comprobación pasiva de actualizaciones |
 
 `decrypt` y `resolve` aceptan también `--stdout` para imprimir el contenido en bruto y encadenarlo, p. ej. `vaultic decrypt --env dev --stdout | docker run --env-file - app`.

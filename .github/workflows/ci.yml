@@ -1,10 +1,17 @@
 name: CI
 
-on: [push, pull_request]
+# Pushes to feature branches are covered by their pull request; running on
+# every push too would test each PR commit twice.
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
 
 jobs:
   test:
     strategy:
+      # Let every OS finish so one failure does not hide the others.
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}

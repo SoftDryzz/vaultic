@@ -67,10 +67,11 @@ pub fn create_private_dir(path: &Path) -> Result<()> {
     Ok(())
 }
 
-/// Return `true` if the file at `path` is readable by group or others.
+/// Return `true` if group or others have any permission on the file at
+/// `path` (read, write or execute), the same check ssh applies to keys.
 ///
 /// Always `false` on non-Unix platforms, where permissions are ACL-based.
-pub fn is_world_readable(path: &Path) -> bool {
+pub fn has_group_or_other_access(path: &Path) -> bool {
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
@@ -147,13 +148,13 @@ mod tests {
         let path = dir.path().join("secret.env");
         std::fs::write(&path, "OLD=1\n").unwrap();
         std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o644)).unwrap();
-        assert!(is_world_readable(&path));
+        assert!(has_group_or_other_access(&path));
 
         write_private(&path, b"NEW=2\n").unwrap();
 
         let mode = std::fs::metadata(&path).unwrap().permissions().mode();
         assert_eq!(mode & 0o777, 0o600);
-        assert!(!is_world_readable(&path));
+        assert!(!has_group_or_other_access(&path));
     }
 
     #[cfg(unix)]
