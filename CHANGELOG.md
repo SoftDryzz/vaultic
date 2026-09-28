@@ -37,8 +37,9 @@ sharing a machine with other users.
   and is skipped entirely when stdout is not a terminal, in `ci` commands, when `CI` is
   set, or when `VAULTIC_NO_UPDATE_CHECK` is set.
 - The pre-commit hook now blocks `.env` files in subdirectories (e.g. `backend/.env`),
-  handles paths with spaces, and no longer blocks `git rm --cached .env` when removing
-  a leaked file.
+  including paths with spaces or non-ASCII characters (e.g. `configuración/.env`), and
+  a tracked `.env` symlink replaced by a real file. It no longer blocks
+  `git rm --cached .env` when removing a leaked file.
 - Encrypted files, decrypted files and key files are written atomically (temp file +
   rename), so an interrupted `encrypt --all` cannot leave a truncated `.enc` file.
 - `vaultic status` shows the installed Vaultic version instead of the config file's

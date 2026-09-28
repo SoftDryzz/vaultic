@@ -16,15 +16,18 @@ const PRE_COMMIT_SCRIPT: &str = r#"#!/bin/sh
 # Installed by: vaultic hook install
 # Remove with:  vaultic hook uninstall
 
-# Only added/copied/modified/renamed files: deleting a leaked .env
-# (git rm --cached .env) must never be blocked.
-staged=$(git diff --cached --name-only --diff-filter=ACMR)
+# Everything except deletions (--diff-filter=d): removing a leaked .env
+# (git rm --cached .env) must never be blocked, but type changes (a
+# tracked symlink replaced by a real file) must be checked.
+# -z stops git from C-quoting non-ASCII paths ("configuraci\303\263n/.env").
+staged=$(git diff --cached --name-only -z --diff-filter=d | tr '\0' '\n')
 
 blocked=""
+set -f  # no glob expansion of paths like "cfg[1]/.env"
 IFS='
 '
 for file in $staged; do
-    name=$(basename "$file")
+    name=${file##*/}
     case "$name" in
         .env|.env.*)
             # Allow templates, examples and encrypted files
@@ -37,6 +40,7 @@ $file" ;;
     esac
 done
 unset IFS
+set +f
 
 if [ -n "$blocked" ]; then
     echo ""

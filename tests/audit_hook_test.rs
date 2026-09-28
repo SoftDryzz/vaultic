@@ -332,7 +332,6 @@ fn hook_install_and_uninstall() {
 }
 
 /// Run a git command in `dir` with a throwaway identity.
-#[cfg(unix)]
 fn git(dir: &std::path::Path, args: &[&str]) -> std::process::Output {
     std::process::Command::new("git")
         .args(["-c", "user.name=Test", "-c", "user.email=test@example.com"])
@@ -342,7 +341,78 @@ fn git(dir: &std::path::Path, args: &[&str]) -> std::process::Output {
         .unwrap()
 }
 
+/// Create a git repo in a temp dir with vaultic initialized and the hook installed.
+fn repo_with_hook() -> assert_fs::TempDir {
+    let dir = assert_fs::TempDir::new().unwrap();
+    git(dir.path(), &["init", "-q"]);
+    vaultic()
+        .current_dir(dir.path())
+        .arg("init")
+        .write_stdin("y\n")
+        .assert()
+        .success();
+    vaultic()
+        .current_dir(dir.path())
+        .args(["hook", "install"])
+        .assert()
+        .success();
+    dir
+}
+
+/// Commit with the hook enabled and return (success, stdout + stderr).
+fn commit(dir: &std::path::Path, msg: &str) -> (bool, String) {
+    let out = git(dir, &["commit", "-q", "-m", msg]);
+    let combined = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
+    (out.status.success(), combined)
+}
+
+#[test]
+fn hook_blocks_env_in_non_ascii_directory() {
+    let dir = repo_with_hook();
+
+    // git C-quotes non-ASCII paths by default ("configuraci\303\263n/.env"),
+    // which must not hide the file from the hook.
+    dir.child("configuración/.env")
+        .write_str("SECRET=1\n")
+        .unwrap();
+    git(dir.path(), &["add", "-f", "configuración/.env"]);
+
+    let (ok, output) = commit(dir.path(), "leak");
+    assert!(!ok, "non-ASCII nested .env should be blocked");
+    assert!(output.contains("configuración/.env"), "output: {output}");
+}
+
 #[cfg(unix)]
+#[test]
+fn hook_blocks_symlink_replaced_by_env_file() {
+    let dir = repo_with_hook();
+
+    // Track .env as a symlink to the template (bypassing the hook)
+    dir.child(".env.example").write_str("SECRET=\n").unwrap();
+    std::os::unix::fs::symlink(".env.example", dir.path().join(".env")).unwrap();
+    git(dir.path(), &["add", "-f", ".env.example", ".env"]);
+    let out = git(
+        dir.path(),
+        &["commit", "-q", "--no-verify", "-m", "symlink"],
+    );
+    assert!(out.status.success());
+
+    // Replacing the symlink with real secrets is a type change (T)
+    std::fs::remove_file(dir.path().join(".env")).unwrap();
+    dir.child(".env").write_str("SECRET=real\n").unwrap();
+    git(dir.path(), &["add", "-f", ".env"]);
+
+    let (ok, output) = commit(dir.path(), "leak");
+    assert!(
+        !ok,
+        "symlink replaced by a real .env should be blocked: {output}"
+    );
+}
+
 #[test]
 fn hook_blocks_nested_env_and_allows_removal() {
     let dir = assert_fs::TempDir::new().unwrap();

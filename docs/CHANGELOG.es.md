@@ -38,8 +38,9 @@ máquina con otros usuarios.
   cuando stdout no es una terminal, en los comandos `ci`, si `CI` está definida o si
   `VAULTIC_NO_UPDATE_CHECK` está definida.
 - El hook pre-commit ahora bloquea `.env` en subdirectorios (p. ej. `backend/.env`),
-  soporta rutas con espacios y ya no bloquea `git rm --cached .env` al retirar un archivo
-  filtrado.
+  también en rutas con espacios o caracteres no ASCII (p. ej. `configuración/.env`), y
+  un `.env` que era symlink y se sustituye por un archivo real. Ya no bloquea
+  `git rm --cached .env` al retirar un archivo filtrado.
 - Los archivos cifrados, descifrados y de claves se escriben de forma atómica (archivo
   temporal + rename), así que un `encrypt --all` interrumpido no deja un `.enc` truncado.
 - `vaultic status` muestra la versión instalada de Vaultic en lugar del campo `version`
