@@ -43,6 +43,8 @@ máquina con otros usuarios.
   temporal + rename), así que un `encrypt --all` interrumpido no deja un `.enc` truncado.
 - `vaultic status` muestra la versión instalada de Vaultic en lugar del campo `version`
   del archivo de configuración.
+- Lints de Clippy `useless_borrows_in_formatting` y `useless_format` en `diff.rs` y
+  `resolve.rs` (nuevos en Rust 1.98).
 
 ### Cambiado
 

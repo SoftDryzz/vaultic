@@ -70,7 +70,7 @@ pub fn execute(
     // Audit
     super::audit_helpers::log_audit(
         crate::core::models::audit_entry::AuditAction::Resolve,
-        vec![format!("{env_name}")],
+        vec![env_name.to_string()],
         Some(format!(
             "{var_count} variables from {} layer(s)",
             environment.layers.len()

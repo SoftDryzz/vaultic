@@ -142,8 +142,8 @@ fn print_diff_table(result: &DiffResult) {
     let header = format!(
         "  {:<width$}   {:<12}   {}",
         "Variable",
-        &result.left_name,
-        &result.right_name,
+        result.left_name,
+        result.right_name,
         width = key_width
     );
     println!("{}", header.bold());

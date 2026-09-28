@@ -42,6 +42,8 @@ sharing a machine with other users.
   rename), so an interrupted `encrypt --all` cannot leave a truncated `.enc` file.
 - `vaultic status` shows the installed Vaultic version instead of the config file's
   `version` field.
+- Clippy `useless_borrows_in_formatting` and `useless_format` lints in `diff.rs` and
+  `resolve.rs` (new lints in Rust 1.98).
 
 ### Changed
 
