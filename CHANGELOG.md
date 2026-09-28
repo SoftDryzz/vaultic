@@ -29,6 +29,10 @@ sharing a machine with other users.
   the decrypted plaintext, so the committed log cannot be used to confirm guesses
   about secret values.
 - `vaultic status` warns when your private key is readable by other users.
+- Updated `rustls` (0.23.45) and `rustls-webpki` (0.103.15), used by the update check and
+  `vaultic update`, to fix RustSec advisories RUSTSEC-2026-0285, RUSTSEC-2026-0049,
+  RUSTSEC-2026-0098, RUSTSEC-2026-0099 and RUSTSEC-2026-0104. Downloaded releases were
+  already verified with SHA256 and minisign signatures.
 
 ### Fixed
 

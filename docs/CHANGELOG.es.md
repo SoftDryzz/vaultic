@@ -30,6 +30,10 @@ máquina con otros usuarios.
   y no del texto plano, para que el log commiteado no sirva para confirmar suposiciones
   sobre los valores.
 - `vaultic status` avisa si tu clave privada es legible por otros usuarios.
+- Actualizados `rustls` (0.23.45) y `rustls-webpki` (0.103.15), que usan la comprobación de
+  actualizaciones y `vaultic update`, para corregir los avisos de RustSec RUSTSEC-2026-0285,
+  RUSTSEC-2026-0049, RUSTSEC-2026-0098, RUSTSEC-2026-0099 y RUSTSEC-2026-0104. Las releases
+  descargadas ya se verificaban con SHA256 y firma minisign.
 
 ### Corregido
 
