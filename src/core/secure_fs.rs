@@ -17,7 +17,19 @@ pub fn write_private(path: &Path, data: &[u8]) -> Result<()> {
     };
     std::fs::create_dir_all(dir)?;
 
-    let mut tmp = tempfile::NamedTempFile::new_in(dir)?;
+    // Open the temp file with std's OpenOptions instead of tempfile's
+    // defaults: on Windows tempfile sets FILE_ATTRIBUTE_TEMPORARY, which
+    // would stick to `path` after the rename below.
+    let mut tmp = tempfile::Builder::new().make_in(dir, |p| {
+        let mut opts = std::fs::OpenOptions::new();
+        opts.write(true).create_new(true);
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::OpenOptionsExt;
+            opts.mode(0o600);
+        }
+        opts.open(p)
+    })?;
     tmp.write_all(data)?;
     tmp.as_file().sync_all()?;
 
@@ -109,6 +121,21 @@ mod tests {
         write_private(&path, b"NEW=2\n").unwrap();
 
         assert_eq!(std::fs::read_to_string(&path).unwrap(), "NEW=2\n");
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn write_private_leaves_normal_file_attributes() {
+        use std::os::windows::fs::MetadataExt;
+        const FILE_ATTRIBUTE_TEMPORARY: u32 = 0x100;
+
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("keys.txt");
+
+        write_private(&path, b"KEY=value\n").unwrap();
+
+        let attrs = std::fs::metadata(&path).unwrap().file_attributes();
+        assert_eq!(attrs & FILE_ATTRIBUTE_TEMPORARY, 0, "attrs=0x{attrs:x}");
     }
 
     #[cfg(unix)]
