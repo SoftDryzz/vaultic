@@ -16,36 +16,46 @@ const PRE_COMMIT_SCRIPT: &str = r#"#!/bin/sh
 # Installed by: vaultic hook install
 # Remove with:  vaultic hook uninstall
 
-staged=$(git diff --cached --name-only)
+# Everything except deletions (--diff-filter=d): removing a leaked .env
+# (git rm --cached .env) must never be blocked, but type changes (a
+# tracked symlink replaced by a real file) must be checked.
+# -z stops git from C-quoting non-ASCII paths ("configuraci\303\263n/.env").
+staged=$(git diff --cached --name-only -z --diff-filter=d | tr '\0' '\n')
 
 blocked=""
+set -f  # no glob expansion of paths like "cfg[1]/.env"
+IFS='
+'
 for file in $staged; do
-    case "$file" in
+    name=${file##*/}
+    case "$name" in
         .env|.env.*)
-            # Allow .env.template and .env.example
-            case "$file" in
-                *.template|*.example) ;;
-                *.enc) ;;
-                *) blocked="$blocked $file" ;;
+            # Allow templates, examples and encrypted files
+            case "$name" in
+                *.template|*.example|*.sample|*.enc) ;;
+                *) blocked="$blocked
+$file" ;;
             esac
             ;;
     esac
 done
+unset IFS
+set +f
 
 if [ -n "$blocked" ]; then
     echo ""
     echo "  STOP — Vaultic pre-commit hook"
     echo ""
     echo "  Plaintext secret files staged for commit:"
-    for f in $blocked; do
-        echo "    - $f"
+    printf '%s\n' "$blocked" | while IFS= read -r f; do
+        [ -n "$f" ] && echo "    - $f"
     done
     echo ""
     echo "  These files contain sensitive data and should NOT be committed."
     echo ""
     echo "  Solutions:"
     echo "    -> Encrypt first: vaultic encrypt"
-    echo "    -> Or unstage:    git reset HEAD $blocked"
+    echo "    -> Or unstage:    git reset HEAD -- <file>"
     echo "    -> Skip check:    git commit --no-verify (NOT recommended)"
     echo ""
     exit 1

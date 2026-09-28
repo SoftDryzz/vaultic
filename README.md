@@ -92,7 +92,9 @@ vaultic encrypt --all                vaultic decrypt --env dev
 | `vaultic resolve --env <env>` | Generate resolved file with inheritance (`-o <path>`) | ✅ |
 | `vaultic log` | Show operation history | ✅ |
 | `vaultic status` | Show full project status | ✅ |
-| `vaultic hook install` | Install git pre-commit hook | ✅ |
+| `vaultic hook install` | Install git pre-commit hook (`hook uninstall` to remove) | ✅ |
+| `vaultic ci export` | Export secrets for CI (`--format github\|gitlab\|generic`, `--mask`) | ✅ |
+| `vaultic update` | Update to the latest signed release (SHA256 + minisign) | ✅ |
 
 ### Global Flags
 
@@ -103,6 +105,15 @@ vaultic encrypt --all                vaultic decrypt --env dev
 | `--config <path>` | Custom vaultic directory path |
 | `-v, --verbose` | Detailed output (source files, recipients, etc.) |
 | `-q, --quiet` | Suppress all output except errors |
+
+### Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `VAULTIC_AGE_KEY` | Private age key as a value instead of a key file (for CI/CD) |
+| `VAULTIC_NO_UPDATE_CHECK` | Disable the passive update check |
+
+`decrypt` and `resolve` also accept `--stdout` to print raw content for piping, e.g. `vaultic decrypt --env dev --stdout | docker run --env-file - app`.
 
 ## Configuration
 
@@ -143,7 +154,7 @@ vaultic template sync -o custom.template  # Write to custom path
 
 ## Roadmap
 
-See the [full roadmap](docs/roadmap.md) for planned features: update notifications, secret validation, Docker/CI integration, multi-format parsers, access control, server sync, and more.
+See the [full roadmap](docs/roadmap.md) for planned features: multi-format parsers (TOML/YAML/JSON), access control, import/export, notifications, server sync, and more.
 
 ## Development Status
 

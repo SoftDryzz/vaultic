@@ -27,10 +27,11 @@ pub fn execute() -> Result<()> {
     let config = AppConfig::load(vaultic_dir)?;
 
     // Project info
-    output::header(&format!("Vaultic v{}", config.vaultic.version));
+    output::header(&format!("Vaultic v{}", env!("CARGO_PKG_VERSION")));
     println!("  Cipher: {}", config.vaultic.default_cipher.cyan());
     println!("  Default env: {}", config.vaultic.default_env.cyan());
     println!("  Config: .vaultic/config.toml");
+    output::detail(&format!("Config version: {}", config.vaultic.version));
 
     // Your key
     print_your_key(vaultic_dir);
@@ -69,6 +70,13 @@ fn print_your_key(vaultic_dir: &Path) {
         output::warning(&format!("No private key at {}", identity_path.display()));
         println!("  Run 'vaultic keys setup' to configure your key.");
         return;
+    }
+
+    if crate::core::secure_fs::is_world_readable(&identity_path) {
+        output::warning(&format!(
+            "Private key is readable by other users. Fix with: chmod 600 {}",
+            identity_path.display()
+        ));
     }
 
     output::success(&format!("Private key: {}", identity_path.display()));

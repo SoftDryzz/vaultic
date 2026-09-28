@@ -4,7 +4,10 @@ use assert_fs::prelude::*;
 use predicates::prelude::*;
 
 fn vaultic() -> Command {
-    cargo_bin_cmd!("vaultic")
+    let mut cmd = cargo_bin_cmd!("vaultic");
+    // Never hit the network from tests.
+    cmd.env("VAULTIC_NO_UPDATE_CHECK", "1");
+    cmd
 }
 
 fn setup_env(dir: &assert_fs::TempDir, env_name: &str, content: &str) {
@@ -44,6 +47,41 @@ fn ci_export_generic_format() {
 }
 
 #[test]
+fn ci_export_generic_prints_keys_and_values_verbatim() {
+    let dir = assert_fs::TempDir::new().unwrap();
+    setup_env(
+        &dir,
+        "dev",
+        "spring.datasource.url=jdbc:postgresql://db/app\nMSG=it's $5 # not a comment",
+    );
+
+    let output = vaultic()
+        .current_dir(dir.path())
+        .args(["ci", "export", "--env", "dev", "--format", "generic"])
+        .output()
+        .unwrap();
+
+    assert!(output.status.success());
+    let stdout = String::from_utf8(output.stdout).unwrap();
+    assert!(stdout.contains("spring.datasource.url=jdbc:postgresql://db/app\n"));
+    assert!(stdout.contains("MSG=it's $5 # not a comment\n"));
+}
+
+#[test]
+fn ci_export_github_rejects_invalid_variable_name() {
+    let dir = assert_fs::TempDir::new().unwrap();
+    setup_env(&dir, "dev", "spring.datasource.url=x");
+
+    vaultic()
+        .current_dir(dir.path())
+        .args(["ci", "export", "--env", "dev", "--format", "github"])
+        .assert()
+        .failure()
+        .stdout(predicate::str::is_empty())
+        .stderr(predicate::str::contains("Invalid variable name"));
+}
+
+#[test]
 fn ci_export_github_format() {
     let dir = assert_fs::TempDir::new().unwrap();
     setup_env(&dir, "dev", "DB_HOST=localhost\nAPI_KEY=secret123");
@@ -55,8 +93,8 @@ fn ci_export_github_format() {
         .unwrap();
 
     let stdout = String::from_utf8(output.stdout).unwrap();
-    assert!(stdout.contains("echo \"DB_HOST=localhost\" >> \"$GITHUB_ENV\""));
-    assert!(stdout.contains("echo \"API_KEY=secret123\" >> \"$GITHUB_ENV\""));
+    assert!(stdout.contains("printf '%s\\n' 'DB_HOST=localhost' >> \"$GITHUB_ENV\""));
+    assert!(stdout.contains("printf '%s\\n' 'API_KEY=secret123' >> \"$GITHUB_ENV\""));
 }
 
 #[test]
@@ -73,8 +111,8 @@ fn ci_export_github_with_mask() {
         .unwrap();
 
     let stdout = String::from_utf8(output.stdout).unwrap();
-    assert!(stdout.contains("echo \"::add-mask::secret123\""));
-    assert!(stdout.contains("echo \"API_KEY=secret123\" >> \"$GITHUB_ENV\""));
+    assert!(stdout.contains("printf '%s\\n' '::add-mask::secret123'"));
+    assert!(stdout.contains("printf '%s\\n' 'API_KEY=secret123' >> \"$GITHUB_ENV\""));
 }
 
 #[test]
@@ -89,8 +127,8 @@ fn ci_export_gitlab_format() {
         .unwrap();
 
     let stdout = String::from_utf8(output.stdout).unwrap();
-    assert!(stdout.contains("export DB_HOST=\"localhost\""));
-    assert!(stdout.contains("export API_KEY=\"secret123\""));
+    assert!(stdout.contains("export DB_HOST='localhost'"));
+    assert!(stdout.contains("export API_KEY='secret123'"));
 }
 
 #[test]

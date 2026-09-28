@@ -57,7 +57,7 @@ impl AgeBackend {
         let public_key = identity.to_public().to_string();
 
         if let Some(parent) = path.parent() {
-            std::fs::create_dir_all(parent)?;
+            crate::core::secure_fs::create_private_dir(parent)?;
         }
 
         let created = chrono::Utc::now().format("%Y-%m-%dT%H:%M:%SZ");
@@ -65,7 +65,7 @@ impl AgeBackend {
             "# created: {created}\n# public key: {public_key}\n{}\n",
             identity.to_string().expose_secret()
         );
-        std::fs::write(path, contents)?;
+        crate::core::secure_fs::write_private(path, contents.as_bytes())?;
 
         Ok(public_key)
     }

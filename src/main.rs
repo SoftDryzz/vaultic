@@ -14,12 +14,12 @@ fn main() {
     cli::output::init(args.verbose, args.quiet);
     cli::context::init(args.config.as_deref());
 
-    // Passive version check (suppressed in quiet mode and during update)
-    if !args.quiet
-        && !matches!(args.command, Commands::Update)
+    // Passive version check (suppressed in quiet mode, during update, and
+    // whenever output is machine-readable or non-interactive)
+    if should_check_for_updates(&args)
         && let Some(latest) = adapters::updater::github_updater::check_latest_version()
     {
-        cli::output::warning(&format!(
+        cli::output::warning_stderr(&format!(
             "New version available: v{latest}. Run 'vaultic update' to upgrade."
         ));
     }
@@ -91,5 +91,27 @@ fn main() {
             _ => 1,
         };
         std::process::exit(code);
+    }
+}
+
+/// Decide whether to run the passive update check.
+///
+/// Skipped in quiet mode, for `update` itself, when stdout is piped
+/// (`--stdout`, `ci export`, `eval "$(...)"`), in CI (`CI` is set), and
+/// when `VAULTIC_NO_UPDATE_CHECK` is set, so pipelines never pay for a
+/// network call or see an unexpected banner.
+fn should_check_for_updates(args: &Cli) -> bool {
+    use std::io::IsTerminal;
+
+    if args.quiet || std::env::var_os("VAULTIC_NO_UPDATE_CHECK").is_some() {
+        return false;
+    }
+    if std::env::var_os("CI").is_some() || !std::io::stdout().is_terminal() {
+        return false;
+    }
+    match &args.command {
+        Commands::Update | Commands::Ci { .. } => false,
+        Commands::Decrypt { stdout, .. } | Commands::Resolve { stdout, .. } => !stdout,
+        _ => true,
     }
 }

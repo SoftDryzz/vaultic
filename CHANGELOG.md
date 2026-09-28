@@ -7,6 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > English | **[Español](docs/CHANGELOG.es.md)**
 
+## [1.4.3] - 2026-09-28
+
+Security release. Upgrading is recommended for everyone using `ci export` or
+sharing a machine with other users.
+
+### Security
+
+- `vaultic ci export` no longer lets secret values run shell commands. Values were
+  interpolated into double-quoted `echo`/`export` lines, so a value containing `$(...)`
+  or backticks was executed by the documented `eval "$(vaultic ci export ...)"` pattern,
+  and a value with a newline could inject extra variables into `$GITHUB_ENV`. Values are
+  now single-quoted, multi-line values use GitHub's `KEY<<DELIMITER` syntax, `--mask`
+  masks every line, and variable names that are not valid shell identifiers are rejected
+  for `github` and `gitlab`. `--format generic` still prints `KEY=value` verbatim.
+- Private keys created by `keys setup` / `init` and imported keys are now written with
+  mode `0600`, inside a `0700` directory. Previously they followed the umask (usually
+  `0644`, readable by other local users).
+- Decrypted files written by `decrypt` and `resolve` are now created with mode `0600`.
+- The audit log's `state_hash` for `decrypt` now hashes the encrypted file instead of
+  the decrypted plaintext, so the committed log cannot be used to confirm guesses
+  about secret values.
+- `vaultic status` warns when your private key is readable by other users.
+- Updated `rustls` (0.23.45) and `rustls-webpki` (0.103.15), used by the update check and
+  `vaultic update`, to fix RustSec advisories RUSTSEC-2026-0285, RUSTSEC-2026-0049,
+  RUSTSEC-2026-0098, RUSTSEC-2026-0099 and RUSTSEC-2026-0104. Downloaded releases were
+  already verified with SHA256 and minisign signatures.
+
+### Fixed
+
+- The "new version available" banner no longer appears on stdout, where it broke
+  `decrypt --stdout`, `resolve --stdout` and `ci export` pipelines. It now goes to stderr
+  and is skipped entirely when stdout is not a terminal, in `ci` commands, when `CI` is
+  set, or when `VAULTIC_NO_UPDATE_CHECK` is set.
+- The pre-commit hook now blocks `.env` files in subdirectories (e.g. `backend/.env`),
+  including paths with spaces or non-ASCII characters (e.g. `configuración/.env`), and
+  a tracked `.env` symlink replaced by a real file. It no longer blocks
+  `git rm --cached .env` when removing a leaked file.
+- Encrypted files, decrypted files and key files are written atomically (temp file +
+  rename), so an interrupted `encrypt --all` cannot leave a truncated `.enc` file.
+- `vaultic status` shows the installed Vaultic version instead of the config file's
+  `version` field.
+- Clippy `useless_borrows_in_formatting` and `useless_format` lints in `diff.rs` and
+  `resolve.rs` (new lints in Rust 1.98).
+
+### Changed
+
+- `ci export --format github` now prints `printf '%s\n' 'KEY=value' >> "$GITHUB_ENV"`
+  and `--format gitlab` prints `export KEY='value'`. Both are drop-in replacements
+  for `eval`.
+- New environment variable `VAULTIC_NO_UPDATE_CHECK` disables the passive update check.
+
 ## [1.4.2] - 2026-04-17
 
 ### Fixed
@@ -202,6 +253,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AGPL-3.0 License
 - README with badges, installation, quick start, and command reference
 
+[1.4.3]: https://github.com/SoftDryzz/vaultic/compare/v1.4.2...v1.4.3
+[1.4.2]: https://github.com/SoftDryzz/vaultic/compare/v1.4.1...v1.4.2
+[1.4.1]: https://github.com/SoftDryzz/vaultic/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/SoftDryzz/vaultic/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/SoftDryzz/vaultic/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/SoftDryzz/vaultic/compare/v1.1.0...v1.2.0

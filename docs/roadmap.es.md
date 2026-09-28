@@ -4,7 +4,7 @@
 
 Planes futuros para Vaultic, organizados por versión. Cada versión tiene un alcance claro y puede publicarse de forma independiente.
 
-Versión actual: **v1.4.0**
+Versión actual: **v1.4.3**
 
 ---
 

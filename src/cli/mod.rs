@@ -248,7 +248,7 @@ pub enum Commands {
                       length constraints (min_length/max_length), regex pattern, and required.\n\n\
                       Rules are optional — keys without rules are not checked.\n\
                       Validation reads the local .env on disk; no private key needed.\n\
-                      Exits with code 1 if any rules fail (CI-friendly).",
+                      Exits with code 2 if any rules fail (CI-friendly).",
         after_help = "Example config.toml rules:\n  \
                       [validation]\n  \
                       DATABASE_URL = { type = \"url\", required = true }\n  \

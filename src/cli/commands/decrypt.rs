@@ -148,7 +148,9 @@ fn decrypt_with<C: CipherBackend>(
     println!("\n  Run 'vaultic check' to verify no variables are missing.");
 
     // Audit
-    let state_hash = super::audit_helpers::compute_file_hash(dest);
+    // Hash the ciphertext: a hash of the plaintext would let anyone with
+    // repo access confirm guesses about secret values.
+    let state_hash = super::audit_helpers::compute_file_hash(source);
     super::audit_helpers::log_audit_with_hash(
         crate::core::models::audit_entry::AuditAction::Decrypt,
         vec![format!("{env_name}.env.enc")],

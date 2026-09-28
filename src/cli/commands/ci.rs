@@ -48,24 +48,32 @@ pub fn execute_export(env: Option<&str>, cipher: &str, format: &str, mask: bool)
         .map(|e| (e.key.as_str(), e.value.as_str()))
         .collect();
 
+    // Reject keys that are not valid shell identifiers before printing
+    // anything: github/gitlab output is meant to be eval'd or sourced.
+    // generic is plain KEY=value, like the .env it came from.
+    if format != "generic"
+        && let Some((key, _)) = entries.iter().find(|(k, _)| !is_valid_env_key(k))
+    {
+        return Err(VaulticError::InvalidConfig {
+            detail: format!(
+                "Invalid variable name '{key}' in environment '{env_name}'.\n\n  \
+                 --format {format} only accepts names matching [A-Za-z_][A-Za-z0-9_]*.\n  \
+                 Rename the variable, or use --format generic."
+            ),
+        });
+    }
+
     // Format and print to stdout
+    let mut out = String::new();
     for (key, value) in &entries {
         match format {
-            "github" => {
-                if mask {
-                    println!("echo \"::add-mask::{value}\"");
-                }
-                println!("echo \"{key}={value}\" >> \"$GITHUB_ENV\"");
-            }
-            "gitlab" => {
-                println!("export {key}=\"{value}\"");
-            }
-            "generic" => {
-                println!("{key}={value}");
-            }
+            "github" => out.push_str(&format_github(key, value, mask)),
+            "gitlab" => out.push_str(&format_gitlab(key, value)),
+            "generic" => out.push_str(&format_generic(key, value)),
             _ => unreachable!(),
         }
     }
+    print!("{out}");
 
     // Audit (non-blocking)
     super::audit_helpers::log_audit(
@@ -75,4 +83,191 @@ pub fn execute_export(env: Option<&str>, cipher: &str, format: &str, mask: bool)
     );
 
     Ok(())
+}
+
+/// Return `true` if `key` is a valid POSIX environment variable name.
+fn is_valid_env_key(key: &str) -> bool {
+    let mut chars = key.chars();
+    matches!(chars.next(), Some(c) if c.is_ascii_alphabetic() || c == '_')
+        && chars.all(|c| c.is_ascii_alphanumeric() || c == '_')
+}
+
+/// Quote `s` for POSIX shells. Inside single quotes nothing is expanded,
+/// so the only character to handle is the single quote itself.
+fn shell_quote(s: &str) -> String {
+    format!("'{}'", s.replace('\'', r"'\''"))
+}
+
+/// A heredoc delimiter for `$GITHUB_ENV` that does not appear as a line
+/// of `value`, so a crafted value cannot close the block early and
+/// inject additional variables.
+fn github_delimiter(value: &str) -> String {
+    use sha2::{Digest, Sha256};
+    let hash = format!("{:x}", Sha256::digest(value.as_bytes()));
+    let mut delim = format!("VAULTIC_EOF_{}", &hash[..16]);
+    while value.lines().any(|l| l == delim) {
+        delim.push('_');
+    }
+    delim
+}
+
+/// Shell commands that add `key` to `$GITHUB_ENV` (and optionally mask it).
+///
+/// Values are passed as single-quoted `printf` arguments, so `$()`,
+/// backticks and quotes in secrets are never interpreted by the shell.
+/// Multi-line values use GitHub's `KEY<<DELIM` syntax.
+fn format_github(key: &str, value: &str, mask: bool) -> String {
+    let mut out = String::new();
+    if mask {
+        // ::add-mask:: works per line, so mask every line of the value.
+        // Split on \r too: the runner treats a lone \r as a line break.
+        for line in value.split(['\r', '\n']).filter(|l| !l.trim().is_empty()) {
+            out.push_str(&format!(
+                "printf '%s\\n' {}\n",
+                shell_quote(&format!("::add-mask::{line}"))
+            ));
+        }
+    }
+    if value.contains('\n') || value.contains('\r') {
+        let delim = github_delimiter(value);
+        out.push_str(&format!(
+            "printf '%s\\n' {} {} {} >> \"$GITHUB_ENV\"\n",
+            shell_quote(&format!("{key}<<{delim}")),
+            shell_quote(value),
+            shell_quote(&delim)
+        ));
+    } else {
+        out.push_str(&format!(
+            "printf '%s\\n' {} >> \"$GITHUB_ENV\"\n",
+            shell_quote(&format!("{key}={value}"))
+        ));
+    }
+    out
+}
+
+/// `export KEY='value'` for GitLab CI (or any POSIX shell).
+fn format_gitlab(key: &str, value: &str) -> String {
+    format!("export {key}={}\n", shell_quote(value))
+}
+
+/// `KEY=value`, printed verbatim as in the source `.env`.
+///
+/// Not meant to be eval'd. No quoting or escaping is added, because
+/// consumers such as `docker --env-file` and vaultic's own parser do not
+/// unescape values and would receive the quotes as part of the secret.
+fn format_generic(key: &str, value: &str) -> String {
+    format!("{key}={value}\n")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Run the generated script with `sh` and return what it appended
+    /// to `$GITHUB_ENV` plus its stdout.
+    #[cfg(unix)]
+    fn run_github_script(script: &str) -> (String, String) {
+        let dir = tempfile::tempdir().unwrap();
+        let env_file = dir.path().join("github_env");
+        let out = std::process::Command::new("sh")
+            .arg("-c")
+            .arg(script)
+            .env("GITHUB_ENV", &env_file)
+            .output()
+            .unwrap();
+        assert!(out.status.success(), "script failed: {script}");
+        (
+            std::fs::read_to_string(&env_file).unwrap_or_default(),
+            String::from_utf8(out.stdout).unwrap(),
+        )
+    }
+
+    #[test]
+    fn valid_env_keys() {
+        assert!(is_valid_env_key("API_KEY"));
+        assert!(is_valid_env_key("_private"));
+        assert!(is_valid_env_key("A1"));
+        assert!(!is_valid_env_key("1A"));
+        assert!(!is_valid_env_key(""));
+        assert!(!is_valid_env_key("A;rm -rf ~;B"));
+        assert!(!is_valid_env_key("A B"));
+    }
+
+    #[test]
+    fn shell_quote_escapes_single_quotes() {
+        assert_eq!(shell_quote("a'b"), r"'a'\''b'");
+        assert_eq!(shell_quote("$(id)"), "'$(id)'");
+    }
+
+    #[test]
+    fn github_simple_value() {
+        assert_eq!(
+            format_github("API_KEY", "secret123", false),
+            "printf '%s\\n' 'API_KEY=secret123' >> \"$GITHUB_ENV\"\n"
+        );
+    }
+
+    #[test]
+    fn github_mask_masks_every_line() {
+        let out = format_github("PEM", "line1\nline2", true);
+        assert!(out.contains("'::add-mask::line1'"));
+        assert!(out.contains("'::add-mask::line2'"));
+    }
+
+    #[test]
+    fn github_mask_splits_on_carriage_return() {
+        // The runner treats a lone \r as a line break, so each part
+        // needs its own mask or the tail is printed in clear.
+        let out = format_github("K", "abc\rSECRETTAIL", true);
+        assert!(out.contains("'::add-mask::abc'"));
+        assert!(out.contains("'::add-mask::SECRETTAIL'"));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn github_does_not_execute_command_substitution() {
+        let value = "p@$(echo PWNED)`echo PWNED2`\"'\\";
+        let (env, stdout) = run_github_script(&format_github("PASS", value, false));
+        assert_eq!(env, format!("PASS={value}\n"));
+        assert!(!stdout.contains("PWNED"));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn github_multiline_value_cannot_inject_variables() {
+        let value = "first\nNODE_OPTIONS=--require=/tmp/evil.js";
+        let (env, _) = run_github_script(&format_github("CERT", value, false));
+        let delim = github_delimiter(value);
+        assert_eq!(env, format!("CERT<<{delim}\n{value}\n{delim}\n"));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn gitlab_export_preserves_value_exactly() {
+        let value = "a b $(id) `id` 'q' \"dq\" \\";
+        let script = format!("{}printf '%s' \"$V\"", format_gitlab("V", value));
+        let out = std::process::Command::new("sh")
+            .arg("-c")
+            .arg(&script)
+            .output()
+            .unwrap();
+        assert_eq!(String::from_utf8(out.stdout).unwrap(), value);
+    }
+
+    #[test]
+    fn generic_plain_value_is_unquoted() {
+        assert_eq!(format_generic("HOST", "localhost"), "HOST=localhost\n");
+        assert_eq!(
+            format_generic("URL", "postgres://u@h:5432/db"),
+            "URL=postgres://u@h:5432/db\n"
+        );
+        assert_eq!(format_generic("EMPTY", ""), "EMPTY=\n");
+    }
+
+    #[test]
+    fn generic_special_values_are_printed_verbatim() {
+        assert_eq!(format_generic("H", "abc # def"), "H=abc # def\n");
+        assert_eq!(format_generic("L", "$HOME"), "L=$HOME\n");
+        assert_eq!(format_generic("Q", "it's $5"), "Q=it's $5\n");
+    }
 }
