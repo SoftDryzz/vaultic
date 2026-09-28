@@ -16,6 +16,12 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
   `~/Library/Application Support/age/keys.txt` en macOS, `%APPDATA%\age\keys.txt` en Windows).
   Los tests la usan para que `cargo test` nunca lea ni cree tu clave real.
 
+### Cambiado
+
+- El aviso sobre la clave privada en `vaultic status` ahora dice que los permisos son
+  "demasiado abiertos", que es lo que comprueba: cualquier acceso para el grupo u otros
+  (lectura, escritura o ejecución), igual que ssh.
+
 ### Corregido
 
 - `ci export --mask` escapa `%` en los valores enmascarados. El runner de GitHub decodifica

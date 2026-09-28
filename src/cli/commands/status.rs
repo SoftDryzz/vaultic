@@ -72,9 +72,10 @@ fn print_your_key(vaultic_dir: &Path) {
         return;
     }
 
-    if crate::core::secure_fs::is_world_readable(&identity_path) {
+    if crate::core::secure_fs::has_group_or_other_access(&identity_path) {
         output::warning(&format!(
-            "Private key is readable by other users. Fix with: chmod 600 {}",
+            "Private key permissions are too open (other users have access). \
+             Fix with: chmod 600 {}",
             identity_path.display()
         ));
     }

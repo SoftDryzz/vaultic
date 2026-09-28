@@ -16,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   on macOS, `%APPDATA%\age\keys.txt` on Windows). The test suite uses it so running
   `cargo test` never reads or creates your real key.
 
+### Changed
+
+- The private key warning in `vaultic status` now says the permissions are "too open",
+  which matches what it checks: any access for group or others (read, write or execute),
+  as ssh does.
+
 ### Fixed
 
 - `ci export --mask` escapes `%` in masked values. The GitHub runner decodes `%0A`, `%0D`
