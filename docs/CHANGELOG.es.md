@@ -16,6 +16,12 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
   `~/Library/Application Support/age/keys.txt` en macOS, `%APPDATA%\age\keys.txt` en Windows).
   Los tests la usan para que `cargo test` nunca lea ni cree tu clave real.
 
+### Corregido
+
+- `ci export --mask` escapa `%` en los valores enmascarados. El runner de GitHub decodifica
+  `%0A`, `%0D` y `%25` en `::add-mask::`, así que un secreto que contuviera una de esas
+  secuencias se registraba con otro valor y aparecía sin ocultar.
+
 ## [1.4.3] - 2026-09-28
 
 Versión de seguridad. Se recomienda actualizar a quien use `ci export` o comparta

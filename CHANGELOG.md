@@ -16,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   on macOS, `%APPDATA%\age\keys.txt` on Windows). The test suite uses it so running
   `cargo test` never reads or creates your real key.
 
+### Fixed
+
+- `ci export --mask` escapes `%` in masked values. The GitHub runner decodes `%0A`, `%0D`
+  and `%25` in `::add-mask::`, so a secret containing one of those sequences was registered
+  with a different value and printed unmasked.
+
 ## [1.4.3] - 2026-09-28
 
 Security release. Upgrading is recommended for everyone using `ci export` or
