@@ -7,6 +7,15 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 > **[English](../CHANGELOG.md)** | Español
 
+## [Sin publicar]
+
+### Añadido
+
+- Variable de entorno `VAULTIC_AGE_KEY_FILE`: ruta del archivo de clave age, en lugar de la
+  ubicación por defecto (`~/.config/age/keys.txt` en Linux,
+  `~/Library/Application Support/age/keys.txt` en macOS, `%APPDATA%\age\keys.txt` en Windows).
+  Los tests la usan para que `cargo test` nunca lea ni cree tu clave real.
+
 ## [1.4.3] - 2026-09-28
 
 Versión de seguridad. Se recomienda actualizar a quien use `ci export` o comparta
@@ -258,6 +267,7 @@ máquina con otros usuarios.
 - Licencia AGPL-3.0
 - README con badges, instalación, inicio rápido y referencia de comandos
 
+[Sin publicar]: https://github.com/SoftDryzz/vaultic/compare/v1.4.3...HEAD
 [1.4.3]: https://github.com/SoftDryzz/vaultic/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/SoftDryzz/vaultic/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/SoftDryzz/vaultic/compare/v1.4.0...v1.4.1

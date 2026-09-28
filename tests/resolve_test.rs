@@ -3,11 +3,15 @@ use assert_cmd::cargo::cargo_bin_cmd;
 use assert_fs::prelude::*;
 use predicates::prelude::*;
 
+mod common;
+
 /// Run vaultic with given args.
 fn vaultic() -> Command {
     let mut cmd = cargo_bin_cmd!("vaultic");
     // Never hit the network from tests.
     cmd.env("VAULTIC_NO_UPDATE_CHECK", "1");
+    // Never read or write the developer's real age key.
+    cmd.env("VAULTIC_AGE_KEY_FILE", common::test_key_file());
     cmd
 }
 

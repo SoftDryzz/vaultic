@@ -39,11 +39,17 @@ impl AgeBackend {
         }
     }
 
-    /// Default identity file location for the current platform.
+    /// Identity file location: `VAULTIC_AGE_KEY_FILE` if set, otherwise
+    /// the default for the current platform.
     ///
-    /// - Linux/macOS: `~/.config/age/keys.txt`
+    /// - Linux: `~/.config/age/keys.txt`
+    /// - macOS: `~/Library/Application Support/age/keys.txt`
     /// - Windows: `%APPDATA%/age/keys.txt`
     pub fn default_identity_path() -> Result<PathBuf> {
+        if let Some(path) = std::env::var_os("VAULTIC_AGE_KEY_FILE").filter(|p| !p.is_empty()) {
+            return Ok(PathBuf::from(path));
+        }
+
         let config_dir = dirs::config_dir().ok_or_else(|| VaulticError::InvalidConfig {
             detail: "Could not determine config directory".into(),
         })?;

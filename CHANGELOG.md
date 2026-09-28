@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > English | **[Español](docs/CHANGELOG.es.md)**
 
+## [Unreleased]
+
+### Added
+
+- `VAULTIC_AGE_KEY_FILE` environment variable: path to the age key file, overriding the
+  platform default (`~/.config/age/keys.txt` on Linux, `~/Library/Application Support/age/keys.txt`
+  on macOS, `%APPDATA%\age\keys.txt` on Windows). The test suite uses it so running
+  `cargo test` never reads or creates your real key.
+
 ## [1.4.3] - 2026-09-28
 
 Security release. Upgrading is recommended for everyone using `ci export` or
@@ -253,6 +262,7 @@ sharing a machine with other users.
 - AGPL-3.0 License
 - README with badges, installation, quick start, and command reference
 
+[Unreleased]: https://github.com/SoftDryzz/vaultic/compare/v1.4.3...HEAD
 [1.4.3]: https://github.com/SoftDryzz/vaultic/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/SoftDryzz/vaultic/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/SoftDryzz/vaultic/compare/v1.4.0...v1.4.1
