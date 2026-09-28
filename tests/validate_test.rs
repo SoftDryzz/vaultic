@@ -4,7 +4,10 @@ use predicates::prelude::*;
 
 /// Run vaultic with given args.
 fn vaultic() -> assert_cmd::Command {
-    cargo_bin_cmd!("vaultic")
+    let mut cmd = cargo_bin_cmd!("vaultic");
+    // Never hit the network from tests.
+    cmd.env("VAULTIC_NO_UPDATE_CHECK", "1");
+    cmd
 }
 
 /// Create a `.vaultic/config.toml` with the given validation rules.

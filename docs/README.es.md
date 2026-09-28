@@ -92,7 +92,9 @@ vaultic encrypt --all                vaultic decrypt --env dev
 | `vaultic resolve --env <env>` | Genera archivo resuelto con herencia (`-o <ruta>`) | ✅ |
 | `vaultic log` | Muestra historial de operaciones | ✅ |
 | `vaultic status` | Muestra estado completo del proyecto | ✅ |
-| `vaultic hook install` | Instala git pre-commit hook | ✅ |
+| `vaultic hook install` | Instala git pre-commit hook (`hook uninstall` para quitarlo) | ✅ |
+| `vaultic ci export` | Exporta secretos para CI (`--format github\|gitlab\|generic`, `--mask`) | ✅ |
+| `vaultic update` | Actualiza a la última release firmada (SHA256 + minisign) | ✅ |
 
 ### Flags Globales
 
@@ -103,6 +105,15 @@ vaultic encrypt --all                vaultic decrypt --env dev
 | `--config <ruta>` | Ruta a directorio vaultic personalizado |
 | `-v, --verbose` | Salida detallada (archivos fuente, recipients, etc.) |
 | `-q, --quiet` | Solo errores |
+
+### Variables de entorno
+
+| Variable | Descripción |
+|----------|-------------|
+| `VAULTIC_AGE_KEY` | Clave privada age como valor en lugar de archivo (para CI/CD) |
+| `VAULTIC_NO_UPDATE_CHECK` | Desactiva la comprobación pasiva de actualizaciones |
+
+`decrypt` y `resolve` aceptan también `--stdout` para imprimir el contenido en bruto y encadenarlo, p. ej. `vaultic decrypt --env dev --stdout | docker run --env-file - app`.
 
 ## Configuración
 
@@ -143,7 +154,7 @@ vaultic template sync -o custom.template  # Escribe en ruta personalizada
 
 ## Roadmap
 
-Consulta el [roadmap completo](roadmap.es.md) para las features planeadas: notificaciones de actualización, validación de secretos, integración Docker/CI, parsers multi-formato, control de acceso, sincronización con servidor, y más.
+Consulta el [roadmap completo](roadmap.es.md) para las features planeadas: parsers multi-formato (TOML/YAML/JSON), control de acceso, importación/exportación, notificaciones, sincronización con servidor, y más.
 
 ## Estado del desarrollo
 

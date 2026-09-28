@@ -5,7 +5,10 @@ use predicates::prelude::*;
 
 /// Run vaultic with given args in a temp directory.
 fn vaultic() -> Command {
-    cargo_bin_cmd!("vaultic")
+    let mut cmd = cargo_bin_cmd!("vaultic");
+    // Never hit the network from tests.
+    cmd.env("VAULTIC_NO_UPDATE_CHECK", "1");
+    cmd
 }
 
 /// Generate a real age public key for testing.

@@ -30,10 +30,7 @@ impl<C: CipherBackend, K: KeyStore> EncryptionService<C, K> {
 
         let ciphertext = self.cipher.encrypt(&plaintext, &recipients)?;
 
-        if let Some(parent) = dest.parent() {
-            std::fs::create_dir_all(parent)?;
-        }
-        std::fs::write(dest, ciphertext)?;
+        crate::core::secure_fs::write_private(dest, &ciphertext)?;
 
         Ok(())
     }
@@ -45,10 +42,7 @@ impl<C: CipherBackend, K: KeyStore> EncryptionService<C, K> {
     pub fn decrypt_file(&self, source: &Path, dest: &Path) -> Result<()> {
         let plaintext = self.decrypt_to_bytes(source)?;
 
-        if let Some(parent) = dest.parent() {
-            std::fs::create_dir_all(parent)?;
-        }
-        std::fs::write(dest, plaintext)?;
+        crate::core::secure_fs::write_private(dest, &plaintext)?;
 
         Ok(())
     }
@@ -67,10 +61,7 @@ impl<C: CipherBackend, K: KeyStore> EncryptionService<C, K> {
 
         let ciphertext = self.cipher.encrypt(plaintext, &recipients)?;
 
-        if let Some(parent) = dest.parent() {
-            std::fs::create_dir_all(parent)?;
-        }
-        std::fs::write(dest, ciphertext)?;
+        crate::core::secure_fs::write_private(dest, &ciphertext)?;
 
         Ok(())
     }

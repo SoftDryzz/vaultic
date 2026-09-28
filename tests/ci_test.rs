@@ -4,7 +4,10 @@ use assert_fs::prelude::*;
 use predicates::prelude::*;
 
 fn vaultic() -> Command {
-    cargo_bin_cmd!("vaultic")
+    let mut cmd = cargo_bin_cmd!("vaultic");
+    // Never hit the network from tests.
+    cmd.env("VAULTIC_NO_UPDATE_CHECK", "1");
+    cmd
 }
 
 fn setup_env(dir: &assert_fs::TempDir, env_name: &str, content: &str) {
@@ -55,8 +58,8 @@ fn ci_export_github_format() {
         .unwrap();
 
     let stdout = String::from_utf8(output.stdout).unwrap();
-    assert!(stdout.contains("echo \"DB_HOST=localhost\" >> \"$GITHUB_ENV\""));
-    assert!(stdout.contains("echo \"API_KEY=secret123\" >> \"$GITHUB_ENV\""));
+    assert!(stdout.contains("printf '%s\\n' 'DB_HOST=localhost' >> \"$GITHUB_ENV\""));
+    assert!(stdout.contains("printf '%s\\n' 'API_KEY=secret123' >> \"$GITHUB_ENV\""));
 }
 
 #[test]
@@ -73,8 +76,8 @@ fn ci_export_github_with_mask() {
         .unwrap();
 
     let stdout = String::from_utf8(output.stdout).unwrap();
-    assert!(stdout.contains("echo \"::add-mask::secret123\""));
-    assert!(stdout.contains("echo \"API_KEY=secret123\" >> \"$GITHUB_ENV\""));
+    assert!(stdout.contains("printf '%s\\n' '::add-mask::secret123'"));
+    assert!(stdout.contains("printf '%s\\n' 'API_KEY=secret123' >> \"$GITHUB_ENV\""));
 }
 
 #[test]
@@ -89,8 +92,8 @@ fn ci_export_gitlab_format() {
         .unwrap();
 
     let stdout = String::from_utf8(output.stdout).unwrap();
-    assert!(stdout.contains("export DB_HOST=\"localhost\""));
-    assert!(stdout.contains("export API_KEY=\"secret123\""));
+    assert!(stdout.contains("export DB_HOST='localhost'"));
+    assert!(stdout.contains("export API_KEY='secret123'"));
 }
 
 #[test]

@@ -6,7 +6,10 @@ use secrecy::ExposeSecret;
 
 /// Run vaultic with given args.
 fn vaultic() -> Command {
-    cargo_bin_cmd!("vaultic")
+    let mut cmd = cargo_bin_cmd!("vaultic");
+    // Never hit the network from tests.
+    cmd.env("VAULTIC_NO_UPDATE_CHECK", "1");
+    cmd
 }
 
 // ─── Audit / Log tests ───────────────────────────────────────────
@@ -326,6 +329,70 @@ fn hook_install_and_uninstall() {
         .stdout(predicate::str::contains("Pre-commit hook removed"));
 
     assert!(!dir.path().join(".git/hooks/pre-commit").exists());
+}
+
+/// Run a git command in `dir` with a throwaway identity.
+#[cfg(unix)]
+fn git(dir: &std::path::Path, args: &[&str]) -> std::process::Output {
+    std::process::Command::new("git")
+        .args(["-c", "user.name=Test", "-c", "user.email=test@example.com"])
+        .args(args)
+        .current_dir(dir)
+        .output()
+        .unwrap()
+}
+
+#[cfg(unix)]
+#[test]
+fn hook_blocks_nested_env_and_allows_removal() {
+    let dir = assert_fs::TempDir::new().unwrap();
+    git(dir.path(), &["init"]);
+
+    vaultic()
+        .current_dir(dir.path())
+        .arg("init")
+        .write_stdin("y\n")
+        .assert()
+        .success();
+    vaultic()
+        .current_dir(dir.path())
+        .args(["hook", "install"])
+        .assert()
+        .success();
+
+    // A nested .env in a directory with spaces must be blocked
+    dir.child("my backend/.env")
+        .write_str("SECRET=1\n")
+        .unwrap();
+    git(dir.path(), &["add", "-f", "my backend/.env"]);
+    let out = git(dir.path(), &["commit", "-m", "leak"]);
+    assert!(!out.status.success(), "nested .env should be blocked");
+    let combined = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert!(combined.contains("my backend/.env"), "output: {combined}");
+
+    // Templates are still allowed
+    git(dir.path(), &["reset", "-q"]);
+    dir.child("api/.env.example")
+        .write_str("SECRET=\n")
+        .unwrap();
+    git(dir.path(), &["add", "api/.env.example"]);
+    let out = git(dir.path(), &["commit", "-m", "template"]);
+    assert!(out.status.success(), "templates should be allowed");
+
+    // Removing a leaked .env (committed with --no-verify) must be allowed
+    git(dir.path(), &["add", "-f", "my backend/.env"]);
+    let out = git(dir.path(), &["commit", "--no-verify", "-m", "leak"]);
+    assert!(out.status.success());
+    git(dir.path(), &["rm", "--cached", "-q", "my backend/.env"]);
+    let out = git(dir.path(), &["commit", "-m", "remove leak"]);
+    assert!(
+        out.status.success(),
+        "removing a .env should not be blocked"
+    );
 }
 
 #[test]

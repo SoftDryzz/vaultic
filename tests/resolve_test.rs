@@ -5,7 +5,10 @@ use predicates::prelude::*;
 
 /// Run vaultic with given args.
 fn vaultic() -> Command {
-    cargo_bin_cmd!("vaultic")
+    let mut cmd = cargo_bin_cmd!("vaultic");
+    // Never hit the network from tests.
+    cmd.env("VAULTIC_NO_UPDATE_CHECK", "1");
+    cmd
 }
 
 /// Helper: init project with key generation and create encrypted env files.

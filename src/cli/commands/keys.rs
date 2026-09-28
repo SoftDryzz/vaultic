@@ -108,9 +108,10 @@ fn setup_import_age(identity_path: &Path) -> Result<()> {
 
     // Copy the identity file to the default location
     if let Some(parent) = identity_path.parent() {
-        std::fs::create_dir_all(parent)?;
+        crate::core::secure_fs::create_private_dir(parent)?;
     }
-    std::fs::copy(&source, identity_path)?;
+    let identity = std::fs::read(&source)?;
+    crate::core::secure_fs::write_private(identity_path, &identity)?;
 
     output::success(&format!("Key imported to {}", identity_path.display()));
     output::success(&format!("Public key: {public_key}"));

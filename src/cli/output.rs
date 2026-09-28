@@ -45,6 +45,16 @@ pub fn warning(msg: &str) {
     }
 }
 
+/// Print a warning message to stderr (suppressed in quiet mode).
+///
+/// For notices unrelated to the command's result (e.g. the update
+/// banner), so they never corrupt machine-readable stdout.
+pub fn warning_stderr(msg: &str) {
+    if verbosity() != Verbosity::Quiet {
+        eprintln!("  {} {}", "⚠".yellow(), msg);
+    }
+}
+
 /// Print an error message (always shown).
 pub fn error(msg: &str) {
     eprintln!("  {} {}", "✗".red(), msg);

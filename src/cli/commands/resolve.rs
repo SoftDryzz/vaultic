@@ -58,7 +58,7 @@ pub fn execute(
     let var_count = environment.resolved.keys().len();
 
     let dest = output_path.unwrap_or(".env");
-    std::fs::write(dest, &content)?;
+    crate::core::secure_fs::write_private(std::path::Path::new(dest), content.as_bytes())?;
 
     output::success(&format!(
         "Resolved {var_count} variables from {} layer(s)",

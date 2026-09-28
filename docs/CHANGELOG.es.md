@@ -7,6 +7,50 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 > **[English](../CHANGELOG.md)** | Español
 
+## [1.4.3] - 2026-09-28
+
+Versión de seguridad. Se recomienda actualizar a quien use `ci export` o comparta
+máquina con otros usuarios.
+
+### Seguridad
+
+- `vaultic ci export` ya no permite que los valores de los secretos ejecuten comandos.
+  Los valores se interpolaban en líneas `echo`/`export` con comillas dobles, así que un
+  valor con `$(...)` o backticks se ejecutaba con el patrón documentado
+  `eval "$(vaultic ci export ...)"`, y un valor con salto de línea podía inyectar
+  variables extra en `$GITHUB_ENV`. Ahora los valores van entre comillas simples, los
+  multilínea usan la sintaxis `KEY<<DELIMITADOR` de GitHub, `--mask` enmascara cada línea
+  y se rechazan nombres de variable inválidos.
+- Las claves privadas creadas con `keys setup` / `init` y las importadas se escriben con
+  permisos `0600`, dentro de un directorio `0700`. Antes dependían del umask (normalmente
+  `0644`, legibles por otros usuarios locales).
+- Los archivos descifrados por `decrypt` y `resolve` se crean con permisos `0600`.
+- El `state_hash` del log de auditoría para `decrypt` ahora es el hash del archivo cifrado
+  y no del texto plano, para que el log commiteado no sirva para confirmar suposiciones
+  sobre los valores.
+- `vaultic status` avisa si tu clave privada es legible por otros usuarios.
+
+### Corregido
+
+- El aviso de "nueva versión disponible" ya no sale por stdout, donde rompía los pipelines
+  con `decrypt --stdout`, `resolve --stdout` y `ci export`. Ahora va a stderr y se omite
+  cuando stdout no es una terminal, en los comandos `ci`, si `CI` está definida o si
+  `VAULTIC_NO_UPDATE_CHECK` está definida.
+- El hook pre-commit ahora bloquea `.env` en subdirectorios (p. ej. `backend/.env`),
+  soporta rutas con espacios y ya no bloquea `git rm --cached .env` al retirar un archivo
+  filtrado.
+- Los archivos cifrados, descifrados y de claves se escriben de forma atómica (archivo
+  temporal + rename), así que un `encrypt --all` interrumpido no deja un `.enc` truncado.
+- `vaultic status` muestra la versión instalada de Vaultic en lugar del campo `version`
+  del archivo de configuración.
+
+### Cambiado
+
+- `ci export --format github` ahora imprime `printf '%s\n' 'KEY=value' >> "$GITHUB_ENV"`
+  y `--format gitlab` imprime `export KEY='value'`. Ambos siguen funcionando con `eval`.
+- Nueva variable de entorno `VAULTIC_NO_UPDATE_CHECK` para desactivar la comprobación
+  pasiva de actualizaciones.
+
 ## [1.4.2] - 2026-04-17
 
 ### Corregido
@@ -206,6 +250,9 @@ y este proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 - Licencia AGPL-3.0
 - README con badges, instalación, inicio rápido y referencia de comandos
 
+[1.4.3]: https://github.com/SoftDryzz/vaultic/compare/v1.4.2...v1.4.3
+[1.4.2]: https://github.com/SoftDryzz/vaultic/compare/v1.4.1...v1.4.2
+[1.4.1]: https://github.com/SoftDryzz/vaultic/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/SoftDryzz/vaultic/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/SoftDryzz/vaultic/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/SoftDryzz/vaultic/compare/v1.1.0...v1.2.0

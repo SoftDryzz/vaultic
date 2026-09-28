@@ -367,7 +367,7 @@ STRIPE_KEY = { pattern = "^sk_live_.*" }
 
 Todos los campos son opcionales y combinables. Si una clave no es requerida y está ausente, se omite silenciosamente.
 
-**Compatible con CI:** sale con código 1 en caso de fallo, ideal para pipelines CI.
+**Compatible con CI:** sale con código 2 cuando fallan las reglas de validación (y 1 para otros errores), para que los scripts de CI puedan distinguirlos.
 
 **Opciones:**
 
@@ -715,7 +715,7 @@ vaultic ci export --env <nombre> [--format <github|gitlab|generic>] [--mask] [--
 
 | Opción | Default | Descripción |
 |--------|---------|-------------|
-| `--env <nombre>` | `dev` | Entorno a exportar |
+| `--env <nombre>` | `default_env` del config | Entorno a exportar |
 | `--format <formato>` | `generic` | Formato de salida: `github`, `gitlab` o `generic` |
 | `--mask` | off | Emite comandos `::add-mask::` para GitHub Actions (requiere `--format github`) |
 
@@ -723,11 +723,13 @@ vaultic ci export --env <nombre> [--format <github|gitlab|generic>] [--mask] [--
 
 | Formato | Salida por variable | Caso de uso |
 |---------|-------------------|-------------|
-| `generic` | `KEY=value` | Propósito general, piping |
-| `github` | `echo "KEY=value" >> "$GITHUB_ENV"` | Workflows de GitHub Actions |
-| `gitlab` | `export KEY="value"` | Scripts de GitLab CI |
+| `generic` | `KEY=value` (con comillas dotenv si hace falta) | Propósito general, piping |
+| `github` | `printf '%s\n' 'KEY=value' >> "$GITHUB_ENV"` | Workflows de GitHub Actions |
+| `gitlab` | `export KEY='value'` | Scripts de GitLab CI |
 
-**El flag `--mask`** añade líneas `::add-mask::value` antes de cada variable cuando se usa `--format github`, evitando que los valores secretos aparezcan en los logs de GitHub Actions.
+**El flag `--mask`** añade líneas `::add-mask::` antes de cada variable cuando se usa `--format github` (una por línea en valores multilínea), evitando que los valores secretos aparezcan en los logs de GitHub Actions.
+
+**Seguro para `eval`:** los valores van siempre entre comillas simples, así que `$(...)`, backticks, `$VAR` y comillas dentro de un secreto nunca se ejecutan ni se expanden. Los valores multilínea (certificados, claves PEM) usan la sintaxis `KEY<<DELIMITADOR` de GitHub, por lo que no pueden inyectar variables adicionales. Los nombres de variable deben cumplir `[A-Za-z_][A-Za-z0-9_]*`; si no, la exportación falla antes de imprimir nada.
 
 **Ejemplos:**
 
@@ -750,8 +752,9 @@ vaultic ci export --env dev --format generic > .env
 
 | Error | Causa | Solución |
 |-------|-------|----------|
-| "Unsupported format" | Valor `--format` inválido | Usa `github`, `gitlab` o `generic` |
-| "--mask requires --format github" | `--mask` usado sin formato GitHub | Añade `--format github` |
+| "Invalid CI format" | Valor `--format` inválido | Usa `github`, `gitlab` o `generic` |
+| "--mask is only supported with --format github" | `--mask` usado sin formato GitHub | Añade `--format github` |
+| "Invalid variable name" | Una clave no es un identificador de shell válido | Renombra la variable en el entorno cifrado |
 
 ---
 
