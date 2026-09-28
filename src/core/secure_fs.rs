@@ -20,7 +20,15 @@ pub fn write_private(path: &Path, data: &[u8]) -> Result<()> {
     let mut tmp = tempfile::NamedTempFile::new_in(dir)?;
     tmp.write_all(data)?;
     tmp.as_file().sync_all()?;
-    tmp.persist(path).map_err(|e| e.error)?;
+
+    // Rename with std rather than `NamedTempFile::persist`: on Windows,
+    // persist uses MoveFileExW, which fails with "Access is denied" when
+    // another process has `path` open; std::fs::rename uses POSIX
+    // semantics there. If the rename fails, dropping `tmp_path` removes
+    // the temporary file.
+    let mut tmp_path = tmp.into_temp_path();
+    std::fs::rename(&tmp_path, path)?;
+    tmp_path.disable_cleanup(true);
     Ok(())
 }
 
@@ -84,6 +92,19 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("secret.env");
         std::fs::write(&path, "OLD=1\n").unwrap();
+
+        write_private(&path, b"NEW=2\n").unwrap();
+
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), "NEW=2\n");
+    }
+
+    #[test]
+    fn write_private_replaces_file_open_by_another_handle() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("keys.txt");
+        std::fs::write(&path, "OLD=1\n").unwrap();
+        // Another process reading the key (e.g. a parallel `vaultic init`)
+        let _reader = std::fs::File::open(&path).unwrap();
 
         write_private(&path, b"NEW=2\n").unwrap();
 
