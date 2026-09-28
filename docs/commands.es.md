@@ -723,13 +723,13 @@ vaultic ci export --env <nombre> [--format <github|gitlab|generic>] [--mask] [--
 
 | Formato | Salida por variable | Caso de uso |
 |---------|-------------------|-------------|
-| `generic` | `KEY=value` (con comillas dotenv si hace falta) | Propósito general, piping |
+| `generic` | `KEY=value` (literal, no apto para `eval`) | Propósito general, piping |
 | `github` | `printf '%s\n' 'KEY=value' >> "$GITHUB_ENV"` | Workflows de GitHub Actions |
 | `gitlab` | `export KEY='value'` | Scripts de GitLab CI |
 
 **El flag `--mask`** añade líneas `::add-mask::` antes de cada variable cuando se usa `--format github` (una por línea en valores multilínea), evitando que los valores secretos aparezcan en los logs de GitHub Actions.
 
-**Seguro para `eval`:** los valores van siempre entre comillas simples, así que `$(...)`, backticks, `$VAR` y comillas dentro de un secreto nunca se ejecutan ni se expanden. Los valores multilínea (certificados, claves PEM) usan la sintaxis `KEY<<DELIMITADOR` de GitHub, por lo que no pueden inyectar variables adicionales. Los nombres de variable deben cumplir `[A-Za-z_][A-Za-z0-9_]*`; si no, la exportación falla antes de imprimir nada.
+**Seguro para `eval` (`github`, `gitlab`):** los valores van siempre entre comillas simples, así que `$(...)`, backticks, `$VAR` y comillas dentro de un secreto nunca se ejecutan ni se expanden. Los valores multilínea (certificados, claves PEM) usan la sintaxis `KEY<<DELIMITADOR` de GitHub, por lo que no pueden inyectar variables adicionales. Los nombres de variable deben cumplir `[A-Za-z_][A-Za-z0-9_]*`; si no, la exportación falla antes de imprimir nada. `generic` imprime `KEY=value` tal cual está guardado y acepta cualquier nombre: escríbelo a un archivo o encadénalo, pero nunca lo pases por `eval`.
 
 **Ejemplos:**
 
@@ -754,7 +754,7 @@ vaultic ci export --env dev --format generic > .env
 |-------|-------|----------|
 | "Invalid CI format" | Valor `--format` inválido | Usa `github`, `gitlab` o `generic` |
 | "--mask is only supported with --format github" | `--mask` usado sin formato GitHub | Añade `--format github` |
-| "Invalid variable name" | Una clave no es un identificador de shell válido | Renombra la variable en el entorno cifrado |
+| "Invalid variable name" | Una clave no es un identificador de shell válido (solo `github`/`gitlab`) | Renombra la variable en el entorno cifrado o usa `--format generic` |
 
 ---
 

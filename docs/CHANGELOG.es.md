@@ -20,7 +20,8 @@ máquina con otros usuarios.
   `eval "$(vaultic ci export ...)"`, y un valor con salto de línea podía inyectar
   variables extra en `$GITHUB_ENV`. Ahora los valores van entre comillas simples, los
   multilínea usan la sintaxis `KEY<<DELIMITADOR` de GitHub, `--mask` enmascara cada línea
-  y se rechazan nombres de variable inválidos.
+  y con `github` y `gitlab` se rechazan los nombres que no son identificadores de shell
+  válidos. `--format generic` sigue imprimiendo `KEY=value` tal cual.
 - Las claves privadas creadas con `keys setup` / `init` y las importadas se escriben con
   permisos `0600`, dentro de un directorio `0700`. Antes dependían del umask (normalmente
   `0644`, legibles por otros usuarios locales).

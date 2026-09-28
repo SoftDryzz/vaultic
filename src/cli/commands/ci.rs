@@ -49,12 +49,16 @@ pub fn execute_export(env: Option<&str>, cipher: &str, format: &str, mask: bool)
         .collect();
 
     // Reject keys that are not valid shell identifiers before printing
-    // anything: the output is meant to be eval'd or sourced.
-    if let Some((key, _)) = entries.iter().find(|(k, _)| !is_valid_env_key(k)) {
+    // anything: github/gitlab output is meant to be eval'd or sourced.
+    // generic is plain KEY=value, like the .env it came from.
+    if format != "generic"
+        && let Some((key, _)) = entries.iter().find(|(k, _)| !is_valid_env_key(k))
+    {
         return Err(VaulticError::InvalidConfig {
             detail: format!(
                 "Invalid variable name '{key}' in environment '{env_name}'.\n\n  \
-                 CI export only accepts names matching [A-Za-z_][A-Za-z0-9_]*."
+                 --format {format} only accepts names matching [A-Za-z_][A-Za-z0-9_]*.\n  \
+                 Rename the variable, or use --format generic."
             ),
         });
     }
@@ -146,27 +150,13 @@ fn format_gitlab(key: &str, value: &str) -> String {
     format!("export {key}={}\n", shell_quote(value))
 }
 
-/// `KEY=value` in dotenv format. Values that are not plain are quoted so
-/// that `#`, whitespace, `$` and newlines survive a round trip.
+/// `KEY=value`, printed verbatim as in the source `.env`.
+///
+/// Not meant to be eval'd. No quoting or escaping is added, because
+/// consumers such as `docker --env-file` and vaultic's own parser do not
+/// unescape values and would receive the quotes as part of the secret.
 fn format_generic(key: &str, value: &str) -> String {
-    let plain = !value.is_empty()
-        && value
-            .chars()
-            .all(|c| c.is_ascii_alphanumeric() || "_-.,:/@+=%~^".contains(c));
-    if value.is_empty() || plain {
-        format!("{key}={value}\n")
-    } else if !value.contains('\'') && !value.contains('\n') && !value.contains('\r') {
-        format!("{key}='{value}'\n")
-    } else {
-        let escaped = value
-            .replace('\\', "\\\\")
-            .replace('"', "\\\"")
-            .replace('$', "\\$")
-            .replace('`', "\\`")
-            .replace('\r', "\\r")
-            .replace('\n', "\\n");
-        format!("{key}=\"{escaped}\"\n")
-    }
+    format!("{key}={value}\n")
 }
 
 #[cfg(test)]
@@ -275,10 +265,9 @@ mod tests {
     }
 
     #[test]
-    fn generic_special_values_are_quoted() {
-        assert_eq!(format_generic("H", "abc # def"), "H='abc # def'\n");
-        assert_eq!(format_generic("L", "$HOME"), "L='$HOME'\n");
-        assert_eq!(format_generic("Q", "it's"), "Q=\"it's\"\n");
-        assert_eq!(format_generic("M", "a\nb"), "M=\"a\\nb\"\n");
+    fn generic_special_values_are_printed_verbatim() {
+        assert_eq!(format_generic("H", "abc # def"), "H=abc # def\n");
+        assert_eq!(format_generic("L", "$HOME"), "L=$HOME\n");
+        assert_eq!(format_generic("Q", "it's $5"), "Q=it's $5\n");
     }
 }

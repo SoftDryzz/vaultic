@@ -723,13 +723,13 @@ vaultic ci export --env <name> [--format <github|gitlab|generic>] [--mask] [--ci
 
 | Format | Output per variable | Use case |
 |--------|-------------------|----------|
-| `generic` | `KEY=value` (dotenv-quoted when needed) | General purpose, piping |
+| `generic` | `KEY=value` (verbatim, not for `eval`) | General purpose, piping |
 | `github` | `printf '%s\n' 'KEY=value' >> "$GITHUB_ENV"` | GitHub Actions workflows |
 | `gitlab` | `export KEY='value'` | GitLab CI scripts |
 
 **The `--mask` flag** adds `::add-mask::` lines before each variable when using `--format github` (one per line for multi-line values), preventing secret values from appearing in GitHub Actions logs.
 
-**Safe to `eval`:** values are always single-quoted, so `$(...)`, backticks, `$VAR` and quotes inside a secret are never executed or expanded. Multi-line values (certificates, PEM keys) use GitHub's `KEY<<DELIMITER` syntax, so they cannot inject extra variables. Variable names must match `[A-Za-z_][A-Za-z0-9_]*`; otherwise the export fails before printing anything.
+**Safe to `eval` (`github`, `gitlab`):** values are always single-quoted, so `$(...)`, backticks, `$VAR` and quotes inside a secret are never executed or expanded. Multi-line values (certificates, PEM keys) use GitHub's `KEY<<DELIMITER` syntax, so they cannot inject extra variables. Variable names must match `[A-Za-z_][A-Za-z0-9_]*`; otherwise the export fails before printing anything. `generic` prints `KEY=value` exactly as stored and accepts any name, so write it to a file or pipe it, but never `eval` it.
 
 **Examples:**
 
@@ -754,7 +754,7 @@ vaultic ci export --env dev --format generic > .env
 |-------|-------|----------|
 | "Invalid CI format" | Invalid `--format` value | Use `github`, `gitlab`, or `generic` |
 | "--mask is only supported with --format github" | `--mask` used without GitHub format | Add `--format github` |
-| "Invalid variable name" | A key is not a valid shell identifier | Rename the variable in the encrypted environment |
+| "Invalid variable name" | A key is not a valid shell identifier (`github`/`gitlab` only) | Rename the variable in the encrypted environment, or use `--format generic` |
 
 ---
 

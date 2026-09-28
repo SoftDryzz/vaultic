@@ -19,7 +19,8 @@ sharing a machine with other users.
   or backticks was executed by the documented `eval "$(vaultic ci export ...)"` pattern,
   and a value with a newline could inject extra variables into `$GITHUB_ENV`. Values are
   now single-quoted, multi-line values use GitHub's `KEY<<DELIMITER` syntax, `--mask`
-  masks every line, and invalid variable names are rejected.
+  masks every line, and variable names that are not valid shell identifiers are rejected
+  for `github` and `gitlab`. `--format generic` still prints `KEY=value` verbatim.
 - Private keys created by `keys setup` / `init` and imported keys are now written with
   mode `0600`, inside a `0700` directory. Previously they followed the umask (usually
   `0644`, readable by other local users).
