@@ -116,7 +116,8 @@ fn format_github(key: &str, value: &str, mask: bool) -> String {
     let mut out = String::new();
     if mask {
         // ::add-mask:: works per line, so mask every line of the value.
-        for line in value.lines().filter(|l| !l.trim().is_empty()) {
+        // Split on \r too: the runner treats a lone \r as a line break.
+        for line in value.split(['\r', '\n']).filter(|l| !l.trim().is_empty()) {
             out.push_str(&format!(
                 "printf '%s\\n' {}\n",
                 shell_quote(&format!("::add-mask::{line}"))
@@ -221,6 +222,15 @@ mod tests {
         let out = format_github("PEM", "line1\nline2", true);
         assert!(out.contains("'::add-mask::line1'"));
         assert!(out.contains("'::add-mask::line2'"));
+    }
+
+    #[test]
+    fn github_mask_splits_on_carriage_return() {
+        // The runner treats a lone \r as a line break, so each part
+        // needs its own mask or the tail is printed in clear.
+        let out = format_github("K", "abc\rSECRETTAIL", true);
+        assert!(out.contains("'::add-mask::abc'"));
+        assert!(out.contains("'::add-mask::SECRETTAIL'"));
     }
 
     #[cfg(unix)]
