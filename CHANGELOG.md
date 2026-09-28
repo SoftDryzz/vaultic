@@ -7,28 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > English | **[Español](docs/CHANGELOG.es.md)**
 
-## [Unreleased]
-
-### Added
-
-- `VAULTIC_AGE_KEY_FILE` environment variable: path to the age key file, overriding the
-  platform default (`~/.config/age/keys.txt` on Linux, `~/Library/Application Support/age/keys.txt`
-  on macOS, `%APPDATA%\age\keys.txt` on Windows). The test suite uses it so running
-  `cargo test` never reads or creates your real key.
-
-### Changed
-
-- The private key warning in `vaultic status` now says the permissions are "too open",
-  which matches what it checks: any access for group or others (read, write or execute),
-  as ssh does.
-
-### Fixed
-
-- `ci export --mask` escapes `%` in masked values. The GitHub runner decodes `%0A`, `%0D`
-  and `%25` in `::add-mask::`, so a secret containing one of those sequences was registered
-  with a different value and printed unmasked.
-
-## [1.4.3] - 2026-09-28
+## [1.4.3] - 2026-09-29
 
 Security release. Upgrading is recommended for everyone using `ci export` or
 sharing a machine with other users.
@@ -42,6 +21,10 @@ sharing a machine with other users.
   now single-quoted, multi-line values use GitHub's `KEY<<DELIMITER` syntax, `--mask`
   masks every line, and variable names that are not valid shell identifiers are rejected
   for `github` and `gitlab`. `--format generic` still prints `KEY=value` verbatim.
+- `ci export --mask` escapes `%` in masked values. The GitHub runner decodes `%0A`, `%0D`
+  and `%25` in `::add-mask::`, so a secret containing one of those sequences was registered
+  with a different value and printed unmasked. Lines separated by a lone `\r` are now
+  masked separately too.
 - Private keys created by `keys setup` / `init` and imported keys are now written with
   mode `0600`, inside a `0700` directory. Previously they followed the umask (usually
   `0644`, readable by other local users).
@@ -49,7 +32,8 @@ sharing a machine with other users.
 - The audit log's `state_hash` for `decrypt` now hashes the encrypted file instead of
   the decrypted plaintext, so the committed log cannot be used to confirm guesses
   about secret values.
-- `vaultic status` warns when your private key is readable by other users.
+- `vaultic status` warns when your private key permissions are too open (any access for
+  group or others, the same check ssh applies).
 - Updated `rustls` (0.23.45) and `rustls-webpki` (0.103.15), used by the update check and
   `vaultic update`, to fix RustSec advisories RUSTSEC-2026-0285, RUSTSEC-2026-0049,
   RUSTSEC-2026-0098, RUSTSEC-2026-0099 and RUSTSEC-2026-0104. Downloaded releases were
@@ -78,6 +62,10 @@ sharing a machine with other users.
   and `--format gitlab` prints `export KEY='value'`. Both are drop-in replacements
   for `eval`.
 - New environment variable `VAULTIC_NO_UPDATE_CHECK` disables the passive update check.
+- New environment variable `VAULTIC_AGE_KEY_FILE` sets the path of the age key file
+  (default: `~/.config/age/keys.txt` on Linux, `~/Library/Application Support/age/keys.txt`
+  on macOS, `%APPDATA%\age\keys.txt` on Windows). The test suite uses it, so `cargo test`
+  never reads or creates your real key.
 
 ## [1.4.2] - 2026-04-17
 
@@ -274,7 +262,6 @@ sharing a machine with other users.
 - AGPL-3.0 License
 - README with badges, installation, quick start, and command reference
 
-[Unreleased]: https://github.com/SoftDryzz/vaultic/compare/v1.4.3...HEAD
 [1.4.3]: https://github.com/SoftDryzz/vaultic/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/SoftDryzz/vaultic/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/SoftDryzz/vaultic/compare/v1.4.0...v1.4.1
