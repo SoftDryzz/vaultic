@@ -17,11 +17,13 @@ máquina con otros usuarios.
 - `vaultic ci export` ya no permite que los valores de los secretos ejecuten comandos.
   Los valores se interpolaban en líneas `echo`/`export` con comillas dobles, así que un
   valor con `$(...)` o backticks se ejecutaba con el patrón documentado
-  `eval "$(vaultic ci export ...)"`, y un valor con salto de línea podía inyectar
-  variables extra en `$GITHUB_ENV`. Ahora los valores van entre comillas simples, los
-  multilínea usan la sintaxis `KEY<<DELIMITADOR` de GitHub, `--mask` enmascara cada línea
-  y con `github` y `gitlab` se rechazan los nombres que no son identificadores de shell
-  válidos. `--format generic` sigue imprimiendo `KEY=value` tal cual.
+  `eval "$(vaultic ci export ...)"`. Ahora los valores van entre comillas simples,
+  `--mask` enmascara cada línea y con `github` y `gitlab` se rechazan los nombres que no
+  son identificadores de shell válidos. `--format generic` sigue imprimiendo `KEY=value`
+  tal cual. Como endurecimiento, los valores multilínea usan la sintaxis
+  `KEY<<DELIMITADOR` de GitHub, así que un salto de línea nunca puede añadir variables a
+  `$GITHUB_ENV`. En versiones anteriores no era explotable, porque el parser de `.env`
+  lee línea a línea, pero protege los futuros formatos multilínea.
 - `ci export --mask` escapa `%` en los valores enmascarados. El runner de GitHub decodifica
   `%0A`, `%0D` y `%25` en `::add-mask::`, así que un secreto que contuviera una de esas
   secuencias se registraba con otro valor y aparecía sin ocultar. Las líneas separadas por

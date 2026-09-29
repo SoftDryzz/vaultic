@@ -16,11 +16,13 @@ sharing a machine with other users.
 
 - `vaultic ci export` no longer lets secret values run shell commands. Values were
   interpolated into double-quoted `echo`/`export` lines, so a value containing `$(...)`
-  or backticks was executed by the documented `eval "$(vaultic ci export ...)"` pattern,
-  and a value with a newline could inject extra variables into `$GITHUB_ENV`. Values are
-  now single-quoted, multi-line values use GitHub's `KEY<<DELIMITER` syntax, `--mask`
-  masks every line, and variable names that are not valid shell identifiers are rejected
-  for `github` and `gitlab`. `--format generic` still prints `KEY=value` verbatim.
+  or backticks was executed by the documented `eval "$(vaultic ci export ...)"` pattern.
+  Values are now single-quoted, `--mask` masks every line, and variable names that are
+  not valid shell identifiers are rejected for `github` and `gitlab`.
+  `--format generic` still prints `KEY=value` verbatim. As hardening, multi-line values
+  use GitHub's `KEY<<DELIMITER` syntax, so a newline can never add variables to
+  `$GITHUB_ENV`. This was not reachable in earlier versions, because the `.env` parser
+  reads one line at a time, but it protects future multi-line formats.
 - `ci export --mask` escapes `%` in masked values. The GitHub runner decodes `%0A`, `%0D`
   and `%25` in `::add-mask::`, so a secret containing one of those sequences was registered
   with a different value and printed unmasked. Lines separated by a lone `\r` are now
